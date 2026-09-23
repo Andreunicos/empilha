@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Empilha!</string>
+    <string name="title_activity_main">Empilha!</string>
+    <string name="package_name">com.andrevillanova.empilha</string>
+    <string name="custom_url_scheme">com.andrevillanova.empilha</string>
+</resources>
