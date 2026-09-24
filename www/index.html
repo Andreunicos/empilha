@@ -278,7 +278,10 @@ function drawWorld(){
 
 /* ================= GAME ================= */
 const BASEW=0.62;
-let stack=[],moving=null,debris=[],parts=[],floats=[],cam=0,camT=0,score=0,combo=0,perfects=0,maxCombo=0,state='menu',speed=2.6,shake=0,flash=0;
+let stack=[],moving=null,debris=[],parts=[],floats=[],cam=0,camT=0,score=0,combo=0,perfects=0,maxCombo=0,state='menu',speed=4.2,shake=0,flash=0,lastT=0;
+// velocidade: começa mais rápida e sobe um pouquinho a cada bloco
+const perfTol=()=>Math.max(6,speed*1.1)*(W/360);
+const SPEED0=4.2,SPEED_STEP=.06,SPEED_MAX=9,SPEED_MAX_SPACE=10.5;
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={
   slow:{label:'LENTO',col:'#7fd1ff',n:6},
@@ -288,7 +291,7 @@ const POWERS={
 };
 function reset(){
   hue0=Math.random()*360;const w=W*BASEW;
-  stack=[{x:(W-w)/2,w,i:0}];debris=[];parts=[];floats=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=2.6;shake=0;flash=0;skyF=0;
+  stack=[{x:(W-w)/2,w,i:0}];debris=[];parts=[];floats=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=SPEED0;shake=0;flash=0;skyF=0;
   run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0};P={slow:0,magnet:0,x2:0};nextPower=6+(Math.random()*4|0);
   videoUsed=false;gemRevives=0;renderPw();spawn();
 }
@@ -308,8 +311,8 @@ function drop(){
   const left=Math.max(m.x,top.x),right=Math.min(m.x+m.w,top.x+top.w),ov=right-left;
   if(ov<=0){debris.push({x:m.x,w:m.w,y:yOf(m.i),vy:0,vx:m.dir*1.5,r:0,vr:m.dir*.05,i:m.i});moving=null;tone(110,.4,'sawtooth',.2);buzz([60,40,120]);shake=14;lose();return}
   let nx=left,nw=ov,gain=1;
-  const perfect=Math.abs(m.x-top.x)<6||P.magnet>0;
-  if(P.magnet>0&&Math.abs(m.x-top.x)>=6){P.magnet--;addFloat(top.x+top.w/2,yOf(m.i)-24,'ÍMÃ!','#ff5d8f',14)}
+  const perfect=Math.abs(m.x-top.x)<perfTol()||P.magnet>0;
+  if(P.magnet>0&&Math.abs(m.x-top.x)>=perfTol()){P.magnet--;addFloat(top.x+top.w/2,yOf(m.i)-24,'ÍMÃ!','#ff5d8f',14)}
   if(perfect){
     nx=top.x;nw=top.w;combo++;perfects++;maxCombo=Math.max(maxCombo,combo);gain=3+Math.min(5,Math.max(0,combo-2));
     if(combo>=3){const g=Math.min(12,nw*.08);const nw2=Math.min(W*BASEW,nw+g);nx=clamp(top.x-(nw2-nw)/2,0,W-nw2);nw=nw2}
@@ -334,7 +337,7 @@ function drop(){
   stack.push({x:nx,w:nw,i:m.i});
   score++;$('score').textContent=score;
   const wd=worldOf(score);
-  speed=Math.min(wd>=3?9:7.5,2.6+score*.085);
+  speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP);
   if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let t=`BAÚ +${cg}`;if(Math.random()<.4){run.gems+=2;t+=' +2 cristais'}addFloat(W/2,yOf(m.i)-50,t,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');fanfare()}
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>banner('MUNDO '+(wd+1),WORLDS[wd].name),250);toast(EVENT[wd])}
   if(yOf(stack.length)<H*.42)camT+=BH;
@@ -353,7 +356,7 @@ function lose(){
     clearInterval(revTimer);revTimer=setInterval(()=>{const el=(performance.now()-st)/1000;$('ringArc').style.strokeDashoffset=301.6*Math.min(1,el/5);$('revCount').textContent=Math.max(0,Math.ceil(5-el));if(el>=5){clearInterval(revTimer);$('revive').hidden=true;finish()}},50);
   },550);
 }
-function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;$('combo').textContent='';speed=Math.max(2.6,speed*.8);state='play';$('hud').hidden=false;spawn();tone(660,.15,'sine',.2);setTimeout(()=>tone(990,.2,'sine',.2),120);toast('Você voltou! Continue empilhando')}
+function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;$('combo').textContent='';speed=Math.max(SPEED0,speed*.85);state='play';$('hud').hidden=false;spawn();tone(660,.15,'sine',.2);setTimeout(()=>tone(990,.2,'sine',.2),120);toast('Você voltou! Continue empilhando')}
 $('revVideo').onclick=async()=>{clearInterval(revTimer);$('revive').hidden=true;const ok=await Ads.showRewarded();if(ok){videoUsed=true;doRevive()}else{toast('Vídeo indisponível agora');finish()}};
 $('revGem').onclick=()=>{const cost=gemCost();if(S.gems<cost){clearInterval(revTimer);$('revive').hidden=true;toast('Cristais insuficientes');finish();return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
 $('revSkip').onclick=()=>{clearInterval(revTimer);$('revive').hidden=true;finish()};
@@ -491,16 +494,18 @@ function drawPreviews(){
 /* ================= LOOP ================= */
 function frame(t){
   requestAnimationFrame(frame);tNow=t||0;
+  // dt: igual em celular de 60Hz, 90Hz ou 120Hz; escala: igual em tela pequena ou grande
+  const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*.12;skyF+=(score-skyF)*.03;
   const wd=worldOf(score);
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1);
     if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);
     if(wd===2)sp*=moving.v;
-    moving.x+=moving.dir*sp;
+    moving.x+=moving.dir*sp*dt*scale;
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
   }
-  if(state==='menu'&&moving){moving.x+=moving.dir*2;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
+  if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
   drawWorld();
   ctx.save();
   if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.88;if(shake<.3)shake=0}
