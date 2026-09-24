@@ -1,8 +1,9 @@
-# Empilha!
+# Big Stack
 
-Jogo mobile de empilhar blocos (Android), feito com HTML + Capacitor.
+Jogo mobile de empilhar blocos (Android) da Bighouse, feito com HTML + Capacitor.
 
-- `www/` — o jogo (index.html) e a ponte nativa gerada (`native.js`)
+- `src/game.template.html` + `src/*.part.js` — o jogo (gera `www/index.html` com `npm run build`)
+- `www/img/studio-logo.png` — logo da Bighouse na abertura (opcional)
 - `src/native.js` — AdMob (vídeo premiado) e Google Play Billing (cristais)
 - `android/` — projeto Android
 - `store/` — ícone, arte, prints e textos da Play Store
@@ -10,8 +11,8 @@ Jogo mobile de empilhar blocos (Android), feito com HTML + Capacitor.
 
 ## Como sai uma versão nova
 Todo envio para a branch `main` roda o GitHub Actions ("Montar app Android") e cria um **Release** com:
-- `empilha-1.0.N.aab` → enviar para o Google Play Console
-- `empilha-1.0.N.apk` → instalar direto no celular para testar
+- `bigstack-1.1.N.aab` → enviar para o Google Play Console
+- `bigstack-1.1.N.apk` → instalar direto no celular para testar
 
 ## Configuração (Settings > Secrets and variables > Actions)
 Segredos: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`

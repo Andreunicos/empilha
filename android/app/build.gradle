@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.andrevillanova.empilha"
+    namespace = "com.bighouse.bigstack"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.andrevillanova.empilha"
+        applicationId "com.bighouse.bigstack"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Número da versão vem do GitHub Actions (cada build = +1)
         versionCode ((System.getenv("VERSION_CODE") ?: "1") as Integer)
-        versionName "1.0." + (System.getenv("VERSION_CODE") ?: "1")
-        // ID do app no AdMob (variável ADMOB_APP_ID no GitHub). Vazio = ID de teste do Google.
+        versionName "1.1." + (System.getenv("VERSION_CODE") ?: "1")
+        // ID do app no AdMob (vem do workflow). Vazio = ID de teste do Google.
         manifestPlaceholders = [admobAppId: (System.getenv("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713")]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

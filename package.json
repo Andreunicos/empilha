@@ -1,9 +1,9 @@
 {
-  "name": "empilha",
+  "name": "big-stack",
   "version": "1.0.0",
-  "description": "Empilha! - jogo de empilhar blocos",
+  "description": "Big Stack - jogo de empilhar blocos (Bighouse)",
   "scripts": {
-    "build": "esbuild src/native.js --bundle --minify --format=iife --target=es2019 --outfile=www/native.js",
+    "build": "node src/build-game.js && esbuild src/native.js --bundle --minify --format=iife --target=es2019 --outfile=www/native.js",
     "sync": "npm run build && npx cap sync android"
   },
   "dependencies": {

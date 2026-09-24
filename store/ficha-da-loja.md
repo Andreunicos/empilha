@@ -1,7 +1,7 @@
 # Ficha da loja (Google Play) — copie e cole
 
 **Nome do app (até 30):**
-Empilha! Torre de Blocos
+Big Stack: Torre de Blocos
 
 **Descrição curta (até 80):**
 Toque na hora certa, empilhe blocos e leve sua torre da cidade até o espaço!
@@ -9,7 +9,7 @@ Toque na hora certa, empilhe blocos e leve sua torre da cidade até o espaço!
 **Descrição completa:**
 Quanto alto você consegue empilhar?
 
-Empilha! é um jogo rápido e viciante: o bloco vai e volta, você toca na hora certa e ele cai na torre. O que passar da borda é cortado. Acerte em cheio para fazer PERFEITO, encadear combos e fazer o bloco crescer de novo.
+Big Stack é um jogo rápido e viciante: o bloco vai e volta, você toca na hora certa e ele cai na torre. O que passar da borda é cortado. Acerte em cheio para fazer PERFEITO, encadear combos e fazer o bloco crescer de novo. A cada andar, fica um pouquinho mais rápido.
 
 🏙️ MUNDOS
 Comece na cidade, suba pelas nuvens com vento forte, atravesse a aurora e chegue ao espaço. Cada mundo muda o jeito de jogar.
@@ -26,6 +26,12 @@ Doce, Madeira, Pixel, Gelo, Neon, Ouro, Lava, Galáxia e skins exclusivas de ní
 ⭐ NÍVEIS
 Ganhe XP em cada partida, suba de nível e desbloqueie recompensas.
 
+🎵 SOM RELAXANTE
+Trilha tranquila e efeitos musicais que sobem de tom a cada combo. Ajuste música, efeitos e vibração como quiser.
+
+🌎 EM 3 IDIOMAS
+Português, English e Español.
+
 ❤️ SEGUNDA CHANCE
 Caiu? Assista a um vídeo opcional e continue de onde parou. Sem anúncios forçados no meio do jogo.
 
@@ -34,7 +40,7 @@ Jogue offline, em partidas de um minuto, onde quiser. Bata seu recorde!
 **Categoria:** Jogos > Casual
 **Tags sugeridas:** Casual, Arcade, Um toque, Offline
 **E-mail de contato:** andreluizvillanova123@gmail.com
-**Política de privacidade:** https://SEU-USUARIO.github.io/empilha/privacidade.html
+**Política de privacidade:** https://andreunicos.github.io/empilha/privacidade.html
 
 ## Imagens (nesta pasta)
 - Ícone 512x512: icon-512.png

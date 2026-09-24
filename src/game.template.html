@@ -400,65 +400,8 @@ function toast(s){const el=$('toast');el.hidden=true;void el.offsetWidth;el.text
 function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${sub}</small><span>${txt}</span></div>`}
 function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150)}
 
-/* ================= SKINS ================= */
-const BH=34;let hue0=200,tNow=0;
-const hsl=(h,s,l,a=1)=>`hsla(${((h%360)+360)%360},${s}%,${l}%,${a})`;
-const hash=n=>{n=Math.sin(n*127.1)*43758.5453;return n-Math.floor(n)};
-function vgrad(c,y,stops){const g=c.createLinearGradient(0,y,0,y+BH);stops.forEach((s,k)=>g.addColorStop(k/(stops.length-1),s));return g}
-function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
-function bevel(c,x,y,w,top=.3,bot=.25){c.fillStyle=`rgba(255,255,255,${top})`;c.fillRect(x,y,w,4);c.fillStyle=`rgba(0,0,0,${bot})`;c.fillRect(x,y+BH-5,w,5);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(x,y,3,BH);c.fillStyle='rgba(0,0,0,.12)';c.fillRect(x+w-3,y,3,BH)}
-// every pattern uses world x (not block x), so cut pieces keep matching the block below
-const SKINS=[
- {id:'classic',name:'Arco-íris',cur:'coin',price:0,draw(c,x,y,w,i){const h=hue0+i*9;c.fillStyle=vgrad(c,y,[hsl(h,85,66),hsl(h,80,54),hsl(h,78,46)]);c.fillRect(x,y,w,BH);bevel(c,x,y,w)}},
- {id:'candy',name:'Doce',cur:'coin',price:250,draw(c,x,y,w,i){const P=[[340,90,82],[190,85,78],[48,95,78],[265,85,84],[140,70,78]][i%5];c.fillStyle=hsl(P[0],P[1],P[2]);c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,255,255,.5)';for(let s=Math.floor(x/18)*18-BH;s<x+w;s+=18){c.beginPath();c.moveTo(s,y+BH);c.lineTo(s+8,y+BH);c.lineTo(s+8+BH,y);c.lineTo(s+BH,y);c.fill()}c.fillStyle='rgba(255,255,255,.7)';c.fillRect(x,y,w,5);c.fillStyle=hsl(P[0],P[1]-20,P[2]-18);c.fillRect(x,y+BH-5,w,5)}},
- {id:'wood',name:'Madeira',cur:'coin',price:400,draw(c,x,y,w,i){const l=i%2?44:38;c.fillStyle=vgrad(c,y,[hsl(30,52,l+8),hsl(28,55,l),hsl(24,55,l-7)]);c.fillRect(x,y,w,BH);c.strokeStyle='rgba(70,35,10,.35)';c.lineWidth=1.4;for(let k=0;k<3;k++){c.beginPath();const yy=y+10+k*7;for(let X=Math.floor(x/6)*6;X<=x+w;X+=6){const v=yy+Math.sin(X*.05+k*2+i)*1.8;X===Math.floor(x/6)*6?c.moveTo(X,v):c.lineTo(X,v)}c.stroke()}const kx=(hash(i)*260)|0;for(let K=kx;K<x+w+400;K+=260){if(K>x+6&&K<x+w-6){c.fillStyle='rgba(70,35,10,.4)';c.beginPath();c.ellipse(K,y+BH/2,5,3,0,0,7);c.fill()}}bevel(c,x,y,w,.22,.25)}},
- {id:'pixel',name:'Pixel',cur:'coin',price:600,r:0,draw(c,x,y,w,i){const h=[130,210,28,320,265][i%5];const sz=BH/4;const x0=Math.floor(x/sz)*sz;for(let r=0;r<4;r++)for(let X=x0;X<x+w;X+=sz){const odd=((X/sz|0)+r)%2;const l=r===0?66:r===3?38:(odd?52:47);c.fillStyle=hsl(h,70,l);c.fillRect(X,y+r*sz,sz+.5,sz+.5)}c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x,y+BH-2,w,2)}},
- {id:'ice',name:'Gelo',cur:'coin',price:900,draw(c,x,y,w,i){c.fillStyle=vgrad(c,y,['rgba(236,251,255,.97)','rgba(160,224,250,.9)','rgba(96,176,226,.92)']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,255,255,.55)';for(let s=Math.floor(x/70)*70+((i*23)%70);s<x+w+BH;s+=70){c.beginPath();c.moveTo(s,y+BH);c.lineTo(s+7,y+BH);c.lineTo(s+7+BH*.8,y);c.lineTo(s+BH*.8,y);c.fill();c.beginPath();c.moveTo(s+12,y+BH);c.lineTo(s+15,y+BH);c.lineTo(s+15+BH*.8,y);c.lineTo(s+12+BH*.8,y);c.fill()}bevel(c,x,y,w,.6,.18)}},
- {id:'neon',name:'Neon',cur:'coin',price:1500,r:4,draw(c,x,y,w,i){const h=hue0+i*24;c.fillStyle='#0d0a1f';c.fillRect(x,y,w,BH);c.strokeStyle=hsl(h,100,60,.18);c.lineWidth=1;for(let X=Math.ceil(x/14)*14;X<x+w;X+=14){c.beginPath();c.moveTo(X,y);c.lineTo(X,y+BH);c.stroke()}const p=.75+.25*Math.sin(tNow*.005+i);c.strokeStyle=hsl(h,100,60,.35*p);c.lineWidth=7;c.strokeRect(x+4,y+4,w-8,BH-8);c.strokeStyle=hsl(h,100,72);c.lineWidth=2.5;c.strokeRect(x+4,y+4,w-8,BH-8)}},
- {id:'jade',name:'Jade',cur:'lvl',price:5,draw(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#9af5cf','#3fc98e','#1c8a5e']);c.fillRect(x,y,w,BH);c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=2;c.beginPath();for(let X=Math.floor(x/5)*5;X<=x+w;X+=5){const v=y+BH/2+Math.sin(X*.035+i*1.7)*8+Math.sin(X*.11)*2;X===Math.floor(x/5)*5?c.moveTo(X,v):c.lineTo(X,v)}c.stroke();bevel(c,x,y,w,.4,.22)}},
- {id:'sunset',name:'Pôr do Sol',cur:'lvl',price:10,draw(c,x,y,w,i){const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#ff5d8f');g.addColorStop(.5,'#ff9a3d');g.addColorStop(1,'#8b5cf6');c.fillStyle=g;c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,240,200,.35)';c.fillRect(x,y+12,w,3);c.fillRect(x,y+20,w,2);bevel(c,x,y,w)}},
- {id:'diamond',name:'Diamante',cur:'lvl',price:20,draw(c,x,y,w,i){c.fillStyle='#bdf3ff';c.fillRect(x,y,w,BH);const s=17;for(let X=Math.floor(x/s)*s;X<x+w;X+=s){const a=hash(X*.37+i),b=hash(X*.91+i);c.fillStyle=`rgba(255,255,255,${.25+a*.6})`;c.beginPath();c.moveTo(X,y);c.lineTo(X+s,y);c.lineTo(X+s/2,y+BH/2);c.fill();c.fillStyle=`rgba(60,160,220,${.2+b*.45})`;c.beginPath();c.moveTo(X,y+BH);c.lineTo(X+s,y+BH);c.lineTo(X+s/2,y+BH/2);c.fill()}const sp=((tNow*.25+i*60)%(W+160))-80;if(sp>x-10&&sp<x+w+10){c.fillStyle='#fff';c.beginPath();c.moveTo(sp,y+BH/2-7);c.lineTo(sp+2,y+BH/2);c.lineTo(sp,y+BH/2+7);c.lineTo(sp-2,y+BH/2);c.fill()}bevel(c,x,y,w,.5,.18)}},
- {id:'gold',name:'Ouro',cur:'gem',price:40,draw(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#fff4c2','#f5c542','#d99a16','#9c6a05']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(120,80,0,.3)';c.fillRect(x,y+BH/2,w,1.5);const sx=((tNow*.3+i*47)%(W+220))-110;c.fillStyle='rgba(255,255,255,.6)';c.beginPath();c.moveTo(sx,y+BH);c.lineTo(sx+10,y+BH);c.lineTo(sx+10+BH*.7,y);c.lineTo(sx+BH*.7,y);c.fill();bevel(c,x,y,w,.5,.2)}},
- {id:'lava',name:'Lava',cur:'gem',price:60,draw(c,x,y,w,i){const p=.6+.4*Math.sin(tNow*.004+i*.7);c.fillStyle=vgrad(c,y,['#3a1610','#24100c','#ff5a1f']);c.fillRect(x,y,w,BH);c.fillStyle=`rgba(255,120,30,${.35+.35*p})`;c.fillRect(x,y+BH-8,w,8);c.lineCap='round';const x0=Math.floor(x/16)*16;const pts=[];for(let X=x0;X<=x+w+16;X+=16)pts.push([X,y+9+hash(X*.13+i)*14]);[[8,`rgba(255,110,20,${.3*p})`],[2.5,`rgb(255,${170+60*p|0},60)`]].forEach(([lw,col])=>{c.strokeStyle=col;c.lineWidth=lw;c.beginPath();pts.forEach(([a,b],k)=>k?c.lineTo(a,b):c.moveTo(a,b));c.stroke()});c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x,y,w,3)}},
- {id:'galaxy',name:'Galáxia',cur:'gem',price:90,draw(c,x,y,w,i){const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#1b0b45');g.addColorStop(.5,'#5a1d8f');g.addColorStop(1,'#0e2a6b');c.fillStyle=g;c.fillRect(x,y,w,BH);const nx=hash(i*3.1)*W;const rg=c.createRadialGradient(nx,y+BH/2,0,nx,y+BH/2,70);rg.addColorStop(0,'rgba(255,120,200,.45)');rg.addColorStop(1,'rgba(255,120,200,0)');c.fillStyle=rg;c.fillRect(x,y,w,BH);for(let X=Math.floor(x/9)*9;X<x+w;X+=9){const a=hash(X*.7+i*13);if(a>.45){const tw=.4+.6*Math.abs(Math.sin(tNow*.003+X));c.fillStyle=`rgba(255,255,255,${tw})`;const s=a>.9?2.2:1.3;c.fillRect(X+hash(X+i)*6,y+4+hash(X*1.3+i)*(BH-8),s,s)}}bevel(c,x,y,w,.18,.3)}},
-];
-const skinOf=id=>SKINS.find(s=>s.id===id)||SKINS[0];
-function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
-
-
-/* ================= WORLDS ================= */
-const WORLDS=[
- {at:0,name:'CIDADE',top:[43,27,79],bot:[224,115,106]},
- {at:25,name:'NUVENS',top:[46,120,200],bot:[160,215,245]},
- {at:50,name:'AURORA',top:[6,18,31],bot:[18,70,80]},
- {at:100,name:'ESPAÇO',top:[2,1,10],bot:[20,10,42]},
-];
-const EVENT={1:'Cuidado com o vento',2:'Blocos em velocidade maluca',3:'Velocidade máxima maior'};
-const worldOf=f=>f>=100?3:f>=50?2:f>=25?1:0;
-let skyF=0,city=[],clouds=[],stars=[];
-function buildCity(){city=[];let x=-10;while(x<W+10){const w=26+Math.random()*40,h=40+Math.random()*120;city.push({x,w,h,win:Array.from({length:12},()=>Math.random()<.35)});x+=w+4}}
-for(let k=0;k<26;k++)clouds.push({f:14+k*2.2+Math.random()*2,x:Math.random(),s:.6+Math.random()*.8,v:(Math.random()-.5)*.0004});
-for(let k=0;k<90;k++)stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.8+.4,p:Math.random()*6});
-function skyColor(key){let col=WORLDS[0][key].slice();for(let k=1;k<WORLDS.length;k++){const t=clamp((skyF-(WORLDS[k].at-8))/8,0,1);col=col.map((v,j)=>v+(WORLDS[k][key][j]-v)*t)}return `rgb(${col.map(v=>v|0).join(',')})`}
-function drawWorld(){
-  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,skyColor('top'));g.addColorStop(1,skyColor('bot'));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  const nightA=clamp((skyF-40)/15,0,1)*.9+.25*(1-clamp(skyF/20,0,1));
-  for(const s of stars){const a=nightA*(.4+.6*Math.abs(Math.sin(tNow*.001+s.p)));if(a<.02)continue;ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(s.x*W,((s.y*H+cam*.08)%H),s.s,s.s)}
-  // aurora
-  const au=clamp((skyF-44)/8,0,1)*(1-clamp((skyF-96)/8,0,1));
-  if(au>0){for(let b=0;b<3;b++){ctx.beginPath();const base=H*(.18+b*.12);ctx.moveTo(0,base);for(let X=0;X<=W;X+=10)ctx.lineTo(X,base+Math.sin(X*.012+tNow*.0006*(b+1)+b)*26);ctx.lineTo(W,base+70);ctx.lineTo(0,base+70);const ag=ctx.createLinearGradient(0,base-30,0,base+70);ag.addColorStop(0,`rgba(90,255,170,0)`);ag.addColorStop(.4,`rgba(${b?120:80},255,${b?220:160},${.22*au})`);ag.addColorStop(1,'rgba(90,255,170,0)');ctx.fillStyle=ag;ctx.fill()}}
-  // planets
-  [[108,.78,46,'#ff9a6b','#8a2f4a'],[150,.2,30,'#7fd1ff','#2a4b9c'],[200,.65,60,'#c9a3ff','#4b2a8a']].forEach(([f,px,r,a,b])=>{const y=yOf(f)*.5+H*.2;if(y<-r||y>H+r)return;const pg=ctx.createRadialGradient(px*W-r*.4,y-r*.4,r*.1,px*W,y,r);pg.addColorStop(0,a);pg.addColorStop(1,b);ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px*W,y,r,0,7);ctx.fill()});
-  // city
-  const gy=yOf(0)+BH;
-  if(gy-180<H){ctx.fillStyle='rgba(255,210,150,.25)';ctx.beginPath();ctx.arc(W*.72,gy-150,46,0,7);ctx.fill();
-    for(const b of city){ctx.fillStyle='rgba(30,16,56,.75)';ctx.fillRect(b.x,gy-b.h,b.w,b.h);ctx.fillStyle='rgba(255,215,120,.55)';b.win.forEach((on,k)=>{if(!on)return;const cx=b.x+5+(k%3)*((b.w-10)/3),cy=gy-b.h+8+Math.floor(k/3)*16;if(cy<gy-6)ctx.fillRect(cx,cy,5,7)})}
-    ctx.fillStyle='#1a1030';ctx.fillRect(0,gy,W,H)}
-  // clouds
-  for(const cl of clouds){cl.x=(cl.x+cl.v+(worldOf(score)===1&&state==='play'?windDir*.0012:0)+1)%1;const y=yOf(cl.f);if(y<-40||y>H+40)continue;const x=cl.x*(W+160)-80,s=cl.s;ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.arc(x,y,18*s,0,7);ctx.arc(x+20*s,y-8*s,22*s,0,7);ctx.arc(x+44*s,y,17*s,0,7);ctx.rect(x,y,44*s,17*s);ctx.fill()}
-}
-
-
+//@@SKINS@@
+//@@WORLDS@@
 /* ================= GAME ================= */
 const BASEW=0.62;
 let stack=[],moving=null,debris=[],parts=[],floats=[],rings=[],cam=0,camT=0,score=0,combo=0,perfects=0,maxCombo=0,state='menu',speed=4.2,shake=0,flash=0,lastT=0,landT=-1e9;

@@ -29,7 +29,7 @@ jobs:
 
       - name: Configurar anúncio premiado
         run: |
-          echo "window.EMPILHA_CONFIG = { rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
+          echo "window.EMPILHA_CONFIG = { version: \"1.1.${{ github.run_number }}\", rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
           cat www/config.js
 
       - name: Preparar projeto Android
@@ -61,12 +61,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=1.0.${{ github.run_number }}
+          V=1.1.${{ github.run_number }}
           mkdir out
-          cp android/app/build/outputs/bundle/release/app-release.aab out/empilha-$V.aab
-          cp android/app/build/outputs/apk/release/app-release.apk out/empilha-$V.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab out/bigstack-$V.aab
+          cp android/app/build/outputs/apk/release/app-release.apk out/bigstack-$V.apk
           AD="${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}"
           if [ -z "$AD" ]; then MODE="anúncios de TESTE"; else MODE="anúncios reais"; fi
-          gh release create "v$V" out/* --title "Empilha! $V" --notes "Versão $V ($MODE).
-          - empilha-$V.aab: envie para o Google Play Console
-          - empilha-$V.apk: instale direto no celular para testar"
+          gh release create "v$V" out/* --title "Big Stack $V" --notes "Versão $V ($MODE).
+          - bigstack-$V.aab: envie para o Google Play Console
+          - bigstack-$V.apk: instale direto no celular para testar"

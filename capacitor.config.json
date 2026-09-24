@@ -1,6 +1,6 @@
 {
-  "appId": "com.andrevillanova.empilha",
-  "appName": "Empilha!",
+  "appId": "com.bighouse.bigstack",
+  "appName": "Big Stack",
   "webDir": "www",
   "android": { "backgroundColor": "#0f1024" }
 }

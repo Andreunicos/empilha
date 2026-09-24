@@ -1,4 +1,4 @@
-package com.andrevillanova.empilha;
+package com.bighouse.bigstack;
 
 import com.getcapacitor.BridgeActivity;
 
