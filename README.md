@@ -16,9 +16,9 @@ Todo envio para a branch `main` roda o GitHub Actions ("Montar app Android") e c
 ## Configuração (Settings > Secrets and variables > Actions)
 Segredos: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
 Variáveis (opcionais até ter AdMob):
-- `ADMOB_APP_ID` — ex.: `ca-app-pub-1234567890123456~1234567890`
-- `ADMOB_REWARDED_ID` — ex.: `ca-app-pub-1234567890123456/1234567890`
-Sem essas variáveis, o app usa anúncios de **teste** do Google.
+- `ADMOB_APP_ID` — padrão: `ca-app-pub-4670538085926791~2800591524`
+- `ADMOB_REWARDED_ID` — padrão: `ca-app-pub-4670538085926791/6171940457` (bloco "Reviver")
+Sem essas variáveis, o app usa os IDs padrão acima (anúncios reais).
 
 ## Produtos no app (Play Console)
 `cristais_50`, `cristais_150`, `cristais_400`, `cristais_1000` (consumíveis).

@@ -29,7 +29,7 @@ jobs:
 
       - name: Configurar anúncio premiado
         run: |
-          echo "window.EMPILHA_CONFIG = { rewardedId: \"${{ vars.ADMOB_REWARDED_ID }}\" };" > www/config.js
+          echo "window.EMPILHA_CONFIG = { rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
           cat www/config.js
 
       - name: Preparar projeto Android
@@ -48,7 +48,7 @@ jobs:
         working-directory: android
         env:
           VERSION_CODE: ${{ github.run_number }}
-          ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID }}
+          ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}
           KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -65,7 +65,7 @@ jobs:
           mkdir out
           cp android/app/build/outputs/bundle/release/app-release.aab out/empilha-$V.aab
           cp android/app/build/outputs/apk/release/app-release.apk out/empilha-$V.apk
-          AD="${{ vars.ADMOB_APP_ID }}"
+          AD="${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}"
           if [ -z "$AD" ]; then MODE="anúncios de TESTE"; else MODE="anúncios reais"; fi
           gh release create "v$V" out/* --title "Empilha! $V" --notes "Versão $V ($MODE).
           - empilha-$V.aab: envie para o Google Play Console
