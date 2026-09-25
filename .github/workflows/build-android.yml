@@ -66,6 +66,7 @@ jobs:
           cp android/app/build/outputs/bundle/release/app-release.aab out/bigstack-$V.aab
           cp android/app/build/outputs/apk/release/app-release.apk out/bigstack-$V.apk
           cp out/bigstack-$V.apk out/bigstack.apk
+          cp out/bigstack-$V.aab out/bigstack.aab
           AD="${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}"
           if [ -z "$AD" ]; then MODE="anúncios de TESTE"; else MODE="anúncios reais"; fi
           gh release create "v$V" out/* --title "Big Stack $V" --notes "Versão $V ($MODE).
