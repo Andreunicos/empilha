@@ -1,0 +1,30 @@
+rules_version = '2';
+// Regras do placar mundial do Big Stack.
+// Cada jogador (login anônimo) só escreve o próprio recorde, só pode aumentar,
+// e o placar do mês só aceita o mês atual.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function monthBoard() {
+      return 'm_' + string(request.time.year()) + '_' + (request.time.month() < 10 ? '0' : '') + string(request.time.month());
+    }
+    function isBoard(b) {
+      return b == 'all' || b.matches('m_[0-9]{4}_[0-9]{2}');
+    }
+    function validScore(b, uid) {
+      let d = request.resource.data;
+      return request.auth != null && request.auth.uid == uid
+        && (b == 'all' || b == monthBoard())
+        && d.keys().hasOnly(['n', 'c', 's', 't']) && d.keys().hasAll(['n', 'c', 's', 't'])
+        && d.n is string && d.n.size() >= 1 && d.n.size() <= 16
+        && d.c is string && d.c.size() == 2
+        && d.s is int && d.s >= 0 && d.s <= 5000
+        && d.t == request.time
+        && (resource == null || d.s >= resource.data.s);
+    }
+    match /{board}/{uid} {
+      allow read: if isBoard(board);
+      allow create, update: if isBoard(board) && validScore(board, uid);
+      allow delete: if false;
+    }
+  }
+}

@@ -50,6 +50,10 @@
   .ab .bd.plus{background:#2fbf5b;font-size:19px;line-height:1}
   .ab .lbl{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font:900 10px "Nunito",sans-serif;letter-spacing:.05em;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;pointer-events:none}
   .ab.on{animation:abpulse .7s ease-in-out infinite alternate}
+  .ab.spent{filter:grayscale(.85) brightness(.75)}
+  .ab .bd.spent{background:#5b5670;font-size:12px}
+  .ab.nope{animation:abnope .35s}
+  @keyframes abnope{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
   @keyframes abpulse{to{box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.35),0 0 0 6px rgba(255,255,255,.35)}}
   .a-magnet{background:linear-gradient(160deg,#ff7a9c,#e0305a)}.a-slow{background:linear-gradient(160deg,#6fd0ff,#2a86d8)}.a-wide{background:linear-gradient(160deg,#6ff0a8,#1fa864)}.a-calm{background:linear-gradient(160deg,#c7b3ff,#7a5ae0)}
   .pwr{flex-direction:row!important;align-items:center!important;text-align:left;gap:12px!important}
@@ -141,6 +145,50 @@
   .mis .nm{font-weight:900;font-size:15px}
   .mis .pr{font-size:12px;color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
   .mis .btn{font-size:13px;padding:9px 10px;border-radius:10px;min-width:84px}
+  /* ranking */
+  .btn.rankb{background:linear-gradient(160deg,#ffd76a,#f0a91c);box-shadow:0 5px 0 #b9780a;display:flex;align-items:center;gap:8px;padding-inline:22px}
+  .btn.rankb svg{width:20px;height:20px}
+  .orank{border:0;background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;width:min(100%,320px);display:flex;justify-content:center;gap:16px;font:800 15px "Nunito",sans-serif;cursor:pointer;animation:pin .4s both}
+  .orank b{font-family:"Bungee",Impact,sans-serif;color:var(--sun);font-weight:400}
+  .rme-btn{border:0;background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:10px;font:900 17px "Nunito",sans-serif;cursor:pointer;text-align:left}
+  .rme-btn .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rme-btn svg{width:20px;height:20px;color:var(--muted)}
+  .fl{font-size:22px;line-height:1;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif}
+  .rtab{background:none;border:0;color:var(--muted);font:900 15px "Nunito",sans-serif;padding:9px 22px;border-radius:10px;cursor:pointer}
+  .rtab[aria-selected="true"]{background:var(--card2);color:var(--ink)}
+  .rprize{width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 10px;background:linear-gradient(160deg,rgba(255,194,61,.18),rgba(255,93,143,.14));border:1.5px solid rgba(255,194,61,.45);border-radius:14px;padding:10px 12px;font-weight:900}
+  .rprize .tro{width:24px;height:24px}
+  .rprize b{color:var(--gem);display:inline-flex;align-items:center}
+  .rprize small{width:100%;font-size:12px;color:var(--muted);font-weight:800}
+  .rlist{width:100%;display:flex;flex-direction:column;gap:6px}
+  .rlist.mine{border-top:1px dashed var(--line);padding-top:8px}
+  .rrow{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:8px 12px;font-weight:900;animation:pin .3s both}
+  .rrow .pos{width:34px;text-align:center;font-family:"Bungee",Impact,sans-serif;font-weight:400;color:var(--muted);font-size:14px}
+  .rrow .pos i{font-style:normal;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#1a1030;font-size:15px}
+  .rrow.p1 .pos i{background:linear-gradient(160deg,#fff1a6,#f5c542 55%,#c98a00)}
+  .rrow.p2 .pos i{background:linear-gradient(160deg,#ffffff,#c9cfe0 55%,#8d94ab)}
+  .rrow.p3 .pos i{background:linear-gradient(160deg,#ffd2a6,#e0914a 55%,#9c5620)}
+  .rrow.p1{background:linear-gradient(90deg,rgba(255,194,61,.22),var(--card))}
+  .rrow .nm{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+  .rrow .sc{font-family:"Bungee",Impact,sans-serif;font-weight:400;font-size:17px;font-variant-numeric:tabular-nums}
+  .rrow.me{background:linear-gradient(90deg,rgba(79,227,154,.28),var(--card2));outline:2px solid var(--ok)}
+  .rempty{color:var(--muted);font-weight:800;padding:26px 10px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .rempty.sm{padding:10px}
+  .spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--sun);animation:rot .8s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .tin{width:min(100%,320px);font:900 20px "Nunito",sans-serif;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;text-align:center;-webkit-user-select:text;user-select:text;outline:none}
+  .tin:focus{border-color:var(--sun)}
+  .tin.sm{font-size:15px;padding:9px 12px}
+  .ccbtn{width:min(100%,320px);display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;font:900 16px "Nunito",sans-serif;cursor:pointer;text-align:left}
+  .ccbtn span:nth-child(2){flex:1}
+  .ccbtn svg{width:20px;height:20px}
+  .cclist{width:min(100%,320px);max-height:38vh;overflow-y:auto;display:flex;flex-direction:column;gap:4px;background:var(--card);border-radius:14px;padding:6px}
+  .cclist button{display:flex;align-items:center;gap:10px;border:0;background:none;color:var(--ink);font:800 15px "Nunito",sans-serif;padding:8px 10px;border-radius:10px;text-align:left;cursor:pointer}
+  .cclist button.on{background:var(--card2)}
+  .bigtro{width:96px;height:96px;color:var(--sun);animation:pop .7s ease-in-out infinite alternate;filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))}
+  .bigtro svg{width:100%;height:100%}
+  .panel h2.gold{color:var(--sun)}
+  .wingem{font-family:"Bungee",Impact,sans-serif;font-size:40px;display:flex;align-items:center;gap:6px}
   /* settings */
   .set{background:var(--card);border-radius:16px;width:100%;display:flex;flex-direction:column;text-align:left}
   .srow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
@@ -168,6 +216,7 @@
   #ad .box{width:100%;max-width:340px;aspect-ratio:9/12;max-height:60vh;border-radius:18px;background:linear-gradient(160deg,#2b2f77,#7b2b8a);display:grid;place-items:center;font-family:"Bungee",Impact,sans-serif;font-size:22px;padding:20px}
   .tag2{font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
   #toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:10;background:var(--card2);padding:10px 16px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;animation:tin .3s cubic-bezier(.2,1.4,.4,1)}
+  #abar:not([hidden])~#toast{bottom:112px}
   @keyframes tin{from{opacity:0;transform:translate(-50%,16px)}}
   .fly{position:absolute;z-index:11;width:18px;height:18px;pointer-events:none}
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
@@ -195,6 +244,7 @@
     <div class="lvl"><div class="badge" id="mLvl">1</div><div class="info"><div class="t"><span data-t="level" style="color:var(--ink)"></span><span id="mXp">0/90 XP</span></div><div class="bar"><i id="mBar" style="width:0"></i></div></div></div>
     <button class="btn play" id="play" data-t="play"></button>
     <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button></div>
+    <button class="btn rankb sm" id="openRank"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg><span data-t="rankBtn"></span></button>
     <p id="bestMenu"></p>
   </div></div>
 
@@ -220,6 +270,7 @@
     <div class="earn" id="earn"></div>
     <div class="lvl"><div class="badge" id="oLvl">1</div><div class="info"><div class="t"><span id="oXpGain" style="color:var(--ink)">+0 XP</span><span id="oXp">0/90</span></div><div class="bar"><i id="oBar" style="width:0"></i></div></div></div>
     <div class="up" id="oUp" hidden></div>
+    <button class="orank" id="oRank" hidden></button>
     <div class="up" id="oMis" hidden style="background:linear-gradient(160deg,#27b877,#1f9c62)"></div>
     <button class="btn play" id="again" data-t="again"></button>
     <div class="row"><button class="btn alt sm" id="overMenu" data-t="menu"></button><button class="btn alt sm" id="overShop" data-t="shop"></button></div>
@@ -239,6 +290,34 @@
     <div class="sec" data-t="todayMis"></div>
     <div id="misList" style="display:flex;flex-direction:column;gap:8px;width:100%"></div>
     <p class="note" data-t="misNote"></p>
+  </div></div>
+
+  <div class="panel full" id="rank" hidden><div class="inner">
+    <div class="top"><h2 data-t="rankT"></h2><button class="btn alt sm" id="closeRank" data-t="back"></button></div>
+    <button class="rme-btn" id="rkMe"><span class="fl" id="rkFlag"></span><span class="nm" id="rkName"></span><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg></button>
+    <div class="tabs"><button class="rtab" data-rt="month" data-t="rkMonth"></button><button class="rtab" data-rt="all" data-t="rkAll"></button></div>
+    <div class="rprize" id="rkPrize"></div>
+    <div class="rlist" id="rkList"></div>
+    <div class="rlist mine" id="rkMine" hidden></div>
+    <p class="note" id="rkNote"></p>
+    <p class="note" data-t="rkNote"></p>
+  </div></div>
+
+  <div class="panel" id="prof" hidden style="z-index:8;background:rgba(15,16,36,.97)"><div class="inner">
+    <h2 data-t="profT"></h2><p data-t="profP"></p>
+    <input class="tin" id="pfName" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done">
+    <button class="ccbtn" id="pfCC"></button>
+    <input class="tin sm" id="pfSearch" hidden autocomplete="off" spellcheck="false">
+    <div class="cclist" id="pfList" hidden></div>
+    <button class="btn okb" id="pfSave" data-t="save"></button>
+    <button class="link" id="pfCancel" data-t="cancel"></button>
+  </div></div>
+
+  <div class="panel" id="rkWin" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
+    <div class="bigtro"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg></div>
+    <h2 class="gold" data-t="rkWinT"></h2><p id="rkWinP"></p>
+    <div class="wingem"><i class="gem"></i>+50</div>
+    <button class="btn gemb" id="rkWinOk" data-t="claim"></button>
   </div></div>
 
   <div class="panel full" id="settings" hidden><div class="inner">
@@ -275,6 +354,8 @@
 
 <script src="config.js"></script>
 <script src="native.js"></script>
+<script src="firebase-config.js"></script>
+<script src="online.js" defer></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -340,6 +421,7 @@ es:{powers:'Poderes',a_magnet:'IMÁN',a_slow:'LENTO',a_wide:'ANCHO',a_calm:'ANTI
  testAd:'Anuncio de prueba',adIn:'Recompensa en {0} s',adDone:'¡Listo!',confirm:'CONFIRMAR',cancel:'CANCELAR',packFor:'Paquete {0} por {1}',buyNote:'Modo de prueba: no se cobra nada. En la app de Play Store esto abre el pago de Google.',presents:'presenta',
  s_classic:'Arcoíris',s_candy:'Dulce',s_wood:'Madera',s_pixel:'Pixel',s_ice:'Hielo',s_neon:'Neón',s_jade:'Jade',s_sunset:'Atardecer',s_diamond:'Diamante',s_gold:'Oro',s_lava:'Lava',s_galaxy:'Galaxia'}
 };
+//@@I18N@@
 let LANG=S.settings.lang||((navigator.language||'pt').slice(0,2));if(!L[LANG])LANG='en';
 function t(k,...a){let s=(L[LANG]&&L[LANG][k])??L.pt[k]??k;a.forEach((v,i)=>s=s.split('{'+i+'}').join(v));return s}
 function applyLang(){
@@ -426,6 +508,7 @@ function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${su
 function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150)}
 
 //@@SKINS@@
+//@@SKINS2@@
 //@@WORLDS@@
 /* ================= GAME ================= */
 const BASEW=0.62;
@@ -441,7 +524,7 @@ const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},cal
 function reset(){
   hue0=Math.random()*360;const w=W*BASEW;
   stack=[{x:(W-w)/2,w,i:0,t0:-1e9}];debris=[];parts=[];floats=[];rings=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=SPEED0*.62;shake=0;flash=0;skyF=0;
-  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
+  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{}};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
   videoUsed=false;gemRevives=0;renderPw();spawn();
 }
 function spawn(){
@@ -500,7 +583,7 @@ function burst(x,y,h,n,col){for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2
 
 /* ================= HABILIDADES ================= */
 function abIcon(k){return document.querySelector('.ab[data-a="'+k+'"] svg').outerHTML}
-function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');bd.textContent=n>0?n:'+';bd.classList.toggle('plus',n<=0);b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
+function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');const spent=n<=0&&run&&run.vid&&run.vid[k];bd.textContent=n>0?n:spent?'✕':'+';bd.classList.toggle('plus',n<=0&&!spent);bd.classList.toggle('spent',!!spent);b.classList.toggle('spent',!!spent);b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
 function applyAbility(k){
   run.powers++;sfx.power();buzz(20);
   const top=stack[stack.length-1];
@@ -512,13 +595,16 @@ function applyAbility(k){
 async function rewardAbility(k,inGame){
   if(inGame){state='ad'}
   musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);
-  if(ok){S.inv[k]=(S.inv[k]||0)+1;save();sfx.coin();toast(t('gotAbility',t('a_'+k)))}else toast(t('noVideo'));
+  if(ok){S.inv[k]=(S.inv[k]||0)+1;if(inGame&&run)run.vid[k]=true;save();sfx.coin();toast(t('gotAbility',t('a_'+k)))}else toast(t('noVideo'));
   if(inGame&&state==='ad'){state='play';lastT=performance.now()}
   renderAbar();if(!$('shop').hidden)renderShop();
 }
 function useAbility(k){
   if(state!=='play')return;
-  if((S.inv[k]||0)<=0){rewardAbility(k,true);return}
+  if((S.inv[k]||0)<=0){
+    // vídeo pra recuperar o poder: só 1 vez por partida, de cada poder
+    if(run.vid[k]){toast(t('vidOnce'));buzz(30);const b=document.querySelector('.ab[data-a="'+k+'"]');b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');return}
+    rewardAbility(k,true);return}
   S.inv[k]--;save();applyAbility(k);
 }
 document.querySelectorAll('.ab').forEach(b=>{b.addEventListener('pointerdown',e=>e.stopPropagation());b.onclick=()=>useAbility(b.dataset.a)});
@@ -619,11 +705,11 @@ function finish(){
   $('oXpGain').textContent=`+${xp} XP`;$('oLvl').textContent=lvBefore;$('oBar').style.width='0%';setTimeout(()=>lvlUI('oLvl','oXp','oBar'),350);
   $('oUp').hidden=!ups.length;if(ups.length){const u=ups[ups.length-1];$('oUp').innerHTML=t('lvlUp',u.lvl,ups.reduce((a,r)=>a+r.coins,0))+(ups.some(r=>r.gems)?t('andGems'):'')+ups.filter(r=>r.skin).map(r=>'<br>'+t('newSkin',r.skin)).join('');setTimeout(()=>sfx.fanfare(),700)}
   $('oMis').hidden=!doneM.length;if(doneM.length)$('oMis').innerHTML=t('misDone')+doneM.join(' · ')+'<br>'+t('claimIn');
-  $('over').hidden=false;$('gear').hidden=false;
+  $('over').hidden=false;$('gear').hidden=false;rankAfterRun(score);
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
-function hideAll(){['menu','over','shop','mis','revive','pause','settings'].forEach(p=>$(p).hidden=true)}
+function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof'].forEach(p=>$(p).hidden=true)}
 function startGame(){hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();$('hint').hidden=S.best>=5;lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot()}
 function showMenu(){hideAll();state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
@@ -706,6 +792,7 @@ function drawPreviews(){
   }
 }
 
+//@@RANK@@
 /* ================= LOOP ================= */
 function frame(tt){
   requestAnimationFrame(frame);tNow=tt||0;
@@ -763,6 +850,7 @@ function runIntro(done){
 }
 
 addEventListener('resize',resize);resize();
+SKINS.forEach(sk=>{if(sk.cur==='lvl'&&sk.price<=S.lvl&&!S.owned.includes(sk.id))S.owned.push(sk.id)});save();
 applyLang();wallet();ensureMissions();showMenu();
 requestAnimationFrame(frame);
 runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
@@ -771,7 +859,10 @@ if(N){
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
   N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend()});
   N.onBack(()=>{
+    if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}
+    if(!$('prof').hidden){$('pfCancel').click();return}
+    if(!$('rank').hidden){$('closeRank').click();return}
     if(!$('settings').hidden){$('closeSet').click();return}
     if(!$('shop').hidden){$('closeShop').click();return}
     if(!$('mis').hidden){showMenu();return}

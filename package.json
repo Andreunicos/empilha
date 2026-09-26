@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Big Stack - jogo de empilhar blocos (Bighouse)",
   "scripts": {
-    "build": "node src/build-game.js && esbuild src/native.js --bundle --minify --format=iife --target=es2019 --outfile=www/native.js",
+    "build": "node src/build-game.js && esbuild src/native.js --bundle --minify --format=iife --target=es2019 --outfile=www/native.js && esbuild src/online.js --bundle --minify --format=iife --target=es2019 --outfile=www/online.js",
     "sync": "npm run build && npx cap sync android"
   },
   "dependencies": {
@@ -11,7 +11,8 @@
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.2",
-    "@capgo/native-purchases": "^8.8.1"
+    "@capgo/native-purchases": "^8.8.1",
+    "firebase": "^12.19.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

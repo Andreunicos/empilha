@@ -29,7 +29,7 @@ jobs:
 
       - name: Configurar anúncio premiado
         run: |
-          echo "window.EMPILHA_CONFIG = { version: \"1.1.${{ github.run_number }}\", rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
+          echo "window.EMPILHA_CONFIG = { version: \"1.2.${{ github.run_number }}\", rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
           cat www/config.js
 
       - name: Preparar projeto Android
@@ -61,7 +61,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=1.1.${{ github.run_number }}
+          V=1.2.${{ github.run_number }}
           mkdir out
           cp android/app/build/outputs/bundle/release/app-release.aab out/bigstack-$V.aab
           cp android/app/build/outputs/apk/release/app-release.apk out/bigstack-$V.apk
