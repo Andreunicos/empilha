@@ -160,6 +160,9 @@
   .hcard canvas{width:96px;height:84px;flex:none;border-radius:12px;background:#15142f}
   .hcard b{display:block;font-family:"Bungee",Impact,sans-serif;font-weight:400;font-size:16px;margin-bottom:3px}
   .hcard span{font-size:14px;color:var(--muted);font-weight:800;line-height:1.35}
+  .cloud{width:100%;background:var(--card);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;align-items:center}
+  .cl-st{font-weight:900;display:flex;align-items:center;gap:8px}
+  .dotok,.dotoff{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(79,227,154,.25)}.dotoff{background:#77738f;box-shadow:none}
   /* ranking */
   .btn.rankb{background:linear-gradient(160deg,#ffd76a,#f0a91c);box-shadow:0 5px 0 #b9780a;display:flex;align-items:center;gap:8px;padding-inline:22px}
   .btn.rankb svg{width:20px;height:20px}
@@ -353,6 +356,13 @@
     </div>
     <div class="sec" data-t="language"></div>
     <div class="seg" id="langSeg" style="width:100%"><button data-lang="pt">Português</button><button data-lang="en">English</button><button data-lang="es">Español</button></div>
+    <div class="sec" data-t="cloudT"></div>
+    <div class="cloud" id="cloudBox" hidden>
+      <div class="cl-st" id="clSt"></div>
+      <div class="row"><button class="btn alt sm" id="clSave" data-t="clSaveB"></button><button class="btn alt sm" id="clLoad" data-t="clLoadB"></button></div>
+      <button class="link" id="clSign" data-t="clSignB"></button>
+      <p class="note" data-t="clNote"></p>
+    </div>
     <a class="link" id="privLink" href="https://andreunicos.github.io/empilha/privacidade.html" target="_blank" rel="noopener" data-t="privacy"></a>
     <span class="ver">Big Stack · Bighouse · v<span id="verNum">1.0</span></span>
   </div></div>
@@ -369,6 +379,11 @@
     <p class="note" data-t="buyNote"></p>
   </div></div>
 
+  <div class="panel" id="clAsk" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
+    <div class="bigtro" style="color:var(--gem)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 19a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.7 8.6 4.8 4.8 0 0 1 17.5 19z"/></svg></div>
+    <h2 data-t="clAskT"></h2><p id="clAskP"></p>
+    <div class="row"><button class="btn okb" id="clYes" data-t="clYesB"></button><button class="btn alt" id="clNo" data-t="cancel"></button></div>
+  </div></div>
   <div id="tipB" hidden></div>
   <div id="toast" hidden></div>
 </div>
@@ -768,7 +783,7 @@ function finish(){
   $('oXpGain').textContent=`+${xp} XP`;$('oLvl').textContent=lvBefore;$('oBar').style.width='0%';setTimeout(()=>lvlUI('oLvl','oXp','oBar'),350);
   $('oUp').hidden=!ups.length;if(ups.length){const u=ups[ups.length-1];$('oUp').innerHTML=t('lvlUp',u.lvl,ups.reduce((a,r)=>a+r.coins,0))+(ups.some(r=>r.gems)?t('andGems'):'')+ups.filter(r=>r.skin).map(r=>'<br>'+t('newSkin',r.skin)).join('');setTimeout(()=>sfx.fanfare(),700)}
   $('oMis').hidden=!doneM.length;if(doneM.length)$('oMis').innerHTML=t('misDone')+doneM.join(' · ')+'<br>'+t('claimIn');
-  $('over').hidden=false;$('gear').hidden=false;rankAfterRun(score);
+  $('over').hidden=false;$('gear').hidden=false;rankAfterRun(score);cloudAuto();
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
@@ -782,7 +797,7 @@ function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff
 
 /* ================= SETTINGS ================= */
 let setBack='menu';
-function openSettings(from){setBack=from;if(from==='menu')$('menu').hidden=true;if(from==='pause')$('pause').hidden=true;if(from==='over')$('over').hidden=true;$('settings').hidden=false;syncSettings()}
+function openSettings(from){if(typeof clRender==='function')clRender();setBack=from;if(from==='menu')$('menu').hidden=true;if(from==='pause')$('pause').hidden=true;if(from==='over')$('over').hidden=true;$('settings').hidden=false;syncSettings()}
 function syncSettings(){const s=S.settings;$('swMusic').setAttribute('aria-checked',s.music);$('swSfx').setAttribute('aria-checked',s.sfx);$('swVib').setAttribute('aria-checked',s.vib);$('volMusic').value=s.musicVol;$('volSfx').value=s.sfxVol;$('volMusic').disabled=!s.music;$('volSfx').disabled=!s.sfx}
 $('gear').onclick=()=>openSettings(state==='over'?'over':'menu');
 $('closeSet').onclick=()=>{$('settings').hidden=true;if(setBack==='pause')$('pause').hidden=false;else if(setBack==='over')$('over').hidden=false;else showMenu()};
@@ -858,6 +873,7 @@ function drawPreviews(){
 //@@SECURE@@
 //@@RANK@@
 //@@HELP@@
+//@@CLOUD@@
 /* ================= LOOP ================= */
 function frame(tt){
   requestAnimationFrame(frame);tNow=tt||0;
@@ -926,8 +942,9 @@ runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden
 if(N){
   N.initAds();
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
-  N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend()});
+  N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend();cloudAuto()});
   N.onBack(()=>{
+    if(!$('clAsk').hidden){$('clNo').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}
     if(!$('prof').hidden){$('pfCancel').click();return}

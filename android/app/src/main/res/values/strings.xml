@@ -4,4 +4,5 @@
     <string name="title_activity_main">Big Stack</string>
     <string name="package_name">com.bighouse.bigstack</string>
     <string name="custom_url_scheme">com.bighouse.bigstack</string>
+    <string name="game_services_project_id" translatable="false">1064671661647</string>
 </resources>

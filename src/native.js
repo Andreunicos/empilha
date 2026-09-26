@@ -1,11 +1,12 @@
 // Ponte entre o jogo (www/index.html) e os recursos nativos do Android.
 // É empacotado pelo esbuild em www/native.js (npm run build).
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Preferences } from '@capacitor/preferences';
 import { AdMob, RewardAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
 
+const PlayGamesSave = registerPlugin('PlayGamesSave');
 const CFG = window.EMPILHA_CONFIG || {};
 // IDs de teste oficiais do Google. São usados enquanto você não configurar o seu.
 const TEST_REWARDED = 'ca-app-pub-3940256099942544/5224354917';
@@ -94,6 +95,12 @@ window.Native = {
   onPause(fn) { if (isNative) App.addListener('pause', fn); },
   // cópia do save no armazenamento oficial do Android (entra no backup automático da conta Google)
   prefSet(k, v) { if (isNative) return Preferences.set({ key: k, value: v }).catch(() => {}); },
+  // save na nuvem do Google Play Games (Jogos salvos)
+  cloud: isNative ? {
+    signIn: (interactive) => PlayGamesSave.signIn({ interactive: !!interactive }),
+    save: (data, description) => PlayGamesSave.save({ data, description: description || '' }),
+    load: () => PlayGamesSave.load({}),
+  } : null,
   async prefGet(k) { if (!isNative) return null; try { const r = await Preferences.get({ key: k }); return r.value; } catch (e) { return null; } },
 };
 window.dispatchEvent(new Event('native-ready'));
