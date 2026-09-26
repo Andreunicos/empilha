@@ -10,6 +10,9 @@ service cloud.firestore {
     function isBoard(b) {
       return b == 'all' || b.matches('m_[0-9]{4}_[0-9]{2}');
     }
+    function notBanned() {
+      return !exists(/databases/$(database)/documents/ban/$(request.auth.uid));
+    }
     function validScore(b, uid) {
       let d = request.resource.data;
       return request.auth != null && request.auth.uid == uid
@@ -19,7 +22,8 @@ service cloud.firestore {
         && d.c is string && d.c.size() == 2
         && d.s is int && d.s >= 0 && d.s <= 5000
         && d.t == request.time
-        && (resource == null || d.s >= resource.data.s);
+        && (resource == null || (d.s >= resource.data.s && request.time > resource.data.t + duration.value(10, 's')))
+        && notBanned();
     }
     match /{board}/{uid} {
       allow read: if isBoard(board);

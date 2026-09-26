@@ -17,6 +17,7 @@ function guessCC(){
   return {pt:'BR',es:'ES',en:'US'}[LANG]||'BR';
 }
 S.lb=Object.assign({name:'',cc:'',all:0,mk:'',ms:0,mb:{k:'',s:0},won:{},chk:'',edited:false},S.lb||{});
+if(S.lb.rb===undefined)S.lb.rb=S.tamper?0:S.best; // melhor recorde de partidas limpas (é o que vai pro ranking)
 if(!S.lb.cc)S.lb.cc=guessCC();
 if(!S.lb.name)S.lb.name=t('rkDefName')+(1000+Math.floor(Math.random()*9000));
 save();
@@ -28,17 +29,21 @@ function cleanName(v){let n=String(v||'').replace(/[^\p{L}\p{N} ._-]/gu,'').repl
 function trackMonth(sc){const k=monthKey();if(S.lb.mb.k!==k)S.lb.mb={k,s:0};if(sc>S.lb.mb.s)S.lb.mb.s=sc;save()}
 let lbBusy=null;
 function syncScores(force){
-  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;
+  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;
   lbBusy=(async()=>{let ok=true;
-    try{if(S.best>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.best,S.lb.all);await on.submit('all',v,S.lb.name,S.lb.cc);S.lb.all=v;save()}}catch(e){ok=false}
+    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);await on.submit('all',v,S.lb.name,S.lb.cc);S.lb.all=v;save()}}catch(e){ok=false}
     try{const k=monthKey();if(S.lb.mk!==k){S.lb.mk=k;S.lb.ms=0}
       if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);await on.submit(k,v,S.lb.name,S.lb.cc);S.lb.ms=v;save()}}catch(e){ok=false}
+    if(ok&&force&&S.lb.dirty){S.lb.dirty=false;save()}
     return ok})().finally(()=>{lbBusy=null});
   return lbBusy;
 }
 // depois de cada partida: guarda o recorde do mês, envia e mostra a posição na tela de fim
 function rankAfterRun(sc){
-  trackMonth(sc);const el=$('oRank');el.hidden=true;
+  const el=$('oRank');el.hidden=true;
+  const why=runVerdict(sc);
+  if(why.length){S.lb.flag=(S.lb.flag||0)+1;S.lb.why=why.join(',');save();if(sc>0){el.innerHTML=`<span>${t('rkNotSent')}</span>`;el.hidden=false}return}
+  if(sc>(S.lb.rb||0))S.lb.rb=sc;trackMonth(sc);
   const on=OL();if(!on||sc<=0)return;
   syncScores().then(async()=>{
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
@@ -108,8 +113,8 @@ $('pfCC').onclick=()=>{const open=$('pfList').hidden;$('pfList').hidden=!open;$(
 $('pfSearch').oninput=renderCCList;
 $('pfCancel').onclick=()=>{$('prof').hidden=true;S.lb.edited=true;save()};
 $('pfSave').onclick=()=>{const n=cleanName($('pfName').value);if(!n){toast(t('rkNameBad'));return}
-  const changed=n!==S.lb.name||pfCC!==S.lb.cc;S.lb.name=n;S.lb.cc=pfCC;S.lb.edited=true;save();$('prof').hidden=true;renderRankHead();
+  const changed=n!==S.lb.name||pfCC!==S.lb.cc;S.lb.name=n;S.lb.cc=pfCC;S.lb.edited=true;if(changed)S.lb.dirty=true;save();$('prof').hidden=true;renderRankHead();
   if(changed){rkCache={};syncScores(true).then(()=>{if(!$('rank').hidden)loadRank()})}};
 
-function onlineBoot(){syncScores().then(()=>checkPrize())}
+function onlineBoot(){const on=OL();if(on&&on.serverNow)on.serverNow().then(st=>{if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}).catch(()=>{});syncScores().then(()=>checkPrize())}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);

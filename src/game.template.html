@@ -391,9 +391,25 @@ const VERSION=(window.EMPILHA_CONFIG&&window.EMPILHA_CONFIG.version)||'1.1';
 /* ================= SAVE ================= */
 const DEF_SET={music:true,musicVol:55,sfx:true,sfxVol:85,vib:true,lang:''};
 const DEF={coins:120,gems:0,best:0,owned:['classic'],skin:'classic',xp:0,lvl:1,daily:{last:'',streak:0},mday:'',missions:[],settings:DEF_SET,inv:{magnet:1,slow:1,wide:1,calm:1}};
-let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('empilha_save')||'{}'))}catch(e){S=JSON.parse(JSON.stringify(DEF))}
-S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});
-const save=()=>{try{localStorage.setItem('empilha_save',JSON.stringify(S))}catch(e){}};
+// save com selo: se alguém editar o arquivo à mão, o selo não bate e o jogo usa a cópia de segurança
+const cyrb=(str,seed)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36)};
+const SEAL=(d)=>cyrb('bSk·'+d+'·'+d.length,0x5bd1e995);
+// valores impossíveis viram valores válidos (proteção contra save quebrado)
+const fixNum=(v,min=0,max=1e9)=>{v=Math.floor(+v);return Number.isFinite(v)?Math.min(max,Math.max(min,v)):min};
+function loadSave(){
+  const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+  const main=get('empilha_save'),sig=get('empilha_sig'),bak=get('empilha_bak'),bsig=get('empilha_bak_sig');
+  const parse=d=>{try{return JSON.parse(d)}catch(e){return null}};
+  if(main&&sig&&SEAL(main)===sig)return parse(main)||{};
+  if(bak&&bsig&&SEAL(bak)===bsig){const d=parse(bak);if(d)return d}
+  if(main&&!sig)return parse(main)||{}; // save antigo (antes do selo): aceita e sela
+  if(main){const d=parse(main)||{};d.tamper=1;return d} // editado e sem cópia boa: segue, mas fora do ranking
+  return {};
+}
+let S;try{S=Object.assign({},DEF,loadSave())}catch(e){S=JSON.parse(JSON.stringify(DEF))}
+S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});for(const k in S.inv)S.inv[k]=fixNum(S.inv[k],0,999);if(!Array.isArray(S.owned))S.owned=['classic'];
+const save=()=>{try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h)}catch(e){}};
+S.coins=fixNum(S.coins);S.gems=fixNum(S.gems);S.best=fixNum(S.best,0,100000);S.lvl=fixNum(S.lvl,1,9999);S.xp=fixNum(S.xp);
 const wallet=()=>{$('wCoins').textContent=S.coins;$('wGems').textContent=S.gems};
 
 /* ================= I18N ================= */
@@ -550,7 +566,7 @@ const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},cal
 function reset(){
   hue0=Math.random()*360;const w=W*BASEW;
   stack=[{x:(W-w)/2,w,i:0,t0:-1e9}];debris=[];parts=[];floats=[];rings=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=SPEED0*.62;shake=0;flash=0;skyF=0;
-  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{}};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
+  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{},taps:[],errs:[],play:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
   videoUsed=false;gemRevives=0;renderPw();spawn();
 }
 function spawn(){
@@ -569,6 +585,7 @@ function drop(){
   if(state!=='play'||!moving)return;
   $('hint').hidden=true;
   const top=stack[stack.length-1],m=moving;
+  if(run.errs&&run.errs.length<3000)run.errs.push({e:Math.abs(m.x-top.x),tol:perfTol(),mag:P.magnet>0});
   // ímã: puxa o bloco para cima da torre (vale até se fosse errar)
   if(P.magnet>0&&Math.abs(m.x-top.x)>=perfTol()){P.magnet--;m.x=top.x;addFloat(top.x+top.w/2,yOf(m.i)-24,t('magnetUse'),'#ff5d8f',14)}
   const left=Math.max(m.x,top.x),right=Math.min(m.x+m.w,top.x+top.w),ov=right-left;
@@ -659,9 +676,9 @@ function lose(){
 function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
   {const top=stack[stack.length-1],nw=W*BASEW;top.x=clamp(top.x+top.w/2-nw/2,0,W-nw);top.w=nw;top.t0=tNow;rings.push({x:top.x,y:yOf(top.i),w:nw,t0:tNow,i:top.i});setTimeout(()=>addFloat(W/2,yOf(top.i)-40,t('reviveWide'),'#4fe39a',20),200)}
   speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
-$('revVideo').onclick=async()=>{clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
-$('revGem').onclick=()=>{const cost=gemCost();if(S.gems<cost){clearInterval(revTimer);$('revive').hidden=true;toast(t('noGems'));finish();return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
-$('revSkip').onclick=()=>{clearInterval(revTimer);$('revive').hidden=true;finish()};
+$('revVideo').onclick=async()=>{if(state!=='revive'||$('revive').hidden)return;clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
+$('revGem').onclick=()=>{if(state!=='revive'||$('revive').hidden)return;const cost=gemCost();if(S.gems<cost){clearInterval(revTimer);$('revive').hidden=true;toast(t('noGems'));finish();return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
+$('revSkip').onclick=()=>{if(state!=='revive')return;clearInterval(revTimer);$('revive').hidden=true;finish()};
 function musicDuck(on){if(!A.ctx)return;A.master.gain.setTargetAtTime(on?0:.9,A.ctx.currentTime,.1)}
 
 /* ================= LEVEL ================= */
@@ -676,6 +693,7 @@ const DAILY=[{c:50},{c:75},{c:100},{g:3},{c:200},{c:250},{g:10}];
 const MPOOL=[{t:'perf',v:[5,8,12]},{t:'floors',v:[20,30,45]},{t:'games',v:[3,5,8]},{t:'coins',v:[100,200,350]},{t:'power',v:[2,4,6]},{t:'combo',v:[3,5,7]},{t:'chest',v:[1,2,3]}];
 function ensureMissions(){
   if(S.mday===today()&&S.missions.length)return;
+  if(S.missions.length&&!clockOk())return;
   let seed=[...today()].reduce((a,ch)=>a*31+ch.charCodeAt(0),7)%100000;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
   const pool=MPOOL.slice();S.missions=[];
   for(let k=0;k<3;k++){const p=pool.splice(rnd()*pool.length|0,1)[0];const vi=rnd()*3|0;const rw=rnd()<.3?{g:2+vi*2}:{c:60+vi*45};S.missions.push({t:p.t,n:p.v[vi],prog:0,claimed:false,rw})}
@@ -683,18 +701,21 @@ function ensureMissions(){
 }
 const mtxt=m=>t('m_'+m.t,m.n);
 const rwHTML=r=>r.g?`<i class="gem"></i>${r.g}`:`<i class="coin"></i>&nbsp;${r.c}`;
-const dailyReady=()=>S.daily.last!==today();
+// relógio: se a data do celular voltar (ou estiver muito diferente da hora do Google), o prêmio diário trava
+let srvSkew=0;
+const clockOk=()=>Date.now()>=(S.clk||0)-2*3600e3&&Math.abs(srvSkew)<3*3600e3;
+const dailyReady=()=>S.daily.last!==today()&&clockOk();
 const nextStreak=()=>S.daily.last===yesterday()?S.daily.streak%7+1:1;
 function anyClaim(){ensureMissions();return dailyReady()||S.missions.some(m=>m.prog>=m.n&&!m.claimed)}
 function renderMis(){
   ensureMissions();const ready=dailyReady();const cur=ready?nextStreak():S.daily.streak;
   $('days').innerHTML=DAILY.map((r,k)=>`<div class="day ${k+1<cur||(!ready&&k+1===cur)?'done':''} ${ready&&k+1===cur?'now':''}">${t('day',k+1)}<b>${rwHTML(r)}</b></div>`).join('');
-  $('claimDay').disabled=!ready;$('claimDay').textContent=ready?t('claim'):t('tomorrow');
+  $('claimDay').disabled=!ready;$('claimDay').textContent=ready?t('claim'):clockOk()?t('tomorrow'):t('fixClock');
   const Lst=$('misList');Lst.innerHTML='';
   S.missions.forEach((m,k)=>{const done=m.prog>=m.n;const d=document.createElement('div');d.className='mis';d.style.animationDelay=(k*60)+'ms';
     d.innerHTML=`<div class="info"><div class="nm">${mtxt(m)}</div><div class="bar g"><i style="width:${Math.min(100,m.prog/m.n*100)}%"></i></div><div class="pr">${Math.min(m.prog,m.n)}/${m.n}</div></div>`;
     const b=document.createElement('button');b.className='btn sm '+(m.claimed?'alt':done?'okb':'alt');b.innerHTML=m.claimed?t('done'):rwHTML(m.rw);b.disabled=m.claimed||!done;
-    b.onclick=()=>{m.claimed=true;if(m.rw.g)S.gems+=m.rw.g;else S.coins+=m.rw.c;save();wallet();sfx.coin();bump(m.rw.g?'pGems':'pCoins');toast(t('rewardOk'));renderMis();menuDot()};
+    b.onclick=()=>{if(m.claimed||m.prog<m.n)return;m.claimed=true;if(m.rw.g)S.gems+=m.rw.g;else S.coins+=m.rw.c;save();wallet();sfx.coin();bump(m.rw.g?'pGems':'pCoins');toast(t('rewardOk'));renderMis();menuDot()};
     d.appendChild(b);Lst.appendChild(d)});
 }
 $('claimDay').onclick=()=>{if(!dailyReady())return;const st=nextStreak();const r=DAILY[st-1];S.daily={last:today(),streak:st};if(r.g)S.gems+=r.g;else S.coins+=r.c;save();wallet();bump(r.g?'pGems':'pCoins');sfx.fanfare();toast(t('dayOk',st));renderMis();menuDot()};
@@ -724,6 +745,7 @@ function flyCoins(n,from){
     an.onfinish=()=>{c.remove();sfx.tick();bump('pCoins')}}
 }
 function finish(){
+  if(state==='over')return;
   state='over';P={slow:0,magnet:0,x2:0,calm:0};renderPw();$('pauseBtn').hidden=true;$('hud').hidden=true;$('abar').hidden=true;
   const endBonus=Math.floor(score/2);const total=run.blocks+run.perf+run.chest+endBonus;
   const isNew=score>S.best&&score>0;if(isNew)S.best=score;
@@ -764,7 +786,7 @@ $('verNum').textContent=VERSION;
 
 /* ================= SHOP ================= */
 const PACKS=[{id:'cristais_50',k:'g1',gems:50,price:'R$ 4,90'},{id:'cristais_150',k:'g2',gems:150,price:'R$ 12,90',tag:'popular'},{id:'cristais_400',k:'g3',gems:400,price:'R$ 29,90'},{id:'cristais_1000',k:'g4',gems:1000,price:'R$ 64,90',tag:'bestValue'}];
-let tab='skins',backTo='menu';
+let tab='skins',backTo='menu',buyBusy=false;
 function openShop(tb){backTo=state==='over'?'over':'menu';tab=tb||'skins';$('menu').hidden=true;$('over').hidden=true;$('shop').hidden=false;renderShop()}
 $('openShop').onclick=()=>openShop();$('overShop').onclick=()=>openShop();
 $('closeShop').onclick=()=>{$('shop').hidden=true;backTo==='over'?$('over').hidden=false:showMenu()};
@@ -810,7 +832,7 @@ function renderShop(){
     PACKS.forEach((p,k)=>{const d=document.createElement('div');d.className='item pack';d.style.animationDelay=(k*50)+'ms';
       d.innerHTML=`${p.tag?`<span class="best">${t(p.tag)}</span>`:''}<div class="big"><i class="gem"></i>${p.gems}</div><div class="nm">${t('pk_'+p.k)}</div>`;
       const b=document.createElement('button');b.className='btn gemb';b.textContent=p.price;
-      b.onclick=async()=>{const r=await Billing.buy(p);if(r===true){S.gems+=p.gems;save();wallet()}if(r){sfx.fanfare();bump('pGems');toast(t('plusGems',p.gems))}};
+      b.onclick=async()=>{if(buyBusy)return;buyBusy=true;let r;try{r=await Billing.buy(p)}finally{buyBusy=false}if(r===true){S.gems+=p.gems;save();wallet()}if(r){sfx.fanfare();bump('pGems');toast(t('plusGems',p.gems))}};
       d.appendChild(b);g.appendChild(d)});
   }
 }
@@ -823,6 +845,7 @@ function drawPreviews(){
   }
 }
 
+//@@SECURE@@
 //@@RANK@@
 //@@HELP@@
 /* ================= LOOP ================= */
@@ -831,6 +854,7 @@ function frame(tt){
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
   const wd=worldOf(score);
+  if(state==='play'&&run)run.play+=dt*16.667;
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1);
     if(P.calm<=0){if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
@@ -868,7 +892,9 @@ function frame(tt){
   if(!$('shop').hidden)drawPreviews();
 }
 
-const tap=e=>{if(state==='play'){e.preventDefault();drop()}};
+let lastTap=0;
+const tap=e=>{if(state!=='play')return;e.preventDefault();if(e.isPrimary===false)return;const n=performance.now();if(n-lastTap<110)return;lastTap=n;
+  if(run&&run.taps&&run.taps.length<3000)run.taps.push({t:n,x:Math.round(e.clientX),y:Math.round(e.clientY),tr:e.isTrusted!==false});drop()};
 cv.addEventListener('pointerdown',tap);
 addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(state==='play')drop();else if(state==='menu')startGame()}if(e.code==='Escape'){state==='play'?pauseGame():state==='pause'&&resumeGame()}});
 $('play').onclick=startGame;$('again').onclick=startGame;

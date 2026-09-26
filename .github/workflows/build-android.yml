@@ -34,7 +34,7 @@ jobs:
 
       - name: Preparar projeto Android
         run: |
-          npm run build
+          OBFUSCATE=1 npm run build
           npx cap sync android
 
       - name: Chave de assinatura

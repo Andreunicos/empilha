@@ -64,6 +64,13 @@ window.Online = {
     const snap = await withTimeout(getCount(query(collection(db, board), where('s', '>', s))));
     return snap.data().count + 1;
   },
+  // hora do servidor do Google (pra conferir se a data do celular foi mexida)
+  async serverNow() {
+    const u = await ensureUser();
+    const r = await withTimeout(u.getIdTokenResult(true));
+    const t = Date.parse(r.issuedAtTime);
+    return Number.isFinite(t) ? t : null;
+  },
   async mine(board) {
     const u = await ensureUser();
     const d = await withTimeout(getDoc(doc(db, board, u.uid)));

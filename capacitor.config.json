@@ -2,5 +2,8 @@
   "appId": "com.bighouse.bigstack",
   "appName": "Big Stack",
   "webDir": "www",
-  "android": { "backgroundColor": "#0f1024" }
+  "android": {
+    "backgroundColor": "#0f1024",
+    "webContentsDebuggingEnabled": false
+  }
 }
