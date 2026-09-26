@@ -36,7 +36,11 @@ function clAsk(p){const s=p.s;$('clAskP').innerHTML=t('clAskP',s.lvl||1,s.best||
   $('clNo').onclick=()=>{$('clAsk').hidden=true}}
 $('clSave').onclick=()=>clSaveNow(true);$('clLoad').onclick=()=>clLoadNow(true);$('clSign').onclick=()=>clSignIn(true).then(ok=>{if(ok)toast(t('clHi',clPlayer))});
 // ao abrir: entra em silêncio e, se este celular estiver "novo" e a nuvem tiver progresso, oferece recuperar
-(async()=>{if(!CL())return;clRender();if(!(await clSignIn(false)))return;
+(async()=>{if(!CL())return;clRender();
+  if(!(await clSignIn(false))){
+    // 1ª vez que abre o jogo: chama a tela do Play Games uma única vez (depois fica só o botão Entrar)
+    let first=false;try{first=!localStorage.getItem('bs_clauto');localStorage.setItem('bs_clauto','1')}catch(e){}
+    if(!first)return;await new Promise(r=>setTimeout(r,1200));if(!(await clSignIn(true)))return;toast(t('clHi',clPlayer))}
   try{const r=await CL().load();const p=r&&r.data?clParse(r.data):null;if(!p)return;
     const fresh=!BOOT_LOCAL||(S.best<(p.s.best||0)&&S.lvl<=(p.s.lvl||1)&&S.xp+S.lvl*100<(p.s.xp||0)+(p.s.lvl||1)*100);
     if(fresh&&(p.s.best||0)>0)clAsk(p)}catch(e){}})();
