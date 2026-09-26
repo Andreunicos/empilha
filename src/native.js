@@ -2,6 +2,7 @@
 // É empacotado pelo esbuild em www/native.js (npm run build).
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { Preferences } from '@capacitor/preferences';
 import { AdMob, RewardAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
 
@@ -91,5 +92,8 @@ window.Native = {
   onBack(fn) { if (isNative) App.addListener('backButton', fn); },
   exitApp() { if (isNative) App.exitApp(); },
   onPause(fn) { if (isNative) App.addListener('pause', fn); },
+  // cópia do save no armazenamento oficial do Android (entra no backup automático da conta Google)
+  prefSet(k, v) { if (isNative) return Preferences.set({ key: k, value: v }).catch(() => {}); },
+  async prefGet(k) { if (!isNative) return null; try { const r = await Preferences.get({ key: k }); return r.value; } catch (e) { return null; } },
 };
 window.dispatchEvent(new Event('native-ready'));

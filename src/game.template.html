@@ -406,9 +406,19 @@ function loadSave(){
   if(main){const d=parse(main)||{};d.tamper=1;return d} // editado e sem cópia boa: segue, mas fora do ranking
   return {};
 }
+const BOOT_LOCAL=(()=>{try{return !!localStorage.getItem('empilha_save')}catch(e){return false}})();
 let S;try{S=Object.assign({},DEF,loadSave())}catch(e){S=JSON.parse(JSON.stringify(DEF))}
+const BOOT_CLK=S.clk||0;
 S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});for(const k in S.inv)S.inv[k]=fixNum(S.inv[k],0,999);if(!Array.isArray(S.owned))S.owned=['classic'];
-const save=()=>{try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h)}catch(e){}};
+const save=()=>{try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);mirrorSave(d,h)}catch(e){}};
+// espelho no armazenamento nativo (backup automático do Google): gravado no máximo a cada 3 s
+let mirT=0,mirD=null,mirReady=false;function mirrorSave(d,h){const NN=window.Native;if(!NN||!NN.isNative||!NN.prefSet)return;mirD=[d,h];if(mirT||!mirReady)return;mirT=setTimeout(()=>{mirT=0;const [dd,hh]=mirD;NN.prefSet('bs_save',dd);NN.prefSet('bs_sig',hh)},3000)}
+// ao abrir: se o celular foi trocado/reinstalado e só o backup do Google voltou, recupera o progresso dele
+(async()=>{const NN=window.Native;if(!NN||!NN.isNative||!NN.prefGet)return;const ready=()=>{mirReady=true;if(mirD)mirrorSave(mirD[0],mirD[1])};
+  const d=await NN.prefGet('bs_save'),h=await NN.prefGet('bs_sig');
+  if(!d||!h||SEAL(d)!==h)return ready();let r;try{r=JSON.parse(d)}catch(e){return ready()}
+  const newer=(r.clk||0)>BOOT_CLK+60000&&((r.best||0)>=(S.best||0)||(r.lvl||1)>=(S.lvl||1));
+  if(!BOOT_LOCAL||newer){try{localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h)}catch(e){return ready()}location.reload();return}ready()})();
 S.coins=fixNum(S.coins);S.gems=fixNum(S.gems);S.best=fixNum(S.best,0,100000);S.lvl=fixNum(S.lvl,1,9999);S.xp=fixNum(S.xp);
 const wallet=()=>{$('wCoins').textContent=S.coins;$('wGems').textContent=S.gems};
 

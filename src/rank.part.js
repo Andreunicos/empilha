@@ -116,5 +116,9 @@ $('pfSave').onclick=()=>{const n=cleanName($('pfName').value);if(!n){toast(t('rk
   const changed=n!==S.lb.name||pfCC!==S.lb.cc;S.lb.name=n;S.lb.cc=pfCC;S.lb.edited=true;if(changed)S.lb.dirty=true;save();$('prof').hidden=true;renderRankHead();
   if(changed){rkCache={};syncScores(true).then(()=>{if(!$('rank').hidden)loadRank()})}};
 
-function onlineBoot(){const on=OL();if(on&&on.serverNow)on.serverNow().then(st=>{if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}).catch(()=>{});syncScores().then(()=>checkPrize())}
+async function onlineBoot(){const on=OL();if(!on)return;
+  try{const st=await on.serverNow();if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}catch(e){}
+  // celular novo / reinstalado: o login anônimo muda, então reenvia os recordes na conta nova
+  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
+  await syncScores();checkPrize()}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);
