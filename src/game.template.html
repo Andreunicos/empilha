@@ -197,6 +197,9 @@
   .tin{width:min(100%,320px);font:900 20px "Nunito",sans-serif;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;text-align:center;-webkit-user-select:text;user-select:text;outline:none}
   .tin:focus{border-color:var(--sun)}
   .tin.sm{font-size:15px;padding:9px 12px}
+  .pfname{-webkit-user-select:none;user-select:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pfnote{font-size:13px;opacity:.75;margin:-4px 0 2px}
+  .btn.pgb{font-size:15px;padding:10px 18px}
   .ccbtn{width:min(100%,320px);display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;font:900 16px "Nunito",sans-serif;cursor:pointer;text-align:left}
   .ccbtn span:nth-child(2){flex:1}
   .ccbtn svg{width:20px;height:20px}
@@ -325,7 +328,9 @@
 
   <div class="panel" id="prof" hidden style="z-index:8;background:rgba(15,16,36,.97)"><div class="inner">
     <h2 data-t="profT"></h2><p data-t="profP"></p>
-    <input class="tin" id="pfName" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done">
+    <div class="tin pfname" id="pfName"></div>
+    <p class="pfnote" id="pfNote"></p>
+    <button class="btn pgb" id="pfPG" hidden data-t="pfPgB"></button>
     <button class="ccbtn" id="pfCC"></button>
     <input class="tin sm" id="pfSearch" hidden autocomplete="off" spellcheck="false">
     <div class="cclist" id="pfList" hidden></div>

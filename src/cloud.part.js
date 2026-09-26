@@ -9,7 +9,8 @@ function clRender(){const box=$('cloudBox');if(!box)return;const c=CL();box.hidd
   $('clSt').innerHTML=clPlayer?`<span class="dotok"></span>${t('clOn',esc(clPlayer))}`:`<span class="dotoff"></span>${t('clOff')}`;
   $('clSign').hidden=!!clPlayer;$('clSave').disabled=clBusy;$('clLoad').disabled=clBusy}
 async function clSignIn(interactive){const c=CL();if(!c)return false;
-  try{const r=await c.signIn(interactive);clPlayer=r&&r.signedIn?(r.name||'Play Games'):null}catch(e){clPlayer=null}
+  let r=null;try{r=await c.signIn(interactive);clPlayer=r&&r.signedIn?(r.name||'Play Games'):null}catch(e){clPlayer=null}
+  if(clPlayer&&r.name&&typeof setPlayName==='function')setPlayName(r.name);
   clRender();return !!clPlayer}
 async function clSaveNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}

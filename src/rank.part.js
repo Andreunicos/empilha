@@ -19,7 +19,9 @@ function guessCC(){
 S.lb=Object.assign({name:'',cc:'',all:0,mk:'',ms:0,mb:{k:'',s:0},won:{},chk:'',edited:false},S.lb||{});
 if(S.lb.rb===undefined)S.lb.rb=S.tamper?0:S.best; // melhor recorde de partidas limpas (é o que vai pro ranking)
 if(!S.lb.cc)S.lb.cc=guessCC();
-if(!S.lb.name)S.lb.name=t('rkDefName')+(1000+Math.floor(Math.random()*9000));
+// nome no ranking: vem da conta do Play Games (não dá pra digitar). Sem Play Games: nome automático "Jogador1234"
+if(!S.lb.auto)S.lb.auto=/^(Jogador|Player|Jugador)\d{4}$/.test(S.lb.name||'')?S.lb.name:t('rkDefName')+(1000+Math.floor(Math.random()*9000));
+if(!S.lb.pg&&S.lb.name!==S.lb.auto){if(S.lb.name)S.lb.dirty=true;S.lb.name=S.lb.auto}
 save();
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const BAD=/(porra|caralh|buceta|piroc|puta|merda|foda|viad|cuzao|arrombad|fuck|shit|bitch|cunt|nigg|dick|pussy|coño|pendej|mierda|joder|hitler|nazi)/i;
@@ -103,7 +105,13 @@ $('rkMe').onclick=()=>openProf();
 
 /* ---- perfil: nome e país ---- */
 let pfCC='';
-function openProf(){$('pfName').value=S.lb.name;$('pfName').placeholder=t('rkNamePh');pfCC=S.lb.cc;$('pfSearch').value='';$('pfSearch').placeholder=t('rkSearch');$('pfList').hidden=true;$('pfSearch').hidden=true;renderCCBtn();$('prof').hidden=false}
+function openProf(){$('pfName').textContent=S.lb.name;const c=typeof CL==='function'&&CL();
+  $('pfNote').textContent=t(S.lb.pg?'pfPgOn':c?'pfPgOff':'pfAuto');$('pfPG').hidden=!!S.lb.pg||!c;
+  pfCC=S.lb.cc;$('pfSearch').value='';$('pfSearch').placeholder=t('rkSearch');$('pfList').hidden=true;$('pfSearch').hidden=true;renderCCBtn();$('prof').hidden=false}
+// chamado quando entra no Play Games: usa o nome da conta no ranking
+function setPlayName(nm){const n=cleanName(nm);if(!n)return;if(n===S.lb.name&&S.lb.pg)return;
+  S.lb.name=n;S.lb.pg=true;S.lb.dirty=true;save();rkCache={};if(!$('rank').hidden){renderRankHead();loadRank()}if(!$('prof').hidden)openProf();syncScores(true)}
+$('pfPG').onclick=()=>{if(typeof clSignIn==='function')clSignIn(true).then(ok=>{if(ok)toast(t('clHi',clPlayer))})};
 function renderCCBtn(){$('pfCC').innerHTML=`<span class="fl">${flag(pfCC)}</span><span>${esc(ccName(pfCC))}</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>`}
 function renderCCList(){const q=$('pfSearch').value.trim().toLowerCase();const first=guessCC();
   const all=CCS.map(cc=>({cc,n:ccName(cc)})).filter(o=>!q||o.n.toLowerCase().includes(q)||o.cc.toLowerCase()===q).sort((a,b)=>(b.cc===first)-(a.cc===first)||a.n.localeCompare(b.n));
@@ -112,8 +120,7 @@ function renderCCList(){const q=$('pfSearch').value.trim().toLowerCase();const f
 $('pfCC').onclick=()=>{const open=$('pfList').hidden;$('pfList').hidden=!open;$('pfSearch').hidden=!open;if(open){renderCCList();$('pfList').scrollTop=0}};
 $('pfSearch').oninput=renderCCList;
 $('pfCancel').onclick=()=>{$('prof').hidden=true;S.lb.edited=true;save()};
-$('pfSave').onclick=()=>{const n=cleanName($('pfName').value);if(!n){toast(t('rkNameBad'));return}
-  const changed=n!==S.lb.name||pfCC!==S.lb.cc;S.lb.name=n;S.lb.cc=pfCC;S.lb.edited=true;if(changed)S.lb.dirty=true;save();$('prof').hidden=true;renderRankHead();
+$('pfSave').onclick=()=>{const changed=pfCC!==S.lb.cc;S.lb.cc=pfCC;S.lb.edited=true;if(changed)S.lb.dirty=true;save();$('prof').hidden=true;renderRankHead();
   if(changed){rkCache={};syncScores(true).then(()=>{if(!$('rank').hidden)loadRank()})}};
 
 async function onlineBoot(){const on=OL();if(!on)return;
