@@ -51,6 +51,7 @@
   .ab .lbl{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font:900 10px "Nunito",sans-serif;letter-spacing:.05em;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;pointer-events:none}
   .ab.on{animation:abpulse .7s ease-in-out infinite alternate}
   .ab.spent{filter:grayscale(.85) brightness(.75)}
+  .ab.idle{filter:grayscale(.7) brightness(.7);opacity:.7}
   .ab .bd.spent{background:#5b5670;font-size:12px}
   .ab.nope{animation:abnope .35s}
   @keyframes abnope{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
@@ -145,6 +146,20 @@
   .mis .nm{font-weight:900;font-size:15px}
   .mis .pr{font-size:12px;color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
   .mis .btn{font-size:13px;padding:9px 10px;border-radius:10px;min-width:84px}
+  /* dicas e como jogar */
+  #tipB{position:absolute;left:50%;transform:translateX(-50%);z-index:9;width:min(88%,330px);background:#fff7e8;color:#1a1030;border-radius:16px;padding:12px 14px;font:900 15px/1.3 "Nunito",sans-serif;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:none;animation:tipin .45s cubic-bezier(.2,1.5,.4,1)}
+  #tipB::after{content:"";position:absolute;left:50%;margin-left:-9px;border:9px solid transparent}
+  #tipB.tp-bar{bottom:104px}#tipB.tp-bar::after{top:100%;border-top-color:#fff7e8}
+  #tipB.tp-mid{top:24%}#tipB.tp-mid::after{top:100%;border-top-color:#fff7e8}
+  #tipB b{color:#b3285a}
+  @keyframes tipin{from{opacity:0;transform:translate(-50%,14px) scale(.9)}}
+  .help-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-size:16px}
+  .help-link .q{width:24px;height:24px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-family:"Bungee",Impact,sans-serif;font-size:14px}
+  .hcards{width:100%;display:flex;flex-direction:column;gap:10px}
+  .hcard{background:var(--card);border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center;text-align:left;animation:pin .35s both}
+  .hcard canvas{width:96px;height:84px;flex:none;border-radius:12px;background:#15142f}
+  .hcard b{display:block;font-family:"Bungee",Impact,sans-serif;font-weight:400;font-size:16px;margin-bottom:3px}
+  .hcard span{font-size:14px;color:var(--muted);font-weight:800;line-height:1.35}
   /* ranking */
   .btn.rankb{background:linear-gradient(160deg,#ffd76a,#f0a91c);box-shadow:0 5px 0 #b9780a;display:flex;align-items:center;gap:8px;padding-inline:22px}
   .btn.rankb svg{width:20px;height:20px}
@@ -215,7 +230,7 @@
   #ad{z-index:9;background:#000}
   #ad .box{width:100%;max-width:340px;aspect-ratio:9/12;max-height:60vh;border-radius:18px;background:linear-gradient(160deg,#2b2f77,#7b2b8a);display:grid;place-items:center;font-family:"Bungee",Impact,sans-serif;font-size:22px;padding:20px}
   .tag2{font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-  #toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:10;background:var(--card2);padding:10px 16px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;animation:tin .3s cubic-bezier(.2,1.4,.4,1)}
+  #toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:10;background:var(--card2);padding:10px 16px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.4);width:max-content;max-width:88%;text-align:center;animation:tin .3s cubic-bezier(.2,1.4,.4,1)}
   #abar:not([hidden])~#toast{bottom:112px}
   @keyframes tin{from{opacity:0;transform:translate(-50%,16px)}}
   .fly{position:absolute;z-index:11;width:18px;height:18px;pointer-events:none}
@@ -234,7 +249,7 @@
     <button class="ab a-magnet" data-a="magnet" aria-label="Ímã"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 4v8a6 6 0 0 0 12 0V4"/><path d="M6 4v3M18 4v3" stroke="#ffe8a0" stroke-width="3.4"/></svg><span class="bd"></span><span class="lbl" data-t="a_magnet"></span></button>
     <button class="ab a-slow" data-a="slow" aria-label="Lento"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3v2a5 5 0 0 0 10 0V3M7 21v-2a5 5 0 0 1 10 0v2"/></svg><span class="bd"></span><span class="lbl" data-t="a_slow"></span></button>
     <button class="ab a-wide" data-a="wide" aria-label="Largo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg><span class="bd"></span><span class="lbl" data-t="a_wide"></span></button>
-    <button class="ab a-calm" data-a="calm" aria-label="Anti-vento"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"><path d="M3 8h9a3 3 0 1 0-3-3M3 12h14a3 3 0 1 1-3 3M3 16h6"/><path d="M4 3l16 18" stroke="#ffe0e0" stroke-width="2.6"/></svg><span class="bd"></span><span class="lbl" data-t="a_calm"></span></button>
+    <button class="ab a-calm" data-a="calm" aria-label="Estabilizar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12c1.5-5 3.5-5 5 0s3.5 5 5 0"/><path d="M13.5 12h8" stroke="#ffe8a0" stroke-width="2.8"/><path d="M18 8.5l3.5 3.5-3.5 3.5" stroke="#ffe8a0" stroke-width="2.4"/></svg><span class="bd"></span><span class="lbl" data-t="a_calm"></span></button>
   </div>
   <div id="bannerHost"></div>
 
@@ -245,6 +260,7 @@
     <button class="btn play" id="play" data-t="play"></button>
     <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button></div>
     <button class="btn rankb sm" id="openRank"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg><span data-t="rankBtn"></span></button>
+    <button class="link help-link" id="openHelp"><span class="q">?</span><span data-t="howTo"></span></button>
     <p id="bestMenu"></p>
   </div></div>
 
@@ -252,6 +268,7 @@
     <h2 data-t="paused"></h2>
     <button class="btn" id="resume" data-t="resume"></button>
     <div class="row"><button class="btn alt sm" id="pauseSet" data-t="settings"></button><button class="btn alt sm" id="quit" data-t="quit"></button></div>
+    <button class="link help-link" id="pauseHelp"><span class="q">?</span><span data-t="howTo"></span></button>
   </div></div>
 
   <div class="panel" id="revive" hidden><div class="inner">
@@ -320,6 +337,11 @@
     <button class="btn gemb" id="rkWinOk" data-t="claim"></button>
   </div></div>
 
+  <div class="panel full" id="help" hidden><div class="inner">
+    <div class="top"><h2 data-t="howToT"></h2><button class="btn alt sm" id="closeHelp" data-t="back"></button></div>
+    <div class="hcards" id="hcards"></div>
+  </div></div>
+
   <div class="panel full" id="settings" hidden><div class="inner">
     <div class="top"><h2 data-t="settings"></h2><button class="btn alt sm" id="closeSet" data-t="back"></button></div>
     <div class="set">
@@ -347,6 +369,7 @@
     <p class="note" data-t="buyNote"></p>
   </div></div>
 
+  <div id="tipB" hidden></div>
   <div id="toast" hidden></div>
 </div>
 
@@ -423,9 +446,9 @@ es:{powers:'Poderes',a_magnet:'IMÁN',a_slow:'LENTO',a_wide:'ANCHO',a_calm:'ANTI
 };
 /* ================= TEXTOS NOVOS (v1.2) ================= */
 const L2={
-pt:{rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',profP:'É assim que você aparece no ranking mundial.',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
-en:{rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',profP:'This is how you appear in the world ranking.',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
-es:{rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',profP:'Así apareces en el ranking mundial.',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
+pt:{a_calm:'ESTABILIZAR',p_calm:'ESTÁVEL',d_calm:'Acalma o perigo do mundo por 15 andares: vento nas nuvens, velocidade maluca na aurora e ondas no espaço',ev3:'Ondas gravitacionais! Siga o ritmo',revTxt:'Sua torre tem {0} andares. Volte com o bloco no tamanho máximo!',reviveWide:'TAMANHO MÁXIMO!',bonusGot:'BÔNUS GRÁTIS: {0}!',grew:'O BLOCO CRESCEU!',noHazard:'Nada pra estabilizar aqui ainda!',powersNote:'Toque nos poderes da barra durante a partida. Acabou? Toque no + verde e ganhe 1 com vídeo (1 vez por partida de cada poder). Os blocos brilhantes são bônus grátis.',howTo:'Como jogar',howToT:'COMO JOGAR',tipBar:'Estes são <b>seus poderes</b>: toque pra usar quando quiser!',tipBonus:'Bloco brilhante! Acerte ele e ganhe um <b>bônus grátis</b>',tipGrow:'<b>3 perfeitos seguidos</b> fazem o bloco crescer!',tipStab1:'Vento nas nuvens! Use <b>ESTABILIZAR</b> pra parar o vento',tipStab2:'Velocidade maluca! <b>ESTABILIZAR</b> deixa tudo normal',tipStab3:'Ondas gravitacionais! Veja os anéis: quando brilham azul o bloco acelera. <b>ESTABILIZAR</b> acalma',h_tapT:'Toque na hora certa',h_tapP:'Toque quando o bloco estiver em cima da torre. O que passar da borda é cortado.',h_perfT:'Perfeito e combo',h_perfP:'Acerte em cheio pra fazer PERFEITO. 3 perfeitos seguidos e o bloco cresce de novo!',h_bonusT:'Bônus grátis',h_bonusP:'Blocos brilhantes com ★ dão um bônus na hora, de graça: Lento, Ímã, Largo ou Moedas x2.',h_powT:'Seus poderes',h_powP:'Os botões de baixo são seus: toque pra usar. Compre na loja ou ganhe 1 com vídeo (1 vez por partida de cada).',h_worldsT:'Mundos e perigos',h_worldsP:'Nuvens têm vento, a aurora tem velocidade maluca e o espaço tem ondas gravitacionais. ESTABILIZAR acalma todos.',h_rankT:'Ranking mundial',h_rankP:'Seu recorde entra no ranking com sua bandeira. O Nº1 do mês ganha 50 cristais!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',profP:'É assim que você aparece no ranking mundial.',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
+en:{a_calm:'STABILIZE',p_calm:'STABLE',d_calm:'Calms the world\'s hazard for 15 floors: wind in the clouds, crazy speed in the aurora and waves in space',ev3:'Gravity waves! Follow the rhythm',revTxt:'Your tower is {0} floors tall. Come back with a full-size block!',reviveWide:'FULL SIZE!',bonusGot:'FREE BONUS: {0}!',grew:'THE BLOCK GREW!',noHazard:'Nothing to stabilize here yet!',powersNote:'Tap the powers on the bar during a run. Out of one? Tap the green + and get 1 with a video (once per run for each power). Glowing blocks are free bonuses.',howTo:'How to play',howToT:'HOW TO PLAY',tipBar:'These are <b>your powers</b>: tap to use them anytime!',tipBonus:'Glowing block! Land it to get a <b>free bonus</b>',tipGrow:'<b>3 perfects in a row</b> make the block grow!',tipStab1:'Wind in the clouds! Use <b>STABILIZE</b> to stop it',tipStab2:'Crazy speed! <b>STABILIZE</b> makes it normal',tipStab3:'Gravity waves! Watch the rings: blue glow means the block speeds up. <b>STABILIZE</b> calms it',h_tapT:'Tap at the right time',h_tapP:'Tap when the block is over the tower. Whatever hangs off the edge is cut.',h_perfT:'Perfect and combo',h_perfP:'Land it exactly for a PERFECT. 3 perfects in a row and the block grows back!',h_bonusT:'Free bonuses',h_bonusP:'Glowing blocks with ★ give an instant free bonus: Slow, Magnet, Wide or Coins x2.',h_powT:'Your powers',h_powP:'The buttons at the bottom are yours: tap to use. Buy them in the shop or get 1 with a video (once per run each).',h_worldsT:'Worlds and hazards',h_worldsP:'Clouds have wind, the aurora has crazy speed and space has gravity waves. STABILIZE calms them all.',h_rankT:'World ranking',h_rankP:'Your record joins the ranking with your flag. Monthly #1 wins 50 gems!',rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',profP:'This is how you appear in the world ranking.',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
+es:{a_calm:'ESTABILIZAR',p_calm:'ESTABLE',d_calm:'Calma el peligro del mundo por 15 pisos: viento en las nubes, velocidad loca en la aurora y ondas en el espacio',ev3:'¡Ondas gravitacionales! Sigue el ritmo',revTxt:'Tu torre tiene {0} pisos. ¡Vuelve con el bloque a tamaño máximo!',reviveWide:'¡TAMAÑO MÁXIMO!',bonusGot:'¡BONUS GRATIS: {0}!',grew:'¡EL BLOQUE CRECIÓ!',noHazard:'¡Nada que estabilizar aquí todavía!',powersNote:'Toca los poderes de la barra durante la partida. ¿Se acabó? Toca el + verde y gana 1 con un video (1 vez por partida de cada poder). Los bloques brillantes son bonus gratis.',howTo:'Cómo jugar',howToT:'CÓMO JUGAR',tipBar:'Estos son <b>tus poderes</b>: ¡tócalos cuando quieras!',tipBonus:'¡Bloque brillante! Acértalo y gana un <b>bonus gratis</b>',tipGrow:'¡<b>3 perfectos seguidos</b> hacen crecer el bloque!',tipStab1:'¡Viento en las nubes! Usa <b>ESTABILIZAR</b> para pararlo',tipStab2:'¡Velocidad loca! <b>ESTABILIZAR</b> lo normaliza',tipStab3:'¡Ondas gravitacionales! Mira los anillos: azul brillante = el bloque acelera. <b>ESTABILIZAR</b> lo calma',h_tapT:'Toca en el momento justo',h_tapP:'Toca cuando el bloque esté sobre la torre. Lo que sobresale se corta.',h_perfT:'Perfecto y combo',h_perfP:'Acierta de lleno para un PERFECTO. ¡3 perfectos seguidos y el bloque vuelve a crecer!',h_bonusT:'Bonus gratis',h_bonusP:'Los bloques brillantes con ★ dan un bonus al instante, gratis: Lento, Imán, Ancho o Monedas x2.',h_powT:'Tus poderes',h_powP:'Los botones de abajo son tuyos: tócalos para usarlos. Cómpralos en la tienda o gana 1 con un video (1 vez por partida de cada uno).',h_worldsT:'Mundos y peligros',h_worldsP:'Las nubes tienen viento, la aurora velocidad loca y el espacio ondas gravitacionales. ESTABILIZAR calma todo.',h_rankT:'Ranking mundial',h_rankP:'Tu récord entra al ranking con tu bandera. ¡El Nº1 del mes gana 50 gemas!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',profP:'Así apareces en el ranking mundial.',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
 for(const k in L2)Object.assign(L[k],L2[k]);
 
 let LANG=S.settings.lang||((navigator.language||'pt').slice(0,2));if(!L[LANG])LANG='en';
@@ -509,7 +532,7 @@ document.addEventListener('pointerdown',unlockAudio,{capture:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))sfx.ui()},{capture:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(state==='play')pauseGame();A.ctx&&A.ctx.suspend()}else if(A.ctx)A.ctx.resume()});
 const buzz=ms=>{if(!S.settings.vib)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
-function toast(s){const el=$('toast');el.hidden=true;void el.offsetWidth;el.textContent=s;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
+function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;void el.offsetWidth;el.textContent=s;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
 function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${sub}</small><span>${txt}</span></div>`}
 function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150)}
 
@@ -720,7 +743,10 @@ let stack=[],moving=null,debris=[],parts=[],floats=[],rings=[],cam=0,camT=0,scor
 // começo mais fácil: até o andar 20 o bloco é mais lento e o perfeito é mais generoso
 const ease=()=>Math.min(1,score/20);
 const perfTol=()=>Math.max(6,speed*1.1)*(W/360)*(1.8-.8*ease());
-const SPEED0=4.2,SPEED_STEP=.06,SPEED_MAX=9,SPEED_MAX_SPACE=10.5;
+const SPEED0=4.2,SPEED_STEP=.06,SPEED_MAX=9,SPEED_MAX_SPACE=10;
+const WAVE_W=Math.PI*2/2400; // ondas gravitacionais: 1 ciclo a cada 2,4 s
+const waveAmp=wd=>Math.min(.45,.28+(wd-3)*.04);
+const hazard=()=>worldOf(score)>=1; // cidade não tem perigo; nuvens, aurora e espaço têm
 const RANDOM_POWERS=['slow','magnet','wide','x2'];
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={slow:{col:'#7fd1ff',n:6},magnet:{col:'#ff5d8f',n:3},wide:{col:'#4fe39a',n:0},x2:{col:'#ffc23d',n:10},calm:{col:'#b9a3ff',n:15}};
@@ -734,7 +760,7 @@ function reset(){
 function spawn(){
   const top=stack[stack.length-1];const dir=stack.length%2?1:-1;
   moving={w:top.w,x:dir>0?-top.w:W,dir,i:stack.length,v:.75+Math.random()*.6,pw:null};
-  if(state==='play'&&score>=nextPower){const keys=RANDOM_POWERS;moving.pw=keys[Math.random()*keys.length|0];nextPower=score+8+(Math.random()*6|0)}
+  if(state==='play'&&score>=nextPower){const keys=RANDOM_POWERS;moving.pw=keys[Math.random()*keys.length|0];nextPower=score+8+(Math.random()*6|0);tip('bonus',t('tipBonus'),'mid')}
   windDir=Math.random()<.5?-1:1;
 }
 function yOf(i){return H-190-i*BH+cam}
@@ -755,7 +781,7 @@ function drop(){
   const perfect=Math.abs(m.x-top.x)<perfTol();
   if(perfect){
     nx=top.x;nw=top.w;combo++;perfects++;maxCombo=Math.max(maxCombo,combo);gain=3+Math.min(5,Math.max(0,combo-2));
-    if(combo>=3){const g=Math.min(12,nw*.08);const nw2=Math.min(W*BASEW,nw+g);nx=clamp(top.x-(nw2-nw)/2,0,W-nw2);nw=nw2}
+    if(combo>=3){const g=Math.min(12,nw*.08);const nw2=Math.min(W*BASEW,nw+g);if(nw2>nw+.5)m.grew=true;nx=clamp(top.x-(nw2-nw)/2,0,W-nw2);nw=nw2}
     sfx.perfect(combo);buzz(15);flash=1;burst(nx+nw/2,yOf(m.i)+BH/2,hue0+m.i*9,18);rings.push({x:nx,y:yOf(m.i),w:nw,t0:tNow,i:m.i});
     setCombo(combo>1?t('combo',combo):t('perfect'));
   }else{
@@ -771,14 +797,16 @@ function drop(){
   if(m.pw){
     const pw=POWERS[m.pw];run.powers++;
     if(m.pw==='wide'){const c=nx+nw/2;nw=W*BASEW;nx=clamp(c-nw/2,0,W-nw)}else P[m.pw]=pw.n;
-    addFloat(nx+nw/2,yOf(m.i)-30,t('p_'+m.pw)+'!',pw.col,22);burst(nx+nw/2,yOf(m.i)+BH/2,0,24,pw.col);sfx.power();
+    addFloat(nx+nw/2,yOf(m.i)-30,t('bonusGot',t('p_'+m.pw)),pw.col,21);burst(nx+nw/2,yOf(m.i)+BH/2,0,24,pw.col);sfx.power();
   }
   addFloat(nx+nw/2,yOf(m.i)-6,'+'+gain,gain>1?'#ffc23d':'#fff7e8');
   stack.push({x:nx,w:nw,i:m.i,t0:tNow});landT=tNow;
+  if(m.grew){addFloat(nx+nw/2,yOf(m.i)-54,t('grew'),'#4fe39a',17);rings.push({x:nx,y:yOf(m.i),w:nw,t0:tNow+90,i:m.i});tip('grow',t('tipGrow'),'mid')}
   score++;setScore();
   const wd=worldOf(score);
   speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
   if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(Math.random()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
+  if([25,50,100].includes(score))setTimeout(()=>tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar'),2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
   renderPw();renderAbar();spawn();
@@ -787,7 +815,7 @@ function burst(x,y,h,n,col){for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2
 
 /* ================= HABILIDADES ================= */
 function abIcon(k){return document.querySelector('.ab[data-a="'+k+'"] svg').outerHTML}
-function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');const spent=n<=0&&run&&run.vid&&run.vid[k];bd.textContent=n>0?n:spent?'✕':'+';bd.classList.toggle('plus',n<=0&&!spent);bd.classList.toggle('spent',!!spent);b.classList.toggle('spent',!!spent);b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
+function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');const spent=n<=0&&run&&run.vid&&run.vid[k];bd.textContent=n>0?n:spent?'✕':'+';bd.classList.toggle('plus',n<=0&&!spent);bd.classList.toggle('spent',!!spent);b.classList.toggle('spent',!!spent);b.classList.toggle('idle',k==='calm'&&state==='play'&&!hazard());b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
 function applyAbility(k){
   run.powers++;sfx.power();buzz(20);
   const top=stack[stack.length-1];
@@ -805,6 +833,7 @@ async function rewardAbility(k,inGame){
 }
 function useAbility(k){
   if(state!=='play')return;
+  if(k==='calm'&&!hazard()){toast(t('noHazard'));const b=document.querySelector('.ab[data-a=calm]');b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');return}
   if((S.inv[k]||0)<=0){
     // vídeo pra recuperar o poder: só 1 vez por partida, de cada poder
     if(run.vid[k]){toast(t('vidOnce'));buzz(30);const b=document.querySelector('.ab[data-a="'+k+'"]');b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');return}
@@ -831,7 +860,9 @@ function lose(){
     clearInterval(revTimer);let lastS=5;revTimer=setInterval(()=>{const el=(performance.now()-st)/1000;$('ringArc').style.strokeDashoffset=301.6*Math.min(1,el/5);const s=Math.max(0,Math.ceil(5-el));if(s!==lastS){lastS=s;sfx.tick()}$('revCount').textContent=s;if(el>=5){clearInterval(revTimer);$('revive').hidden=true;finish()}},50);
   },650);
 }
-function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
+function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
+  {const top=stack[stack.length-1],nw=W*BASEW;top.x=clamp(top.x+top.w/2-nw/2,0,W-nw);top.w=nw;top.t0=tNow;rings.push({x:top.x,y:yOf(top.i),w:nw,t0:tNow,i:top.i});setTimeout(()=>addFloat(W/2,yOf(top.i)-40,t('reviveWide'),'#4fe39a',20),200)}
+  speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
 $('revVideo').onclick=async()=>{clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
 $('revGem').onclick=()=>{const cost=gemCost();if(S.gems<cost){clearInterval(revTimer);$('revive').hidden=true;toast(t('noGems'));finish();return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
 $('revSkip').onclick=()=>{clearInterval(revTimer);$('revive').hidden=true;finish()};
@@ -913,8 +944,8 @@ function finish(){
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
-function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof'].forEach(p=>$(p).hidden=true)}
-function startGame(){hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();$('hint').hidden=S.best>=5;lastT=performance.now();sfx.whoosh()}
+function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help'].forEach(p=>$(p).hidden=true)}
+function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();$('hint').hidden=S.best>=5;lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot()}
 function showMenu(){hideAll();state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
 function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let i=0;
@@ -1112,6 +1143,50 @@ $('pfSave').onclick=()=>{const n=cleanName($('pfName').value);if(!n){toast(t('rk
 function onlineBoot(){syncScores().then(()=>checkPrize())}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);
 
+/* ================= DICAS, ONDAS E COMO JOGAR ================= */
+// dica que aparece só na primeira vez (fica guardada no save)
+function tip(key,html,where){
+  S.tips=S.tips||{};if(S.tips[key])return;S.tips[key]=1;save();
+  const el=$('tipB');el.className='tp-'+(where||'mid');el.innerHTML=html;el.hidden=false;
+  clearTimeout(tip.t);tip.t=setTimeout(()=>el.hidden=true,4200);
+}
+// ondas gravitacionais: anéis que saem da linha do bloco e rastro quando acelera (dá pra ler o ritmo)
+function drawWaves(y,wd){
+  const ph=Math.sin(tNow*WAVE_W),cyc=(tNow*WAVE_W/(Math.PI*2))%1,cy=y+BH/2,amp=waveAmp(wd);
+  ctx.save();
+  for(let k=0;k<3;k++){const r=(cyc+k/3)%1;const a=(1-r)*(.35+.35*Math.max(0,ph));
+    ctx.strokeStyle=ph>0?`rgba(120,230,255,${a})`:`rgba(190,150,255,${a*.7})`;ctx.lineWidth=2+3*(1-r);
+    ctx.beginPath();ctx.ellipse(W/2,cy,20+r*W*.75,6+r*46,0,0,Math.PI*2);ctx.stroke()}
+  if(moving&&ph>.25){const n=4,dir=moving.dir;ctx.strokeStyle=`rgba(160,240,255,${(ph-.25)*.8})`;ctx.lineWidth=2;
+    for(let k=0;k<n;k++){const yy=y+6+k*(BH-12)/(n-1),x0=dir>0?moving.x:moving.x+moving.w,len=18+ph*amp*120;ctx.beginPath();ctx.moveTo(x0-dir*4,yy);ctx.lineTo(x0-dir*(4+len),yy);ctx.stroke()}}
+  ctx.restore();
+}
+
+/* ---- tela Como jogar ---- */
+const HELP=[
+ {k:'tap',draw(c,w,h){const bw=w*.58,bx=(w-bw)/2;block(bx,h-BH*.9,bw,1,1,c);block(bx+2,h-BH*1.9,bw-4,2,1,c);const mx=bx+16+Math.sin(tNow*.003)*14;block(mx,h-BH*2.9-6,bw-4,3,1,c);
+   c.fillStyle='#fff';c.beginPath();c.arc(w*.82,16,9+Math.sin(tNow*.008)*2,0,7);c.globalAlpha=.85;c.fill();c.globalAlpha=1}},
+ {k:'perf',draw(c,w,h){const bw=w*.5+Math.min(10,((tNow*.004)%3|0)*4),bx=(w-bw)/2;for(let r=0;r<3;r++)block(bx,h-BH*(r+.9),bw,r+4,1,c);
+   c.strokeStyle='#fff';c.lineWidth=2;c.globalAlpha=.5+.5*Math.sin(tNow*.008);c.strokeRect(bx-4,h-BH*2.9-4,bw+8,BH*3+2);c.globalAlpha=1;
+   c.fillStyle='#4fe39a';c.font='900 16px Nunito';c.textAlign='center';c.fillText('+',bx-10,h-BH*1.3);c.fillText('+',bx+bw+10,h-BH*1.3)}},
+ {k:'bonus',draw(c,w,h){const bw=w*.62,bx=(w-bw)/2,y=h/2-BH/2;block(bx,y,bw,6,1,c);const p=.5+.5*Math.sin(tNow*.01);c.strokeStyle='#7fd1ff';c.globalAlpha=.6+.4*p;c.lineWidth=3;rr(c,bx-3,y-3,bw+6,BH+6,7);c.stroke();c.globalAlpha=1;
+   c.fillStyle='#7fd1ff';rr(c,w/2-30,y+7,60,20,10);c.fill();c.fillStyle='#1a1030';c.font='900 12px Nunito';c.textAlign='center';c.textBaseline='middle';c.fillText('★ '+t('p_slow'),w/2,y+17.5)}},
+ {k:'pow',draw(c,w,h){const cols=[['#ff7a9c','#e0305a'],['#6fd0ff','#2a86d8'],['#6ff0a8','#1fa864'],['#c7b3ff','#7a5ae0']];cols.forEach((cc,k)=>{const x=14+k*((w-28)/3),y=h/2+(k%2?6:-6)+Math.sin(tNow*.004+k)*3;const g=c.createLinearGradient(0,y-14,0,y+14);g.addColorStop(0,cc[0]);g.addColorStop(1,cc[1]);c.fillStyle=g;c.beginPath();c.arc(x,y,13,0,7);c.fill();c.fillStyle='#2fbf5b';c.beginPath();c.arc(x+10,y-10,6,0,7);c.fill();c.fillStyle='#fff';c.font='900 10px Nunito';c.textAlign='center';c.textBaseline='middle';c.fillText('+',x+10,y-10)})}},
+ {k:'worlds',draw(c,w,h){[['#2e78c8','#a0d7f5'],['#06121f','#124650'],['#02010a','#3a1060']].forEach((g0,k)=>{const x=k*w/3,g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,g0[0]);g.addColorStop(1,g0[1]);c.fillStyle=g;c.fillRect(x,0,w/3+1,h)});
+   c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=2;for(let k=0;k<3;k++){const yy=18+k*14,xx=((tNow*.05+k*20)%(w/3));c.beginPath();c.moveTo(xx,yy);c.lineTo(xx+14,yy);c.stroke()}
+   c.strokeStyle='rgba(90,255,170,.8)';c.beginPath();for(let X=w/3;X<2*w/3;X+=3)c.lineTo(X,h/2+Math.sin(X*.15+tNow*.003)*8);c.stroke();
+   const r=((tNow*WAVE_W/(Math.PI*2))%1);c.strokeStyle=`rgba(120,230,255,${1-r})`;c.beginPath();c.ellipse(w*5/6,h/2,4+r*14,2+r*9,0,0,7);c.stroke()}},
+ {k:'rank',draw(c,w,h){c.fillStyle='#ffc23d';c.save();c.translate(w/2-24,h/2-26);c.scale(2,2);c.fill(new Path2D('M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z'));c.restore()}},
+];
+let helpBack='menu',helpRAF=0;
+function openHelp(from){helpBack=from;if(from==='pause')$('pause').hidden=true;else $('menu').hidden=true;$('help').hidden=false;
+  $('hcards').innerHTML=HELP.map((h,k)=>`<div class="hcard" style="animation-delay:${k*60}ms"><canvas></canvas><div><b>${t('h_'+h.k+'T')}</b><span>${t('h_'+h.k+'P')}</span></div></div>`).join('');
+  const cvs=[...$('hcards').querySelectorAll('canvas')];cancelAnimationFrame(helpRAF);
+  const loop=()=>{if($('help').hidden)return;cvs.forEach((cv,k)=>{const r=cv.getBoundingClientRect();if(!r.width)return;const pw=Math.round(r.width*DPR),ph=Math.round(r.height*DPR);if(cv.width!==pw){cv.width=pw;cv.height=ph}const c=cv.getContext('2d');c.setTransform(DPR,0,0,DPR,0,0);c.clearRect(0,0,r.width,r.height);HELP[k].draw(c,r.width,r.height)});helpRAF=requestAnimationFrame(loop)};loop();
+}
+$('openHelp').onclick=()=>openHelp('menu');$('pauseHelp').onclick=()=>openHelp('pause');
+$('closeHelp').onclick=()=>{$('help').hidden=true;cancelAnimationFrame(helpRAF);if(helpBack==='pause')$('pause').hidden=false;else showMenu()};
+
 /* ================= LOOP ================= */
 function frame(tt){
   requestAnimationFrame(frame);tNow=tt||0;
@@ -1120,7 +1195,7 @@ function frame(tt){
   const wd=worldOf(score);
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1);
-    if(P.calm<=0){if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v}
+    if(P.calm<=0){if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
   }
@@ -1140,7 +1215,8 @@ function frame(tt){
     // sombra do bloco sobre a torre
     if(top){const l=Math.max(moving.x,top.x),r=Math.min(moving.x+moving.w,top.x+top.w);if(r>l){ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(l,yOf(top.i),r-l,4)}}
     block(moving.x,y,moving.w,moving.i);
-    if(moving.pw){const pw=POWERS[moving.pw];const p=.5+.5*Math.sin(tNow*.01);ctx.save();ctx.strokeStyle=pw.col;ctx.globalAlpha=.6+.4*p;ctx.lineWidth=3;rr(ctx,moving.x-2,y-2,moving.w+4,BH+4,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=pw.col;const lb=t('p_'+moving.pw);ctx.font='900 13px Nunito, sans-serif';const tw=Math.max(60,ctx.measureText(lb).width+20);rr(ctx,moving.x+moving.w/2-tw/2,y+7,tw,20,10);ctx.fill();ctx.fillStyle='#1a1030';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lb,moving.x+moving.w/2,y+17.5);ctx.restore()}
+    if(moving.pw){const pw=POWERS[moving.pw];const p=.5+.5*Math.sin(tNow*.01);ctx.save();ctx.strokeStyle=pw.col;ctx.globalAlpha=.6+.4*p;ctx.lineWidth=3;rr(ctx,moving.x-2,y-2,moving.w+4,BH+4,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=pw.col;const lb='★ '+t('p_'+moving.pw);for(let k=0;k<4;k++){const a=tNow*.004+k*Math.PI/2,sx=moving.x+moving.w/2+Math.cos(a)*(moving.w/2+8),sy=y+BH/2+Math.sin(a)*(BH/2+8),r=2.5+1.5*Math.sin(tNow*.01+k);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(sx,sy-r*2);ctx.lineTo(sx+r*.6,sy);ctx.lineTo(sx,sy+r*2);ctx.lineTo(sx-r*.6,sy);ctx.fill()}ctx.fillStyle=pw.col;ctx.font='900 13px Nunito, sans-serif';const tw=Math.max(60,ctx.measureText(lb).width+20);rr(ctx,moving.x+moving.w/2-tw/2,y+7,tw,20,10);ctx.fill();ctx.fillStyle='#1a1030';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lb,moving.x+moving.w/2,y+17.5);ctx.restore()}
+    if(wd>=3&&state==='play'&&P.calm<=0)drawWaves(y,wd);
     if(wd===1&&state==='play'&&P.calm<=0){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;for(let k=0;k<5;k++){const lx=((tNow*.4*windDir+k*137)%(W+120)+W+120)%(W+120)-60,ly=y-60+k*28;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+40,ly);ctx.stroke()}}
   }
   // anéis do perfeito
@@ -1182,6 +1258,7 @@ if(N){
     if(!$('buy').hidden){$('buy').hidden=true;return}
     if(!$('prof').hidden){$('pfCancel').click();return}
     if(!$('rank').hidden){$('closeRank').click();return}
+    if(!$('help').hidden){$('closeHelp').click();return}
     if(!$('settings').hidden){$('closeSet').click();return}
     if(!$('shop').hidden){$('closeShop').click();return}
     if(!$('mis').hidden){showMenu();return}
