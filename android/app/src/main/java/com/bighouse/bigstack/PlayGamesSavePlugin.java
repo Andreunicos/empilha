@@ -37,6 +37,8 @@ public class PlayGamesSavePlugin extends Plugin {
                     } else {
                         JSObject r = new JSObject();
                         r.put("signedIn", false);
+                        Exception ex = t2.getException();
+                        r.put("error", ex != null ? errText(ex) : (t2.isSuccessful() ? "not_authenticated" : "failed"));
                         call.resolve(r);
                     }
                 });
@@ -48,6 +50,17 @@ public class PlayGamesSavePlugin extends Plugin {
         });
     }
 
+    // texto curto do erro (ex.: "ApiException 10: ...") pra mostrar no jogo e achar o problema
+    private static String errText(Exception e) {
+        String out = e.getClass().getSimpleName();
+        if (e instanceof com.google.android.gms.common.api.ApiException) {
+            out += " " + ((com.google.android.gms.common.api.ApiException) e).getStatusCode();
+        }
+        String m = e.getMessage();
+        if (m != null) out += ": " + m;
+        return out.length() > 160 ? out.substring(0, 160) : out;
+    }
+
     private void resolvePlayer(final PluginCall call) {
         PlayGames.getPlayersClient(getActivity()).getCurrentPlayer().addOnCompleteListener(task -> {
             JSObject r = new JSObject();
@@ -55,6 +68,9 @@ public class PlayGamesSavePlugin extends Plugin {
             if (task.isSuccessful() && task.getResult() != null) {
                 r.put("playerId", task.getResult().getPlayerId());
                 r.put("name", task.getResult().getDisplayName());
+            }
+            else if (task.getException() != null) {
+                r.put("error", errText(task.getException()));
             }
             call.resolve(r);
         });
