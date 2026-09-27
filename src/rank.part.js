@@ -76,6 +76,11 @@ function renderRankHead(){
 }
 function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidden=false;renderRankHead();loadRank();if(!S.lb.edited)setTimeout(()=>{if(!$('rank').hidden&&!S.lb.edited)openProf()},500)}
 function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span><span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
+// mesmo jogador com 2 entradas (ex.: reinstalou o app e ganhou outro ID): mostra só a melhor.
+// As suas entradas antigas somem e fica só a atual.
+function dedupeRows(rows,uid){const key=r=>String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
+  const myK=mineR?key(mineR):(S.lb.name.toLowerCase()+'|'+S.lb.cc);const seen=new Set();
+  return rows.filter(r=>{if(r.id===uid)return true;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
 async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
@@ -89,6 +94,7 @@ async function loadRank(){
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
     const uid=on.uid();const myS=board==='all'?S.lb.all:(S.lb.mk===board?S.lb.ms:0);
+    rows=dedupeRows(rows,uid);
     L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,r.id===uid)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
     const idx=rows.findIndex(r=>r.id===uid);
     if(idx<0){
@@ -127,5 +133,10 @@ async function onlineBoot(){const on=OL();if(!on)return;
   try{const st=await on.serverNow();if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}catch(e){}
   // celular novo / reinstalado: o login anônimo muda, então reenvia os recordes na conta nova
   const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
-  await syncScores();checkPrize()}
+  await syncScores();
+  // se a sua entrada foi apagada do ranking (ex.: limpeza), manda de novo o seu recorde
+  try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}
+    const k=monthKey();if(S.lb.mk===k&&S.lb.ms>0&&!(await on.mine(k))){S.lb.ms=0;save()}
+    if(S.lb.all===0||S.lb.ms===0)await syncScores()}catch(e){}
+  checkPrize()}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);
