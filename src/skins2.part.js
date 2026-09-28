@@ -105,6 +105,11 @@ splitSkin('matrix',(c,x,y,w,i)=>{c.fillStyle='#03140a';c.fillRect(x,y,w,BH);c.st
 
 /* ---- TEMPESTADE VIOLETA (pedido de um testador): escudo de energia roxo, borda neon bem visível
    e uma corrente elétrica que corre pela borda de cada bloco, em cascata pela torre ---- */
+// brilhos prontos da Tempestade Violeta (feitos 1 vez)
+let VS=null;function voidSprites(){if(VS)return VS;const mk=(w,h,f)=>{const cv=document.createElement('canvas');cv.width=w*2;cv.height=h*2;const c=cv.getContext('2d');c.scale(2,2);f(c);return cv};
+  const glow=col=>mk(32,32,c=>{const g=c.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,col);g.addColorStop(1,'rgba(160,80,255,0)');c.fillStyle=g;c.fillRect(0,0,32,32)});
+  const sweep=mk(56,BH,c=>{const g=c.createLinearGradient(0,0,56,0);g.addColorStop(0,'rgba(200,150,255,0)');g.addColorStop(.5,'rgba(235,210,255,.38)');g.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=g;c.beginPath();c.moveTo(18,0);c.lineTo(54,0);c.lineTo(38,BH);c.lineTo(2,BH);c.fill()});
+  return VS={glow:[glow('rgba(245,225,255,.95)'),glow('rgba(200,240,255,.9)')],sweep,col:[['#ffffff','rgba(225,185,255,.7)','rgba(225,185,255,.3)'],['#ffffff','rgba(140,220,255,.7)','rgba(140,220,255,.3)']]}}
 function rimPt(x,y,w,h,s){const P=2*(w+h);s=((s%P)+P)%P;if(s<w)return[x+s,y];s-=w;if(s<h)return[x+w,y+s];s-=h;if(s<w)return[x+w-s,y+h];s-=w;return[x,y+h-s]}
 SKINS.push({id:'void',cur:'gem',price:150,
  base(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#7b3ff2','#2b0b72','#5b21b6']);c.fillRect(x,y,w,BH);
@@ -114,13 +119,14 @@ SKINS.push({id:'void',cur:'gem',price:150,
    const g=c.createLinearGradient(0,y,0,y+BH);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.35,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(x,y,w,BH);
    // borda neon dupla
    c.strokeStyle='rgba(150,70,255,.75)';c.lineWidth=4;c.strokeRect(x+2,y+2,w-4,BH-4);c.strokeStyle='#e9d5ff';c.lineWidth=1.6;c.strokeRect(x+1,y+1,w-2,BH-2)},
- fx(c,x,y,w,i){if(w<14)return;const P=2*(w-3+BH-3),sp=tNow*.32+i*61,x0=x+1.5,y0=y+1.5,ww=w-3,hh=BH-3;
-   // 2 faíscas correndo pela borda (sentidos opostos) com rastro brilhante
-   c.lineCap='round';for(const dir of [1,-1]){const s0=dir>0?sp:P-sp*.8+i*23;for(let k=0;k<18;k++){const a=rimPt(x0,y0,ww,hh,s0-dir*k*5),b=rimPt(x0,y0,ww,hh,s0-dir*(k+1)*5);
-     c.strokeStyle=k<3?'#ffffff':`rgba(${dir>0?'225,185,255':'140,220,255'},${(1-k/18).toFixed(2)})`;c.lineWidth=k<3?3.4:3-k*.14;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
-     const h=rimPt(x0,y0,ww,hh,s0);const gl=c.createRadialGradient(h[0],h[1],0,h[0],h[1],16);gl.addColorStop(0,dir>0?'rgba(245,225,255,.95)':'rgba(200,240,255,.9)');gl.addColorStop(1,'rgba(160,80,255,0)');c.fillStyle=gl;c.fillRect(h[0]-16,h[1]-16,32,32)}
+ fx(c,x,y,w,i){if(w<14)return;const P=2*(w-3+BH-3),sp=tNow*.32+i*61,x0=x+1.5,y0=y+1.5,ww=w-3,hh=BH-3,G=voidSprites();
+   // 2 faíscas correndo pela borda (sentidos opostos): rastro em 3 trechos (poucos traços = leve)
+   c.lineCap='round';c.lineJoin='round';
+   for(let d=0;d<2;d++){const dir=d?-1:1,s0=d?P-sp*.8+i*23:sp;
+     for(let part=0;part<3;part++){c.strokeStyle=G.col[d][part];c.lineWidth=3.2-part*.8;c.beginPath();for(let k=part*6;k<=part*6+6;k++){const q=rimPt(x0,y0,ww,hh,s0-dir*k*5);k===part*6?c.moveTo(q[0],q[1]):c.lineTo(q[0],q[1])}c.stroke()}
+     const h=rimPt(x0,y0,ww,hh,s0);c.drawImage(G.glow[d],h[0]-16,h[1]-16,32,32)}
    // luz varrendo o escudo em diagonal a cada ~3s
-   const ph=((tNow+i*140)%3000)/3000,sx=x-40+ph*(w+80);if(ph<.99){const sg=c.createLinearGradient(sx-18,0,sx+18,0);sg.addColorStop(0,'rgba(200,150,255,0)');sg.addColorStop(.5,'rgba(235,210,255,.38)');sg.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=sg;c.beginPath();c.moveTo(sx-10,y);c.lineTo(sx+26,y);c.lineTo(sx+10,y+BH);c.lineTo(sx-26,y+BH);c.fill()}
+   const ph=((tNow+i*140)%3000)/3000;if(ph<.99)c.drawImage(G.sweep,x-58+ph*(w+80),y,56,BH);
    // estalo elétrico curto de vez em quando
    const slot=Math.floor(tNow/140),q=hash(slot*1.3+i*2.7);if(q>.72){let px=x+6+hash(slot+i)*(w-40),py=y+BH/2;c.strokeStyle='rgba(245,230,255,.95)';c.lineWidth=1.3;c.beginPath();c.moveTo(px,py);for(let s2=1;s2<=5;s2++){px+=6;py=y+BH/2+(hash(slot*2.1+s2+i)-.5)*14;c.lineTo(px,py)}c.stroke()}},
  draw(c,x,y,w,i){this.base(c,x,y,w,i);this.fx(c,x,y,w,i)}});

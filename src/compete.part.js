@@ -1,9 +1,9 @@
 /* ================= COMPETITIVO =================
    Patentes, linha do rival, "fulano te passou", desafio diário, prêmios Top 3/Top 10, conquistas,
    perfil do jogador e card de recorde pra compartilhar. */
-const dayKey=(d=new Date())=>'d_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1)+'_'+pad2(d.getUTCDate());
-const prevDayKey=()=>dayKey(new Date(Date.now()-864e5));
-const dayEndMs=()=>{const d=new Date();return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1)};
+const dayKey=(d=new Date(nowSrv()))=>'d_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1)+'_'+pad2(d.getUTCDate());
+const prevDayKey=()=>dayKey(new Date(nowSrv()-864e5));
+const dayEndMs=()=>{const d=new Date(nowSrv());return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1)+(Date.now()-nowSrv())};
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const seedOf=str=>[...str].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261);
 
@@ -45,9 +45,8 @@ async function snapBelow(){const on=OL();if(!on||!on.below)return;const k=monthK
   try{const rows=await on.below(k,ms,7);const uid=on.uid();S.cp={k,ms,t:Date.now(),below:rows.filter(r=>r.id!==uid&&r.n!==S.lb.name).map(r=>r.id).slice(0,6)};save()}catch(e){}}
 async function checkOvertakes(){const on=OL();const k=monthKey(),ms=monthBest();if(!on||!on.above||S.cp.k!==k||!S.cp.below.length||!ms)return;
   try{const rows=await on.above(k,ms,10);const who=rows.filter(r=>S.cp.below.includes(r.id));if(!who.length)return;
-    const pos=await on.rank(k,ms);showOvertake(who,pos)}catch(e){}}
-function showOvertake(who,pos,tries=0){
-  if(state!=='menu'||$('menu').hidden||!$('mis').hidden||!$('rkWin').hidden){if(tries<20)setTimeout(()=>showOvertake(who,pos,tries+1),3000);return}
+    const pos=await on.rank(k,ms);whenMenu(()=>showOvertake(who,pos))}catch(e){}}
+function showOvertake(who,pos){if(!$('ovt').hidden)return;
   $('ovtList').innerHTML=who.slice(0,3).map(r=>`<div><span>${flag(r.c)}</span><span>${esc(r.n)}</span><b>${r.s}</b></div>`).join('');
   $('ovtP').textContent=t('ovtP',pos);$('ovt').hidden=false;sfx.whoosh()}
 $('ovtGo').onclick=()=>{$('ovt').hidden=true;mode='normal';startGame()};
@@ -58,9 +57,12 @@ const DAILY_TRIES=3,DPRIZE=[10,6,4];
 function dailyInfo(){const k=dayKey();if(S.dly.k!==k){S.dly.k=k;S.dly.tries=0;S.dly.best=0;S.dly.sent=0}return S.dly}
 function dailyBtn(){const d=dailyInfo(),left=DAILY_TRIES-d.tries;$('dlyLeft').textContent=left>0?t('dlyLeft',left):t('dlyDone');$('openDaily').classList.toggle('done',left<=0)}
 function startDaily(){const d=dailyInfo();if(d.tries>=DAILY_TRIES){toast(t('dlyNoTries'));openRank();setRankTab('day');return}
-  d.tries++;if(d.tries===1)S.dly.days++;save();mode='daily';startGame()}
+  d.tries++;if(d.tries===1)S.dly.days++;save();mode='daily';startGame();run.dk=d.k}
 $('openDaily').onclick=startDaily;
-function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;const d=dailyInfo();const left=DAILY_TRIES-d.tries;
+function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;
+  // a partida começou num dia e terminou no outro (meia-noite UTC): não vale pro ranking de hoje
+  if(run.dk&&run.dk!==dayKey()){$('oDly').innerHTML=`<b>${t('dlyTag')}</b><br>${t('dlyExpired')}`;$('oDly').hidden=false;$('again').textContent=t('again');return}
+  const d=dailyInfo();const left=DAILY_TRIES-d.tries;
   $('oDly').innerHTML=`<b>${t('dlyTag')}</b><br>${left>0?t('dlyLeftLong',left):t('dlyOver')}`;$('oDly').hidden=false;
   $('again').textContent=left>0?t('dlyAgain'):t('again');
   const why=runVerdict(sc);if(why.length){S.lb.flag=(S.lb.flag||0)+1;S.lb.why=why.join(',');save();if(sc>0){el.innerHTML=`<span>${t('rkNotSent')}</span>`;el.hidden=false}return}
@@ -70,10 +72,13 @@ function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;const d=dailyInfo(
 }
 async function showDayPos(){const on=OL(),d=dailyInfo();if(!on||!d.sent||$('over').hidden)return;
   try{const pos=await on.rank(dayKey(),d.sent);if($('over').hidden)return;$('oRank').innerHTML=`<span>${flag(S.lb.cc)} <b>#${pos}</b> ${t('rkInDay')}</span>`;$('oRank').hidden=false}catch(e){}}
-async function checkDailyPrize(){const on=OL();if(!on)return;const pk=prevDayKey();if(S.dwon.chk===pk)return;
-  try{let top=await on.top(pk,5);S.dwon.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;save();wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}save()}catch(e){}}
-
+async function checkDailyPrize(){const on=OL();if(!on)return;const keys=[];for(let k=1;k<=7;k++){const dk=dayKey(new Date(nowSrv()-k*864e5));if(dk===S.dwon.chk)break;keys.push(dk)}
+  for(const pk of keys.reverse()){try{let top=await on.top(pk,5);top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
+    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}
+    S.dwon.chk=pk;save()}catch(e){return}}}
+// voltou pro app (ex.: deixou aberto de um dia pro outro): confere prêmios e reenvia o que faltou
+let resumeAt=0;function onResumeOnline(){if(Date.now()-resumeAt<60000)return;resumeAt=Date.now();const on=OL();if(!on)return;
+  syncScores().then(()=>{checkPrize();checkDailyPrize()}).catch(()=>{})}
 /* ---- estatísticas ---- */
 function trackStats(){const st=S.st;st.runs++;st.floors+=score;st.perf+=perfects;st.combo=Math.max(st.combo,maxCombo);st.time+=Math.round((run.play||0)/1000)}
 

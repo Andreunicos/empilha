@@ -10,9 +10,12 @@ function runVerdict(sc){
   if(stack.length-1!==sc)why.push('state');                      // placar não bate com a torre
   if(taps.length>=25){
     const cnt={};let mx=0;taps.forEach(tp=>{const k=tp.x+','+tp.y;cnt[k]=(cnt[k]||0)+1;if(cnt[k]>mx)mx=cnt[k]});
-    if(mx/taps.length>.8)why.push('samepx');                      // sempre no mesmo pixel = autoclick
     const iv=[];for(let k=1;k<taps.length;k++)iv.push(taps[k].t-taps[k-1].t);
     const mean=iv.reduce((a,b)=>a+b,0)/iv.length,sd=Math.sqrt(iv.reduce((a,b)=>a+(b-mean)**2,0)/iv.length);
+    // sempre no mesmo pixel = autoclick. Com mouse (Chromebook/emulador) o cursor parado é normal,
+    // então aí só conta se o ritmo também for regular demais
+    const mouse=taps.filter(tp=>tp.pt==='mouse').length>taps.length/2;
+    if(mx/taps.length>.8&&(!mouse||(mean>0&&sd/mean<.15)))why.push('samepx');
     if(mean>0&&sd/mean<.03)why.push('rhythm');                   // ritmo perfeito de máquina
   }
   if(errs.length>=120&&errs.filter(e=>e.e>=e.tol).length<=1)why.push('perfect'); // 120 perfeitos quase sem erro

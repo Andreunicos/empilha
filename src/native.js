@@ -104,7 +104,7 @@ window.Native = {
   // save na nuvem do Google Play Games (Jogos salvos)
   cloud: isNative ? {
     signIn: (interactive) => PlayGamesSave.signIn({ interactive: !!interactive }),
-    save: (data, description) => PlayGamesSave.save({ data, description: description || '' }),
+    save: (data, description, progress) => PlayGamesSave.save({ data, description: description || '', progress: Math.max(0, Math.floor(progress || 0)) }),
     load: () => PlayGamesSave.load({}),
   } : null,
   // conquistas do Google Play Games

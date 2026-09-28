@@ -13,7 +13,8 @@ const WORLDS=[
 const EVENT={1:'Cuidado com o vento',2:'Blocos em velocidade maluca',3:'Velocidade máxima maior'};
 const worldOf=f=>{let k=0;for(let j=0;j<WORLDS.length;j++)if(f>=WORLDS[j].at)k=j;return k};
 let skyF=0,city=[],clouds=[],stars=[];
-function buildCity(){city=[];let x=-10;while(x<W+10){const w=26+Math.random()*40,h=40+Math.random()*120;city.push({x,w,h,win:Array.from({length:12},()=>Math.random()<.35)});x+=w+4}}
+let cityW=0;
+function buildCity(){if(city.length&&Math.abs(W-cityW)<40)return;cityW=W;city=[];let x=-10;while(x<W+10){const w=26+Math.random()*40,h=40+Math.random()*120;city.push({x,w,h,win:Array.from({length:12},()=>Math.random()<.35)});x+=w+4}}
 for(let k=0;k<26;k++)clouds.push({f:14+k*2.2+Math.random()*2,x:Math.random(),s:.6+Math.random()*.8,v:(Math.random()-.5)*.0004});
 for(let k=0;k<90;k++)stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.8+.4,p:Math.random()*6});
 function skyColor(key){let col=WORLDS[0][key].slice();for(let k=1;k<WORLDS.length;k++){const t=clamp((skyF-(WORLDS[k].at-8))/8,0,1);col=col.map((v,j)=>v+(WORLDS[k][key][j]-v)*t)}return `rgb(${col.map(v=>v|0).join(',')})`}
@@ -56,7 +57,9 @@ const SCN=[
 ];
 // depois do 360 os cenários continuam aparecendo, sorteados (mas sempre iguais pra cada andar)
 const PROC=['galaxy','giant','asteroids','comet','planet','nebula','crystalp','station'];
-function sceneAt(n){const f=390+n*32;const a=hash(n*7.7),b=hash(n*3.1+1);const k=PROC[(a*PROC.length)|0];
+const SCN_MEMO=[];
+function sceneAt(n){return SCN_MEMO[n]||(SCN_MEMO[n]=sceneAt0(n))}
+function sceneAt0(n){const f=390+n*32;const a=hash(n*7.7),b=hash(n*3.1+1);const k=PROC[(a*PROC.length)|0];
   return {f,p:k==='asteroids'||k==='comet'?.85:.3+b*.35,k,x:.2+b*.6,r:k==='galaxy'?.4+b*.25:40+b*40,c1:hsl(b*360,80,70),c2:hsl(b*360+40,70,35),ring:`hsla(${a*360},90%,80%,.7)`}}
 function drawScenery(){
   if(skyF<85)return;
@@ -64,7 +67,7 @@ function drawScenery(){
   ctx.save();ctx.globalAlpha=fade;
   const list=SCN.slice();const top=Math.floor(Math.max(0,skyF-360)/32);for(let n=Math.max(0,top-3);n<=top+3;n++)list.push(sceneAt(n));
   const base=H*.35;
-  for(const o of list){const y=base+(yOf(o.f)-base)*o.p;if(y<-H*.8||y>H*1.8)continue;const x=(o.x??.5)*W;ctx.globalAlpha=fade;DRAW[o.k](x,y,o)}
+  for(const o of list){const y=base+(yOf(o.f)-base)*o.p;const rad=o.k==='galaxy'?W*(o.r||.6)*.65:o.k==='nebula'?W*.9:o.k==='asteroids'?H*1.1:o.k==='whale'||o.k==='wormhole'?W*.6:(o.r||60)*1.6+40;if(y-rad>H||y+rad<0)continue;const x=(o.x??.5)*W;ctx.globalAlpha=fade;DRAW[o.k](x,y,o)}
   ctx.restore();
 }
 const DRAW={

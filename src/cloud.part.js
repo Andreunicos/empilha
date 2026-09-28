@@ -1,7 +1,9 @@
 /* ================= SAVE NA NUVEM (Google Play Games) ================= */
 // O save vai selado pra nuvem. Ao carregar, o selo é conferido (save editado é recusado).
 const CL=()=>window.Native&&window.Native.isNative&&window.Native.cloud?window.Native.cloud:null;
-let clPlayer=null,clLast=0,clBusy=false;
+let clPlayer=null,clLast=0,clBusy=false,clBootDone=false,clCloudProg=null;
+// "tamanho" do progresso (nível e XP só aumentam jogando) — usado pra nunca salvar por cima de um progresso maior
+const progOf=s=>(s.lvl||1)*1e6+(s.xp||0);
 function clPayload(){save();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
 function clParse(txt){try{const o=JSON.parse(txt||'');if(!o||!o.d||!o.h||SEAL(o.d)!==o.h)return null;const s=JSON.parse(o.d);return {o,s}}catch(e){return null}}
 function clDesc(s){return t('clDesc',s.lvl||1,s.best||0)}
@@ -17,11 +19,12 @@ async function clSignIn(interactive){const c=CL();if(!c)return false;
 async function clSaveNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}
   clBusy=true;clRender();
-  try{await c.save(clPayload(),clDesc(S));clLast=Date.now();if(manual){sfx.coin();toast(t('clSaved'))}}
+  try{await c.save(clPayload(),clDesc(S),progOf(S));clLast=Date.now();clCloudProg=progOf(S);if(manual){sfx.coin();toast(t('clSaved'))}}
   catch(e){if(manual)toast(t('clFail'))}
   clBusy=false;clRender()}
 // salva sozinho no fim das partidas e ao sair do app (no máximo 1x por minuto)
-function cloudAuto(){if(clPlayer&&Date.now()-clLast>60000)clSaveNow(false)}
+// (só depois de comparar com a nuvem, e nunca por cima de um progresso maior)
+function cloudAuto(){if(!clPlayer||!clBootDone||(clCloudProg!=null&&progOf(S)<clCloudProg))return;if(Date.now()-clLast>60000)clSaveNow(false)}
 async function clLoadNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}
   clBusy=true;clRender();let r=null;
@@ -32,18 +35,23 @@ async function clLoadNow(manual){const c=CL();if(!c||clBusy)return;
   clAsk(p);
 }
 function clAsk(p){const s=p.s;$('clAskP').innerHTML=t('clAskP',s.lvl||1,s.best||0,s.coins||0,s.gems||0);$('clAsk').hidden=false;
-  $('clYes').onclick=async()=>{$('clAsk').hidden=true;try{localStorage.setItem('empilha_save',p.o.d);localStorage.setItem('empilha_sig',p.o.h);localStorage.setItem('empilha_bak',p.o.d);localStorage.setItem('empilha_bak_sig',p.o.h)}catch(e){return}
+  $('clYes').onclick=async()=>{$('clAsk').hidden=true;restoring=true;clearTimeout(mirT);mirT=0;try{localStorage.setItem('empilha_save',p.o.d);localStorage.setItem('empilha_sig',p.o.h);localStorage.setItem('empilha_bak',p.o.d);localStorage.setItem('empilha_bak_sig',p.o.h)}catch(e){return}
     // atualiza também o espelho do backup do Android, senão ele "restauraria" o save antigo por cima
     const NN=window.Native;try{if(NN&&NN.prefSet){await NN.prefSet('bs_save',p.o.d);await NN.prefSet('bs_sig',p.o.h)}}catch(e){}
     location.reload()};
-  $('clNo').onclick=()=>{$('clAsk').hidden=true}}
-$('clSave').onclick=()=>clSaveNow(true);$('clLoad').onclick=()=>clLoadNow(true);$('clSign').onclick=()=>clSignIn(true).then(ok=>{if(ok)toast(t('clHi',clPlayer))});
+  // recusou: vale o progresso deste celular (pode salvar por cima)
+  $('clNo').onclick=()=>{$('clAsk').hidden=true;clCloudProg=progOf(S)}}
+$('clSave').onclick=()=>clSaveNow(true);$('clLoad').onclick=()=>clLoadNow(true);$('clSign').onclick=()=>clSignIn(true).then(ok=>{if(ok){toast(t('clHi',clPlayer));if(!clBootDone)clCompare()}});
 // ao abrir: entra em silêncio e, se este celular estiver "novo" e a nuvem tiver progresso, oferece recuperar
 (async()=>{if(!CL())return;clRender();
   if(!(await clSignIn(false))){
     // 1ª vez que abre o jogo: chama a tela do Play Games uma única vez (depois fica só o botão Entrar)
     let first=false;try{first=!localStorage.getItem('bs_clauto');localStorage.setItem('bs_clauto','1')}catch(e){}
     if(!first)return;await new Promise(r=>setTimeout(r,1200));if(!(await clSignIn(true)))return;toast(t('clHi',clPlayer))}
-  try{const r=await CL().load();const p=r&&r.data?clParse(r.data):null;if(!p)return;
-    const fresh=!BOOT_LOCAL||(S.best<(p.s.best||0)&&S.lvl<=(p.s.lvl||1)&&S.xp+S.lvl*100<(p.s.xp||0)+(p.s.lvl||1)*100);
-    if(fresh&&(p.s.best||0)>0)clAsk(p)}catch(e){}})();
+  clCompare()})();
+// compara com a nuvem ao entrar: se lá tiver mais progresso, oferece recuperar (quando estiver no menu)
+async function clCompare(){if(clBusy)return;clBusy=true;let p=null,ok=false;
+  try{const r=await CL().load();ok=true;p=r&&r.data?clParse(r.data):null}catch(e){}
+  clBusy=false;clRender();if(!ok)return;
+  clCloudProg=p?progOf(p.s):0;clBootDone=true;
+  if(p&&(p.s.best||0)>0&&(!BOOT_LOCAL||progOf(p.s)>progOf(S)))whenMenu(()=>clAsk(p))}

@@ -2,9 +2,10 @@
 // Placar mensal (o Nº1 ganha 50 cristais e zera todo dia 1) + placar geral fixo, com a bandeira do país.
 const OL=()=>window.Online&&window.Online.configured?window.Online:null;
 const pad2=n=>(n<10?'0':'')+n;
-const monthKey=(d=new Date())=>'m_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1);
-const prevMonthKey=()=>{const d=new Date();d.setUTCDate(1);d.setUTCHours(12,0,0,0);d.setUTCMonth(d.getUTCMonth()-1);return monthKey(d)};
-const monthEndMs=()=>{const d=new Date();return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)};
+const nowSrv=()=>Date.now()-(typeof srvSkew==='number'?srvSkew:0); // hora do Google (não a do celular)
+const monthKey=(d=new Date(nowSrv()))=>'m_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1);
+const prevMonthKey=()=>{const d=new Date(nowSrv());d.setUTCDate(1);d.setUTCHours(12,0,0,0);d.setUTCMonth(d.getUTCMonth()-1);return monthKey(d)};
+const monthEndMs=()=>{const d=new Date(nowSrv());return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)+(Date.now()-nowSrv())};
 const CCS='AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CL CM CN CO CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FR GA GB GD GE GH GM GN GQ GR GT GW GY HK HN HR HT HU ID IE IL IN IQ IR IS IT JM JO JP KE KG KH KM KN KR KW KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MK ML MM MN MO MR MT MU MV MW MX MY MZ NA NE NG NI NL NO NP NZ OM PA PE PG PH PK PL PR PS PT PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SY SZ TD TG TH TJ TL TM TN TO TR TT TW TZ UA UG US UY UZ VA VC VE VN VU WS YE ZA ZM ZW'.split(' ');
 const flag=cc=>/^[A-Z]{2}$/.test(cc||'')?String.fromCodePoint(...[...cc].map(ch=>127397+ch.charCodeAt(0))):'🏳️';
 function ccName(cc){try{return new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[LANG]||'en'],{type:'region'}).of(cc)||cc}catch(e){return cc}}
@@ -29,14 +30,21 @@ function cleanName(v){let n=String(v||'').replace(/[^\p{L}\p{N} ._-]/gu,'').repl
 
 /* ---- enviar recordes ---- */
 function trackMonth(sc){const k=monthKey();if(S.lb.mb.k!==k)S.lb.mb={k,s:0};if(sc>S.lb.mb.s)S.lb.mb.s=sc;save()}
+const RA={s:-1,p:0,t:0}; // posição no geral (cache: só pergunta de novo se o recorde mudar)
 let lbBusy=null;
+// envia; se o servidor recusar (ex.: lá já tem um recorde maior, de um save antigo restaurado), adota o valor de lá
+async function submitSafe(on,board,v){try{await on.submit(board,v,S.lb.name,S.lb.cc);return v}
+  catch(e){if(!/permission|PERMISSION/.test(String(e&&(e.code||e.message))))throw e;const m=await on.mine(board);if(m&&m.s>v){await on.submit(board,m.s,S.lb.name,S.lb.cc);return m.s}throw e}}
 function syncScores(force){
-  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;
+  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;const nameAt=S.lb.name+'|'+S.lb.cc;
   lbBusy=(async()=>{let ok=true;
-    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);await on.submit('all',v,S.lb.name,S.lb.cc);S.lb.all=v;save()}}catch(e){ok=false}
+    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);S.lb.all=await submitSafe(on,'all',v);save()}}catch(e){ok=false}
     try{const k=monthKey();if(S.lb.mk!==k){S.lb.mk=k;S.lb.ms=0}
-      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);await on.submit(k,v,S.lb.name,S.lb.cc);S.lb.ms=v;save()}}catch(e){ok=false}
-    if(ok&&force&&S.lb.dirty){S.lb.dirty=false;save()}
+      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);S.lb.ms=await submitSafe(on,k,v);save()}}catch(e){ok=false}
+    // desafio diário que não chegou a ser enviado (sem internet, erro...)
+    try{if(typeof dayKey==='function'&&S.dly&&S.dly.k===dayKey()&&S.dly.best>S.dly.sent){await on.submit(dayKey(),S.dly.best,S.lb.name,S.lb.cc);S.dly.sent=S.dly.best;save()}}catch(e){}
+    // só limpa o "precisa reenviar" se o nome/país não mudou no meio do envio
+    if(ok&&force&&S.lb.dirty&&nameAt===S.lb.name+'|'+S.lb.cc){S.lb.dirty=false;save()}
     return ok})().finally(()=>{lbBusy=null});
   return lbBusy;
 }
@@ -48,9 +56,9 @@ function rankAfterRun(sc){
   if(sc>(S.lb.rb||0))S.lb.rb=sc;trackMonth(sc);
   const on=OL();if(!on||sc<=0)return;
   syncScores().then(async()=>{
-    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}RV.t=0;
+    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
-    try{const [rm,ra]=await Promise.all([on.rank(k,ms),S.lb.all?on.rank('all',S.lb.all):Promise.resolve(0)]);if($('over').hidden)return;
+    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await on.rank('all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([on.rank(k,ms),allPos()]);if($('over').hidden)return;
       S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
   });
 }
@@ -60,7 +68,7 @@ const MPRIZE=[50,30,20,10,10,10,10,10,10,10];
 async function checkPrize(){
   const on=OL();if(!on)return;const pk=prevMonthKey();if(S.lb.chk===pk)return;
   try{let top=await on.top(pk,15);S.lb.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();showPrizeWin(pk,idx+1,g)}
+    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();whenMenu(()=>showPrizeWin(pk,idx+1,g))}
     save()}catch(e){}
 }
 function monthLabel(k){const m=/m_(\d{4})_(\d{2})/.exec(k);if(!m)return '';return new Date(Date.UTC(+m[1],+m[2]-1,15)).toLocaleDateString({pt:'pt-BR',en:'en-US',es:'es-ES'}[LANG],{month:'long',year:'numeric',timeZone:'UTC'})}
@@ -83,9 +91,10 @@ function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidd
 function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span>${tierSVG(tierOf(r.s),17)}<span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
 // mesmo jogador com 2 entradas (ex.: reinstalou o app e ganhou outro ID): mostra só a melhor.
 // As suas entradas antigas somem e fica só a atual.
-function dedupeRows(rows,uid){const key=r=>String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
-  const myK=mineR?key(mineR):(S.lb.name.toLowerCase()+'|'+S.lb.cc);const seen=new Set();
-  return rows.filter(r=>{if(r.id===uid)return true;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
+function dedupeRows(rows,uid){const old=S.lb.uids||[];const auto=n=>/^(Jogador|Player|Jugador)\d{4}$/.test(n||'');
+  const key=r=>auto(r.n)?'#'+r.id:String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
+  const myK=mineR?key(mineR):S.lb.pg?(S.lb.name.toLowerCase()+'|'+S.lb.cc):'#'+uid;const seen=new Set();
+  return rows.filter(r=>{if(r.id===uid)return true;if(old.includes(r.id))return false;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
 async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
@@ -139,7 +148,7 @@ $('pfSave').onclick=()=>{const changed=pfCC!==S.lb.cc;S.lb.cc=pfCC;S.lb.edited=t
 async function onlineBoot(){const on=OL();if(!on)return;
   try{const st=await on.serverNow();if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}catch(e){}
   // celular novo / reinstalado: o login anônimo muda, então reenvia os recordes na conta nova
-  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
+  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.uids=(S.lb.uids||[]).concat(S.lb.uid).slice(-10);S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
   await syncScores();
   // se a sua entrada foi apagada do ranking (ex.: limpeza), manda de novo o seu recorde
   try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}

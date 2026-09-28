@@ -37,7 +37,9 @@ if (configured) {
 }
 
 async function ensureUser() {
-  const u = await withTimeout(readyP, 10000).catch(() => null);
+  let u = user || await withTimeout(readyP, 10000).catch(() => null);
+  // o 1º login falhou (ex.: abriu sem internet): tenta de novo agora
+  if (!u && configured) { try { const c = await withTimeout(signInAnonymously(auth), 9000); u = user = c.user; } catch (e) { /* segue offline */ } }
   if (!u) throw new Error('offline');
   return u;
 }

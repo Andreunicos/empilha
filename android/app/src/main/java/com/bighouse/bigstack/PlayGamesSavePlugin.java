@@ -107,12 +107,13 @@ public class PlayGamesSavePlugin extends Plugin {
         final String name = call.getString("name", DEFAULT_SLOT);
         final String data = call.getString("data");
         final String desc = call.getString("description", "");
+        final Long progress = call.getLong("progress", 0L);
         if (data == null) {
             call.reject("missing data");
             return;
         }
         final SnapshotsClient sc = PlayGames.getSnapshotsClient(getActivity());
-        sc.open(name, true, SnapshotsClient.RESOLUTION_POLICY_MOST_RECENTLY_MODIFIED).addOnCompleteListener(task -> {
+        sc.open(name, true, SnapshotsClient.RESOLUTION_POLICY_HIGHEST_PROGRESS).addOnCompleteListener(task -> {
             if (!task.isSuccessful() || task.getResult() == null || task.getResult().getData() == null) {
                 call.reject("open failed", task.getException());
                 return;
@@ -120,7 +121,7 @@ public class PlayGamesSavePlugin extends Plugin {
             final Snapshot snap = task.getResult().getData();
             try {
                 snap.getSnapshotContents().writeBytes(data.getBytes(StandardCharsets.UTF_8));
-                SnapshotMetadataChange change = new SnapshotMetadataChange.Builder().setDescription(desc).build();
+                SnapshotMetadataChange change = new SnapshotMetadataChange.Builder().setDescription(desc).setProgressValue(progress == null ? 0L : progress).build();
                 sc.commitAndClose(snap, change).addOnCompleteListener(t2 -> {
                     if (t2.isSuccessful()) {
                         JSObject r = new JSObject();
@@ -141,7 +142,7 @@ public class PlayGamesSavePlugin extends Plugin {
     public void load(PluginCall call) {
         final String name = call.getString("name", DEFAULT_SLOT);
         final SnapshotsClient sc = PlayGames.getSnapshotsClient(getActivity());
-        sc.open(name, true, SnapshotsClient.RESOLUTION_POLICY_MOST_RECENTLY_MODIFIED).addOnCompleteListener(task -> {
+        sc.open(name, true, SnapshotsClient.RESOLUTION_POLICY_HIGHEST_PROGRESS).addOnCompleteListener(task -> {
             if (!task.isSuccessful() || task.getResult() == null || task.getResult().getData() == null) {
                 call.reject("open failed", task.getException());
                 return;

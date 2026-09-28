@@ -85,6 +85,9 @@
   .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--sunD)}
   .btn:focus-visible,.tab:focus-visible,.icon-btn:focus-visible,.seg button:focus-visible,.sw:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
   .btn.play{font-size:26px;padding:16px 48px;animation:breathe 2.2s ease-in-out infinite}
+  #over .btn.play{white-space:nowrap;padding:14px 34px}
+  @media (max-height:720px){#over .big-title{font-size:40px}#over .stats b{font-size:26px}#over .earn{padding:10px 14px;gap:3px;font-size:14px}#over .btn.play{font-size:22px;padding:12px 28px}#over .up{padding:8px 12px;font-size:13px}#over .inner{gap:9px}
+    #menu .inner{gap:10px}#menu .logo i{font-size:clamp(26px,9vw,42px)}}
   @keyframes breathe{50%{transform:scale(1.05)}}
   .btn.alt{background:var(--card2);color:var(--ink);box-shadow:0 5px 0 #0b0a1f}
   .btn.gemb{background:var(--gem);box-shadow:0 5px 0 var(--gemD)}
@@ -258,7 +261,7 @@
   #ad{z-index:9;background:#000}
   #ad .box{width:100%;max-width:340px;aspect-ratio:9/12;max-height:60vh;border-radius:18px;background:linear-gradient(160deg,#2b2f77,#7b2b8a);display:grid;place-items:center;font-family:"Bungee",Impact,sans-serif;font-size:22px;padding:20px}
   .tag2{font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-  #toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:10;background:var(--card2);padding:10px 16px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.4);width:max-content;max-width:88%;text-align:center;animation:tin .3s cubic-bezier(.2,1.4,.4,1)}
+  #toast{pointer-events:none;position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:10;background:var(--card2);padding:10px 16px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.4);width:max-content;max-width:88%;text-align:center;animation:tin .3s cubic-bezier(.2,1.4,.4,1)}
   #abar:not([hidden])~#toast{bottom:112px}
   @keyframes tin{from{opacity:0;transform:translate(-50%,16px)}}
   .fly{position:absolute;z-index:11;width:18px;height:18px;pointer-events:none}
@@ -462,7 +465,7 @@ function loadSave(){
   const parse=d=>{try{return JSON.parse(d)}catch(e){return null}};
   if(main&&sig&&SEAL(main)===sig)return parse(main)||{};
   if(bak&&bsig&&SEAL(bak)===bsig){const d=parse(bak);if(d)return d}
-  if(main&&!sig)return parse(main)||{}; // save antigo (antes do selo): aceita e sela
+  if(main&&!sig){const d=parse(main)||{};if(get('empilha_sealed'))d.tamper=1;return d} // save antigo (antes do selo): aceita e sela uma vez
   if(main){const d=parse(main)||{};d.tamper=1;return d} // editado e sem cópia boa: segue, mas fora do ranking
   return {};
 }
@@ -470,9 +473,12 @@ const BOOT_LOCAL=(()=>{try{return !!localStorage.getItem('empilha_save')}catch(e
 let S;try{S=Object.assign({},DEF,loadSave())}catch(e){S=JSON.parse(JSON.stringify(DEF))}
 const BOOT_CLK=S.clk||0;
 S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});for(const k in S.inv)S.inv[k]=fixNum(S.inv[k],0,999);if(!Array.isArray(S.owned))S.owned=['classic'];
-const save=()=>{try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);mirrorSave(d,h)}catch(e){}};
+let restoring=false; // restaurando save da nuvem: não grava mais nada até recarregar
+const save=()=>{if(restoring)return;try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);localStorage.setItem('empilha_sealed','1');mirrorSave(d,h)}catch(e){}};
 // espelho no armazenamento nativo (backup automático do Google): gravado no máximo a cada 3 s
 let mirT=0,mirD=null,mirReady=false;function mirrorSave(d,h){const NN=window.Native;if(!NN||!NN.isNative||!NN.prefSet)return;mirD=[d,h];if(mirT||!mirReady)return;mirT=setTimeout(()=>{mirT=0;const [dd,hh]=mirD;NN.prefSet('bs_save',dd);NN.prefSet('bs_sig',hh)},3000)}
+// grava o espelho na hora (app indo pro fundo pode ser fechado pelo Android)
+function flushMirror(){const NN=window.Native;if(!mirReady||!mirD||!NN||!NN.prefSet||restoring)return;clearTimeout(mirT);mirT=0;NN.prefSet('bs_save',mirD[0]);NN.prefSet('bs_sig',mirD[1])}
 // ao abrir: se o celular foi trocado/reinstalado e só o backup do Google voltou, recupera o progresso dele
 (async()=>{const NN=window.Native;if(!NN||!NN.isNative||!NN.prefGet)return;const ready=()=>{mirReady=true;if(mirD)mirrorSave(mirD[0],mirD[1])};
   const d=await NN.prefGet('bs_save'),h=await NN.prefGet('bs_sig');
@@ -532,9 +538,9 @@ es:{powers:'Poderes',a_magnet:'IMÁN',a_slow:'LENTO',a_wide:'ANCHO',a_calm:'ANTI
 };
 /* ================= TEXTOS NOVOS (v1.2) ================= */
 const L2={
-pt:{dlyB:'DESAFIO DIÁRIO',dlyLeft:'{0}/3',dlyDone:'feito',dlyTag:'DESAFIO DIÁRIO',dlyNoTries:'Suas 3 tentativas de hoje acabaram. Volte amanhã!',dlyLeftLong:'Ainda tem {0} tentativa(s) hoje',dlyOver:'Acabaram as tentativas de hoje. Veja o ranking do dia!',dlyAgain:'TENTAR DE NOVO',dlyWon:'Você ficou em #{0} no desafio de ontem! +{1} cristais',dlyRule:'mesmos blocos pra todos, sem poderes',rkDay:'Hoje',rkInDay:'no desafio de hoje',rkDayPrize:'Desafio de hoje:',rkPrize2:'Prêmios do mês:',rkTop10:'4º ao 10º: 10',rkWinT3:'TOP 3 DO MÊS!',rkWinT10:'TOP 10 DO MÊS!',rkWinPn:'Você ficou em #{0} no mundo em {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estatísticas',ppMedals:'Medalhas',ppAch:'Conquistas',ppMonth:'Recorde do mês',ppRuns:'Partidas',ppFloors:'Andares no total',ppPerf:'Perfeitos',ppCombo:'Maior combo',ppDaily:'Melhor no desafio',ppPos:'Melhor posição no mês',ppTime:'Tempo jogando',ppNoMed:'Fique no Top 10 do mês pra ganhar sua primeira medalha.',pgAch:'CONQUISTAS PLAY GAMES',shareB:'COMPARTILHAR',shareTxt:'Fiz {0} andares no Big Stack! Consegue me passar?',cardPos:'#{0} no mundo este mês',cardCta:'Consegue me passar?',cardGet:'Big Stack · Google Play',passedX:'Passou {0}!',yourBest:'SEU RECORDE {0}',ovtT:'TE PASSARAM!',ovtP:'Agora você é #{0} no mês. Bora pegar de volta?',ovtGo:'REVANCHE',later:'Depois',tier_bronze:'Bronze',tier_silver:'Prata',tier_gold:'Ouro',tier_diamond:'Diamante',tier_legend:'Lenda',tierNone:'Sem patente este mês',tierBest:'melhor: {0}',achGot:'🏆 Conquista: {0}',ach_first:'Primeiro bloco',achd_first:'Jogue sua primeira partida',ach_f25:'Acima das nuvens',achd_f25:'Chegue ao andar 25',ach_f50:'Aurora',achd_f50:'Chegue ao andar 50',ach_f100:'Astronauta',achd_f100:'Chegue ao andar 100',ach_f150:'Galáctico',achd_f150:'Chegue ao andar 150',ach_f250:'Horizonte de eventos',achd_f250:'Chegue ao andar 250',ach_c5:'Na mosca',achd_c5:'Faça um combo de 5 perfeitos',ach_c10:'Perfeccionista',achd_c10:'Faça um combo de 10 perfeitos',ach_p100:'Mão firme',achd_p100:'Some 100 perfeitos',ach_r100:'Viciado',achd_r100:'Jogue 100 partidas',ach_daily:'Desafiante',achd_daily:'Jogue um desafio diário',ach_top10:'Top 10 do mundo',achd_top10:'Entre no Top 10 do mês',ach_skins10:'Colecionador',achd_skins10:'Tenha 10 skins',s_void:'Tempestade Violeta',clErr:'Play Games não conectou ({0})',pfPgOn:'Nome da sua conta do Google Play Games',pfPgOff:'Entre no Play Games pra aparecer com o seu nome',pfAuto:'Nome automático',pfPgB:'ENTRAR NO PLAY GAMES',profP:'É assim que você aparece no ranking mundial. Escolha seu país.',cloudT:'Nuvem (Google Play Games)',clSaveB:'SALVAR',clLoadB:'CARREGAR',clSignB:'Entrar no Play Games',clNote:'Seu progresso é salvo sozinho na nuvem no fim das partidas. Em outro celular, entre no Play Games e toque em CARREGAR.',clOn:'Conectado: {0}',clOff:'Play Games não conectado',clNeedSign:'Entre no Play Games pra usar a nuvem',clSaved:'Progresso salvo na nuvem!',clFail:'Não deu pra salvar agora. Tente de novo.',clEmpty:'Nenhum progresso na nuvem ainda',clBad:'Save da nuvem inválido',clDesc:'Nível {0} · Recorde {1}',clAskT:'PROGRESSO NA NUVEM',clAskP:'Achamos um progresso salvo:<br><b>Nível {0} · Recorde {1}</b><br>{2} moedas · {3} cristais<br><br>Usar ele neste celular?',clYesB:'CARREGAR',clHi:'Olá, {0}!',rkNotSent:'Partida fora do ranking: jogo automático ou alterado detectado',fixClock:'ACERTE A DATA DO CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTÁVEL',d_calm:'Acalma o perigo do mundo por 15 andares: vento nas nuvens, velocidade maluca na aurora e ondas no espaço',ev3:'Ondas gravitacionais! Siga o ritmo',revTxt:'Sua torre tem {0} andares. Volte com o bloco no tamanho máximo!',reviveWide:'TAMANHO MÁXIMO!',bonusGot:'BÔNUS GRÁTIS: {0}!',grew:'O BLOCO CRESCEU!',noHazard:'Nada pra estabilizar aqui ainda!',powersNote:'Toque nos poderes da barra durante a partida. Acabou? Toque no + verde e ganhe 1 com vídeo (1 vez por partida de cada poder). Os blocos brilhantes são bônus grátis.',howTo:'Como jogar',howToT:'COMO JOGAR',tipBar:'Estes são <b>seus poderes</b>: toque pra usar quando quiser!',tipBonus:'Bloco brilhante! Acerte ele e ganhe um <b>bônus grátis</b>',tipGrow:'<b>3 perfeitos seguidos</b> fazem o bloco crescer!',tipStab1:'Vento nas nuvens! Use <b>ESTABILIZAR</b> pra parar o vento',tipStab2:'Velocidade maluca! <b>ESTABILIZAR</b> deixa tudo normal',tipStab3:'Ondas gravitacionais! Veja os anéis: quando brilham azul o bloco acelera. <b>ESTABILIZAR</b> acalma',h_tapT:'Toque na hora certa',h_tapP:'Toque quando o bloco estiver em cima da torre. O que passar da borda é cortado.',h_perfT:'Perfeito e combo',h_perfP:'Acerte em cheio pra fazer PERFEITO. 3 perfeitos seguidos e o bloco cresce de novo!',h_bonusT:'Bônus grátis',h_bonusP:'Blocos brilhantes com ★ dão um bônus na hora, de graça: Lento, Ímã, Largo ou Moedas x2.',h_powT:'Seus poderes',h_powP:'Os botões de baixo são seus: toque pra usar. Compre na loja ou ganhe 1 com vídeo (1 vez por partida de cada).',h_worldsT:'Mundos e perigos',h_worldsP:'Nuvens têm vento, a aurora tem velocidade maluca e o espaço tem ondas gravitacionais. ESTABILIZAR acalma todos.',h_rankT:'Ranking mundial',h_rankP:'Seu recorde entra no ranking com sua bandeira. O Nº1 do mês ganha 50 cristais!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
-en:{dlyB:'DAILY CHALLENGE',dlyLeft:'{0}/3',dlyDone:'done',dlyTag:'DAILY CHALLENGE',dlyNoTries:'Your 3 tries for today are used. Come back tomorrow!',dlyLeftLong:'{0} try(s) left today',dlyOver:'No tries left today. Check the daily ranking!',dlyAgain:'TRY AGAIN',dlyWon:'You were #{0} in yesterday’s challenge! +{1} gems',dlyRule:'same blocks for everyone, no powers',rkDay:'Today',rkInDay:'in today’s challenge',rkDayPrize:'Today’s challenge:',rkPrize2:'Monthly prizes:',rkTop10:'4th to 10th: 10',rkWinT3:'MONTHLY TOP 3!',rkWinT10:'MONTHLY TOP 10!',rkWinPn:'You were #{0} in the world in {1}!',ppB:'PROFILE',ppT:'PROFILE',ppStats:'Stats',ppMedals:'Medals',ppAch:'Achievements',ppMonth:'Monthly best',ppRuns:'Games',ppFloors:'Total floors',ppPerf:'Perfects',ppCombo:'Best combo',ppDaily:'Best challenge',ppPos:'Best monthly rank',ppTime:'Time played',ppNoMed:'Finish in the monthly Top 10 to earn your first medal.',pgAch:'PLAY GAMES ACHIEVEMENTS',shareB:'SHARE',shareTxt:'I stacked {0} floors in Big Stack! Can you beat me?',cardPos:'#{0} in the world this month',cardCta:'Can you beat me?',cardGet:'Big Stack · Google Play',passedX:'Passed {0}!',yourBest:'YOUR BEST {0}',ovtT:'YOU GOT PASSED!',ovtP:'You are now #{0} this month. Take it back?',ovtGo:'REMATCH',later:'Later',tier_bronze:'Bronze',tier_silver:'Silver',tier_gold:'Gold',tier_diamond:'Diamond',tier_legend:'Legend',tierNone:'No rank this month',tierBest:'best: {0}',achGot:'🏆 Achievement: {0}',ach_first:'First block',achd_first:'Play your first game',ach_f25:'Above the clouds',achd_f25:'Reach floor 25',ach_f50:'Aurora',achd_f50:'Reach floor 50',ach_f100:'Astronaut',achd_f100:'Reach floor 100',ach_f150:'Galactic',achd_f150:'Reach floor 150',ach_f250:'Event horizon',achd_f250:'Reach floor 250',ach_c5:'Bullseye',achd_c5:'Get a 5 perfect combo',ach_c10:'Perfectionist',achd_c10:'Get a 10 perfect combo',ach_p100:'Steady hand',achd_p100:'Land 100 perfects',ach_r100:'Hooked',achd_r100:'Play 100 games',ach_daily:'Challenger',achd_daily:'Play a daily challenge',ach_top10:'World Top 10',achd_top10:'Reach the monthly Top 10',ach_skins10:'Collector',achd_skins10:'Own 10 skins',s_void:'Violet Storm',clErr:'Play Games didn\'t connect ({0})',pfPgOn:'Name from your Google Play Games account',pfPgOff:'Sign in to Play Games to show your name',pfAuto:'Automatic name',pfPgB:'SIGN IN TO PLAY GAMES',profP:'This is how you appear in the world ranking. Pick your country.',cloudT:'Cloud (Google Play Games)',clSaveB:'SAVE',clLoadB:'LOAD',clSignB:'Sign in to Play Games',clNote:'Your progress is saved to the cloud automatically after each run. On another phone, sign in to Play Games and tap LOAD.',clOn:'Connected: {0}',clOff:'Play Games not connected',clNeedSign:'Sign in to Play Games to use the cloud',clSaved:'Progress saved to the cloud!',clFail:'Couldn\'t save right now. Try again.',clEmpty:'No cloud progress yet',clBad:'Invalid cloud save',clDesc:'Level {0} · Best {1}',clAskT:'CLOUD PROGRESS',clAskP:'We found saved progress:<br><b>Level {0} · Best {1}</b><br>{2} coins · {3} gems<br><br>Use it on this phone?',clYesB:'LOAD',clHi:'Hi, {0}!',rkNotSent:'Run not sent to the ranking: automated or modified play detected',fixClock:'FIX YOUR PHONE DATE',a_calm:'STABILIZE',p_calm:'STABLE',d_calm:'Calms the world\'s hazard for 15 floors: wind in the clouds, crazy speed in the aurora and waves in space',ev3:'Gravity waves! Follow the rhythm',revTxt:'Your tower is {0} floors tall. Come back with a full-size block!',reviveWide:'FULL SIZE!',bonusGot:'FREE BONUS: {0}!',grew:'THE BLOCK GREW!',noHazard:'Nothing to stabilize here yet!',powersNote:'Tap the powers on the bar during a run. Out of one? Tap the green + and get 1 with a video (once per run for each power). Glowing blocks are free bonuses.',howTo:'How to play',howToT:'HOW TO PLAY',tipBar:'These are <b>your powers</b>: tap to use them anytime!',tipBonus:'Glowing block! Land it to get a <b>free bonus</b>',tipGrow:'<b>3 perfects in a row</b> make the block grow!',tipStab1:'Wind in the clouds! Use <b>STABILIZE</b> to stop it',tipStab2:'Crazy speed! <b>STABILIZE</b> makes it normal',tipStab3:'Gravity waves! Watch the rings: blue glow means the block speeds up. <b>STABILIZE</b> calms it',h_tapT:'Tap at the right time',h_tapP:'Tap when the block is over the tower. Whatever hangs off the edge is cut.',h_perfT:'Perfect and combo',h_perfP:'Land it exactly for a PERFECT. 3 perfects in a row and the block grows back!',h_bonusT:'Free bonuses',h_bonusP:'Glowing blocks with ★ give an instant free bonus: Slow, Magnet, Wide or Coins x2.',h_powT:'Your powers',h_powP:'The buttons at the bottom are yours: tap to use. Buy them in the shop or get 1 with a video (once per run each).',h_worldsT:'Worlds and hazards',h_worldsP:'Clouds have wind, the aurora has crazy speed and space has gravity waves. STABILIZE calms them all.',h_rankT:'World ranking',h_rankP:'Your record joins the ranking with your flag. Monthly #1 wins 50 gems!',rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
-es:{dlyB:'DESAFÍO DIARIO',dlyLeft:'{0}/3',dlyDone:'hecho',dlyTag:'DESAFÍO DIARIO',dlyNoTries:'Se acabaron tus 3 intentos de hoy. ¡Vuelve mañana!',dlyLeftLong:'Te quedan {0} intento(s) hoy',dlyOver:'No quedan intentos hoy. ¡Mira el ranking del día!',dlyAgain:'OTRA VEZ',dlyWon:'¡Quedaste #{0} en el desafío de ayer! +{1} gemas',dlyRule:'mismos bloques para todos, sin poderes',rkDay:'Hoy',rkInDay:'en el desafío de hoy',rkDayPrize:'Desafío de hoy:',rkPrize2:'Premios del mes:',rkTop10:'4º al 10º: 10',rkWinT3:'¡TOP 3 DEL MES!',rkWinT10:'¡TOP 10 DEL MES!',rkWinPn:'¡Quedaste #{0} en el mundo en {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estadísticas',ppMedals:'Medallas',ppAch:'Logros',ppMonth:'Récord del mes',ppRuns:'Partidas',ppFloors:'Pisos en total',ppPerf:'Perfectos',ppCombo:'Mayor combo',ppDaily:'Mejor en el desafío',ppPos:'Mejor puesto del mes',ppTime:'Tiempo jugado',ppNoMed:'Entra en el Top 10 del mes para ganar tu primera medalla.',pgAch:'LOGROS PLAY JUEGOS',shareB:'COMPARTIR',shareTxt:'¡Hice {0} pisos en Big Stack! ¿Me superas?',cardPos:'#{0} del mundo este mes',cardCta:'¿Me superas?',cardGet:'Big Stack · Google Play',passedX:'¡Superaste a {0}!',yourBest:'TU RÉCORD {0}',ovtT:'¡TE SUPERARON!',ovtP:'Ahora eres #{0} del mes. ¿Lo recuperas?',ovtGo:'REVANCHA',later:'Después',tier_bronze:'Bronce',tier_silver:'Plata',tier_gold:'Oro',tier_diamond:'Diamante',tier_legend:'Leyenda',tierNone:'Sin rango este mes',tierBest:'mejor: {0}',achGot:'🏆 Logro: {0}',ach_first:'Primer bloque',achd_first:'Juega tu primera partida',ach_f25:'Sobre las nubes',achd_f25:'Llega al piso 25',ach_f50:'Aurora',achd_f50:'Llega al piso 50',ach_f100:'Astronauta',achd_f100:'Llega al piso 100',ach_f150:'Galáctico',achd_f150:'Llega al piso 150',ach_f250:'Horizonte de eventos',achd_f250:'Llega al piso 250',ach_c5:'En el blanco',achd_c5:'Haz un combo de 5 perfectos',ach_c10:'Perfeccionista',achd_c10:'Haz un combo de 10 perfectos',ach_p100:'Pulso firme',achd_p100:'Suma 100 perfectos',ach_r100:'Enganchado',achd_r100:'Juega 100 partidas',ach_daily:'Retador',achd_daily:'Juega un desafío diario',ach_top10:'Top 10 mundial',achd_top10:'Entra en el Top 10 del mes',ach_skins10:'Coleccionista',achd_skins10:'Ten 10 skins',s_void:'Tormenta Violeta',clErr:'Play Juegos no conectó ({0})',pfPgOn:'Nombre de tu cuenta de Google Play Juegos',pfPgOff:'Entra en Play Juegos para aparecer con tu nombre',pfAuto:'Nombre automático',pfPgB:'ENTRAR EN PLAY JUEGOS',profP:'Así apareces en el ranking mundial. Elige tu país.',cloudT:'Nube (Google Play Juegos)',clSaveB:'GUARDAR',clLoadB:'CARGAR',clSignB:'Entrar en Play Juegos',clNote:'Tu progreso se guarda solo en la nube al final de cada partida. En otro celular, entra en Play Juegos y toca CARGAR.',clOn:'Conectado: {0}',clOff:'Play Juegos no conectado',clNeedSign:'Entra en Play Juegos para usar la nube',clSaved:'¡Progreso guardado en la nube!',clFail:'No se pudo guardar ahora. Inténtalo de nuevo.',clEmpty:'Aún no hay progreso en la nube',clBad:'Guardado de la nube inválido',clDesc:'Nivel {0} · Récord {1}',clAskT:'PROGRESO EN LA NUBE',clAskP:'Encontramos un progreso guardado:<br><b>Nivel {0} · Récord {1}</b><br>{2} monedas · {3} gemas<br><br>¿Usarlo en este celular?',clYesB:'CARGAR',clHi:'¡Hola, {0}!',rkNotSent:'Partida fuera del ranking: juego automático o alterado detectado',fixClock:'AJUSTA LA FECHA DEL CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTABLE',d_calm:'Calma el peligro del mundo por 15 pisos: viento en las nubes, velocidad loca en la aurora y ondas en el espacio',ev3:'¡Ondas gravitacionales! Sigue el ritmo',revTxt:'Tu torre tiene {0} pisos. ¡Vuelve con el bloque a tamaño máximo!',reviveWide:'¡TAMAÑO MÁXIMO!',bonusGot:'¡BONUS GRATIS: {0}!',grew:'¡EL BLOQUE CRECIÓ!',noHazard:'¡Nada que estabilizar aquí todavía!',powersNote:'Toca los poderes de la barra durante la partida. ¿Se acabó? Toca el + verde y gana 1 con un video (1 vez por partida de cada poder). Los bloques brillantes son bonus gratis.',howTo:'Cómo jugar',howToT:'CÓMO JUGAR',tipBar:'Estos son <b>tus poderes</b>: ¡tócalos cuando quieras!',tipBonus:'¡Bloque brillante! Acértalo y gana un <b>bonus gratis</b>',tipGrow:'¡<b>3 perfectos seguidos</b> hacen crecer el bloque!',tipStab1:'¡Viento en las nubes! Usa <b>ESTABILIZAR</b> para pararlo',tipStab2:'¡Velocidad loca! <b>ESTABILIZAR</b> lo normaliza',tipStab3:'¡Ondas gravitacionales! Mira los anillos: azul brillante = el bloque acelera. <b>ESTABILIZAR</b> lo calma',h_tapT:'Toca en el momento justo',h_tapP:'Toca cuando el bloque esté sobre la torre. Lo que sobresale se corta.',h_perfT:'Perfecto y combo',h_perfP:'Acierta de lleno para un PERFECTO. ¡3 perfectos seguidos y el bloque vuelve a crecer!',h_bonusT:'Bonus gratis',h_bonusP:'Los bloques brillantes con ★ dan un bonus al instante, gratis: Lento, Imán, Ancho o Monedas x2.',h_powT:'Tus poderes',h_powP:'Los botones de abajo son tuyos: tócalos para usarlos. Cómpralos en la tienda o gana 1 con un video (1 vez por partida de cada uno).',h_worldsT:'Mundos y peligros',h_worldsP:'Las nubes tienen viento, la aurora velocidad loca y el espacio ondas gravitacionales. ESTABILIZAR calma todo.',h_rankT:'Ranking mundial',h_rankP:'Tu récord entra al ranking con tu bandera. ¡El Nº1 del mes gana 50 gemas!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
+pt:{dlyExpired:'O dia virou durante a partida, então ela não conta pro desafio.',dlyB:'DESAFIO DIÁRIO',dlyLeft:'{0}/3',dlyDone:'feito',dlyTag:'DESAFIO DIÁRIO',dlyNoTries:'Suas 3 tentativas de hoje acabaram. Volte amanhã!',dlyLeftLong:'Ainda tem {0} tentativa(s) hoje',dlyOver:'Acabaram as tentativas de hoje. Veja o ranking do dia!',dlyAgain:'OUTRA VEZ',dlyWon:'Você ficou em #{0} no desafio de ontem! +{1} cristais',dlyRule:'mesmos blocos pra todos, sem poderes',rkDay:'Hoje',rkInDay:'no desafio de hoje',rkDayPrize:'Desafio de hoje:',rkPrize2:'Prêmios do mês:',rkTop10:'4º ao 10º: 10',rkWinT3:'TOP 3 DO MÊS!',rkWinT10:'TOP 10 DO MÊS!',rkWinPn:'Você ficou em #{0} no mundo em {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estatísticas',ppMedals:'Medalhas',ppAch:'Conquistas',ppMonth:'Recorde do mês',ppRuns:'Partidas',ppFloors:'Andares no total',ppPerf:'Perfeitos',ppCombo:'Maior combo',ppDaily:'Melhor no desafio',ppPos:'Melhor posição no mês',ppTime:'Tempo jogando',ppNoMed:'Fique no Top 10 do mês pra ganhar sua primeira medalha.',pgAch:'CONQUISTAS PLAY GAMES',shareB:'COMPARTILHAR',shareTxt:'Fiz {0} andares no Big Stack! Consegue me passar?',cardPos:'#{0} no mundo este mês',cardCta:'Consegue me passar?',cardGet:'Big Stack · Google Play',passedX:'Passou {0}!',yourBest:'SEU RECORDE {0}',ovtT:'TE PASSARAM!',ovtP:'Agora você é #{0} no mês. Bora pegar de volta?',ovtGo:'REVANCHE',later:'Depois',tier_bronze:'Bronze',tier_silver:'Prata',tier_gold:'Ouro',tier_diamond:'Diamante',tier_legend:'Lenda',tierNone:'Sem patente este mês',tierBest:'melhor: {0}',achGot:'🏆 Conquista: {0}',ach_first:'Primeiro bloco',achd_first:'Jogue sua primeira partida',ach_f25:'Acima das nuvens',achd_f25:'Chegue ao andar 25',ach_f50:'Aurora',achd_f50:'Chegue ao andar 50',ach_f100:'Astronauta',achd_f100:'Chegue ao andar 100',ach_f150:'Galáctico',achd_f150:'Chegue ao andar 150',ach_f250:'Horizonte de eventos',achd_f250:'Chegue ao andar 250',ach_c5:'Na mosca',achd_c5:'Faça um combo de 5 perfeitos',ach_c10:'Perfeccionista',achd_c10:'Faça um combo de 10 perfeitos',ach_p100:'Mão firme',achd_p100:'Some 100 perfeitos',ach_r100:'Viciado',achd_r100:'Jogue 100 partidas',ach_daily:'Desafiante',achd_daily:'Jogue um desafio diário',ach_top10:'Top 10 do mundo',achd_top10:'Entre no Top 10 do mês',ach_skins10:'Colecionador',achd_skins10:'Tenha 10 skins',s_void:'Tempestade Violeta',clErr:'Play Games não conectou ({0})',pfPgOn:'Nome da sua conta do Google Play Games',pfPgOff:'Entre no Play Games pra aparecer com o seu nome',pfAuto:'Nome automático',pfPgB:'ENTRAR NO PLAY GAMES',profP:'É assim que você aparece no ranking mundial. Escolha seu país.',cloudT:'Nuvem (Google Play Games)',clSaveB:'SALVAR',clLoadB:'CARREGAR',clSignB:'Entrar no Play Games',clNote:'Seu progresso é salvo sozinho na nuvem no fim das partidas. Em outro celular, entre no Play Games e toque em CARREGAR.',clOn:'Conectado: {0}',clOff:'Play Games não conectado',clNeedSign:'Entre no Play Games pra usar a nuvem',clSaved:'Progresso salvo na nuvem!',clFail:'Não deu pra salvar agora. Tente de novo.',clEmpty:'Nenhum progresso na nuvem ainda',clBad:'Save da nuvem inválido',clDesc:'Nível {0} · Recorde {1}',clAskT:'PROGRESSO NA NUVEM',clAskP:'Achamos um progresso salvo:<br><b>Nível {0} · Recorde {1}</b><br>{2} moedas · {3} cristais<br><br>Usar ele neste celular?',clYesB:'CARREGAR',clHi:'Olá, {0}!',rkNotSent:'Partida fora do ranking: jogo automático ou alterado detectado',fixClock:'ACERTE A DATA DO CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTÁVEL',d_calm:'Acalma o perigo do mundo por 15 andares: vento nas nuvens, velocidade maluca na aurora e ondas no espaço',ev3:'Ondas gravitacionais! Siga o ritmo',revTxt:'Sua torre tem {0} andares. Volte com o bloco no tamanho máximo!',reviveWide:'TAMANHO MÁXIMO!',bonusGot:'BÔNUS GRÁTIS: {0}!',grew:'O BLOCO CRESCEU!',noHazard:'Nada pra estabilizar aqui ainda!',powersNote:'Toque nos poderes da barra durante a partida. Acabou? Toque no + verde e ganhe 1 com vídeo (1 vez por partida de cada poder). Os blocos brilhantes são bônus grátis.',howTo:'Como jogar',howToT:'COMO JOGAR',tipBar:'Estes são <b>seus poderes</b>: toque pra usar quando quiser!',tipBonus:'Bloco brilhante! Acerte ele e ganhe um <b>bônus grátis</b>',tipGrow:'<b>3 perfeitos seguidos</b> fazem o bloco crescer!',tipStab1:'Vento nas nuvens! Use <b>ESTABILIZAR</b> pra parar o vento',tipStab2:'Velocidade maluca! <b>ESTABILIZAR</b> deixa tudo normal',tipStab3:'Ondas gravitacionais! Veja os anéis: quando brilham azul o bloco acelera. <b>ESTABILIZAR</b> acalma',h_tapT:'Toque na hora certa',h_tapP:'Toque quando o bloco estiver em cima da torre. O que passar da borda é cortado.',h_perfT:'Perfeito e combo',h_perfP:'Acerte em cheio pra fazer PERFEITO. 3 perfeitos seguidos e o bloco cresce de novo!',h_bonusT:'Bônus grátis',h_bonusP:'Blocos brilhantes com ★ dão um bônus na hora, de graça: Lento, Ímã, Largo ou Moedas x2.',h_powT:'Seus poderes',h_powP:'Os botões de baixo são seus: toque pra usar. Compre na loja ou ganhe 1 com vídeo (1 vez por partida de cada).',h_worldsT:'Mundos e perigos',h_worldsP:'Nuvens têm vento, a aurora tem velocidade maluca e o espaço tem ondas gravitacionais. ESTABILIZAR acalma todos.',h_rankT:'Ranking mundial',h_rankP:'Seu recorde entra no ranking com sua bandeira. O Nº1 do mês ganha 50 cristais!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
+en:{dlyExpired:'The day changed during this run, so it doesn’t count for the challenge.',dlyB:'DAILY CHALLENGE',dlyLeft:'{0}/3',dlyDone:'done',dlyTag:'DAILY CHALLENGE',dlyNoTries:'Your 3 tries for today are used. Come back tomorrow!',dlyLeftLong:'{0} try(s) left today',dlyOver:'No tries left today. Check the daily ranking!',dlyAgain:'TRY AGAIN',dlyWon:'You were #{0} in yesterday’s challenge! +{1} gems',dlyRule:'same blocks for everyone, no powers',rkDay:'Today',rkInDay:'in today’s challenge',rkDayPrize:'Today’s challenge:',rkPrize2:'Monthly prizes:',rkTop10:'4th to 10th: 10',rkWinT3:'MONTHLY TOP 3!',rkWinT10:'MONTHLY TOP 10!',rkWinPn:'You were #{0} in the world in {1}!',ppB:'PROFILE',ppT:'PROFILE',ppStats:'Stats',ppMedals:'Medals',ppAch:'Achievements',ppMonth:'Monthly best',ppRuns:'Games',ppFloors:'Total floors',ppPerf:'Perfects',ppCombo:'Best combo',ppDaily:'Best challenge',ppPos:'Best monthly rank',ppTime:'Time played',ppNoMed:'Finish in the monthly Top 10 to earn your first medal.',pgAch:'PLAY GAMES ACHIEVEMENTS',shareB:'SHARE',shareTxt:'I stacked {0} floors in Big Stack! Can you beat me?',cardPos:'#{0} in the world this month',cardCta:'Can you beat me?',cardGet:'Big Stack · Google Play',passedX:'Passed {0}!',yourBest:'YOUR BEST {0}',ovtT:'YOU GOT PASSED!',ovtP:'You are now #{0} this month. Take it back?',ovtGo:'REMATCH',later:'Later',tier_bronze:'Bronze',tier_silver:'Silver',tier_gold:'Gold',tier_diamond:'Diamond',tier_legend:'Legend',tierNone:'No rank this month',tierBest:'best: {0}',achGot:'🏆 Achievement: {0}',ach_first:'First block',achd_first:'Play your first game',ach_f25:'Above the clouds',achd_f25:'Reach floor 25',ach_f50:'Aurora',achd_f50:'Reach floor 50',ach_f100:'Astronaut',achd_f100:'Reach floor 100',ach_f150:'Galactic',achd_f150:'Reach floor 150',ach_f250:'Event horizon',achd_f250:'Reach floor 250',ach_c5:'Bullseye',achd_c5:'Get a 5 perfect combo',ach_c10:'Perfectionist',achd_c10:'Get a 10 perfect combo',ach_p100:'Steady hand',achd_p100:'Land 100 perfects',ach_r100:'Hooked',achd_r100:'Play 100 games',ach_daily:'Challenger',achd_daily:'Play a daily challenge',ach_top10:'World Top 10',achd_top10:'Reach the monthly Top 10',ach_skins10:'Collector',achd_skins10:'Own 10 skins',s_void:'Violet Storm',clErr:'Play Games didn\'t connect ({0})',pfPgOn:'Name from your Google Play Games account',pfPgOff:'Sign in to Play Games to show your name',pfAuto:'Automatic name',pfPgB:'SIGN IN TO PLAY GAMES',profP:'This is how you appear in the world ranking. Pick your country.',cloudT:'Cloud (Google Play Games)',clSaveB:'SAVE',clLoadB:'LOAD',clSignB:'Sign in to Play Games',clNote:'Your progress is saved to the cloud automatically after each run. On another phone, sign in to Play Games and tap LOAD.',clOn:'Connected: {0}',clOff:'Play Games not connected',clNeedSign:'Sign in to Play Games to use the cloud',clSaved:'Progress saved to the cloud!',clFail:'Couldn\'t save right now. Try again.',clEmpty:'No cloud progress yet',clBad:'Invalid cloud save',clDesc:'Level {0} · Best {1}',clAskT:'CLOUD PROGRESS',clAskP:'We found saved progress:<br><b>Level {0} · Best {1}</b><br>{2} coins · {3} gems<br><br>Use it on this phone?',clYesB:'LOAD',clHi:'Hi, {0}!',rkNotSent:'Run not sent to the ranking: automated or modified play detected',fixClock:'FIX YOUR PHONE DATE',a_calm:'STABILIZE',p_calm:'STABLE',d_calm:'Calms the world\'s hazard for 15 floors: wind in the clouds, crazy speed in the aurora and waves in space',ev3:'Gravity waves! Follow the rhythm',revTxt:'Your tower is {0} floors tall. Come back with a full-size block!',reviveWide:'FULL SIZE!',bonusGot:'FREE BONUS: {0}!',grew:'THE BLOCK GREW!',noHazard:'Nothing to stabilize here yet!',powersNote:'Tap the powers on the bar during a run. Out of one? Tap the green + and get 1 with a video (once per run for each power). Glowing blocks are free bonuses.',howTo:'How to play',howToT:'HOW TO PLAY',tipBar:'These are <b>your powers</b>: tap to use them anytime!',tipBonus:'Glowing block! Land it to get a <b>free bonus</b>',tipGrow:'<b>3 perfects in a row</b> make the block grow!',tipStab1:'Wind in the clouds! Use <b>STABILIZE</b> to stop it',tipStab2:'Crazy speed! <b>STABILIZE</b> makes it normal',tipStab3:'Gravity waves! Watch the rings: blue glow means the block speeds up. <b>STABILIZE</b> calms it',h_tapT:'Tap at the right time',h_tapP:'Tap when the block is over the tower. Whatever hangs off the edge is cut.',h_perfT:'Perfect and combo',h_perfP:'Land it exactly for a PERFECT. 3 perfects in a row and the block grows back!',h_bonusT:'Free bonuses',h_bonusP:'Glowing blocks with ★ give an instant free bonus: Slow, Magnet, Wide or Coins x2.',h_powT:'Your powers',h_powP:'The buttons at the bottom are yours: tap to use. Buy them in the shop or get 1 with a video (once per run each).',h_worldsT:'Worlds and hazards',h_worldsP:'Clouds have wind, the aurora has crazy speed and space has gravity waves. STABILIZE calms them all.',h_rankT:'World ranking',h_rankP:'Your record joins the ranking with your flag. Monthly #1 wins 50 gems!',rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
+es:{dlyExpired:'El día cambió durante la partida, así que no cuenta para el desafío.',dlyB:'DESAFÍO DIARIO',dlyLeft:'{0}/3',dlyDone:'hecho',dlyTag:'DESAFÍO DIARIO',dlyNoTries:'Se acabaron tus 3 intentos de hoy. ¡Vuelve mañana!',dlyLeftLong:'Te quedan {0} intento(s) hoy',dlyOver:'No quedan intentos hoy. ¡Mira el ranking del día!',dlyAgain:'OTRA VEZ',dlyWon:'¡Quedaste #{0} en el desafío de ayer! +{1} gemas',dlyRule:'mismos bloques para todos, sin poderes',rkDay:'Hoy',rkInDay:'en el desafío de hoy',rkDayPrize:'Desafío de hoy:',rkPrize2:'Premios del mes:',rkTop10:'4º al 10º: 10',rkWinT3:'¡TOP 3 DEL MES!',rkWinT10:'¡TOP 10 DEL MES!',rkWinPn:'¡Quedaste #{0} en el mundo en {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estadísticas',ppMedals:'Medallas',ppAch:'Logros',ppMonth:'Récord del mes',ppRuns:'Partidas',ppFloors:'Pisos en total',ppPerf:'Perfectos',ppCombo:'Mayor combo',ppDaily:'Mejor en el desafío',ppPos:'Mejor puesto del mes',ppTime:'Tiempo jugado',ppNoMed:'Entra en el Top 10 del mes para ganar tu primera medalla.',pgAch:'LOGROS PLAY JUEGOS',shareB:'COMPARTIR',shareTxt:'¡Hice {0} pisos en Big Stack! ¿Me superas?',cardPos:'#{0} del mundo este mes',cardCta:'¿Me superas?',cardGet:'Big Stack · Google Play',passedX:'¡Superaste a {0}!',yourBest:'TU RÉCORD {0}',ovtT:'¡TE SUPERARON!',ovtP:'Ahora eres #{0} del mes. ¿Lo recuperas?',ovtGo:'REVANCHA',later:'Después',tier_bronze:'Bronce',tier_silver:'Plata',tier_gold:'Oro',tier_diamond:'Diamante',tier_legend:'Leyenda',tierNone:'Sin rango este mes',tierBest:'mejor: {0}',achGot:'🏆 Logro: {0}',ach_first:'Primer bloque',achd_first:'Juega tu primera partida',ach_f25:'Sobre las nubes',achd_f25:'Llega al piso 25',ach_f50:'Aurora',achd_f50:'Llega al piso 50',ach_f100:'Astronauta',achd_f100:'Llega al piso 100',ach_f150:'Galáctico',achd_f150:'Llega al piso 150',ach_f250:'Horizonte de eventos',achd_f250:'Llega al piso 250',ach_c5:'En el blanco',achd_c5:'Haz un combo de 5 perfectos',ach_c10:'Perfeccionista',achd_c10:'Haz un combo de 10 perfectos',ach_p100:'Pulso firme',achd_p100:'Suma 100 perfectos',ach_r100:'Enganchado',achd_r100:'Juega 100 partidas',ach_daily:'Retador',achd_daily:'Juega un desafío diario',ach_top10:'Top 10 mundial',achd_top10:'Entra en el Top 10 del mes',ach_skins10:'Coleccionista',achd_skins10:'Ten 10 skins',s_void:'Tormenta Violeta',clErr:'Play Juegos no conectó ({0})',pfPgOn:'Nombre de tu cuenta de Google Play Juegos',pfPgOff:'Entra en Play Juegos para aparecer con tu nombre',pfAuto:'Nombre automático',pfPgB:'ENTRAR EN PLAY JUEGOS',profP:'Así apareces en el ranking mundial. Elige tu país.',cloudT:'Nube (Google Play Juegos)',clSaveB:'GUARDAR',clLoadB:'CARGAR',clSignB:'Entrar en Play Juegos',clNote:'Tu progreso se guarda solo en la nube al final de cada partida. En otro celular, entra en Play Juegos y toca CARGAR.',clOn:'Conectado: {0}',clOff:'Play Juegos no conectado',clNeedSign:'Entra en Play Juegos para usar la nube',clSaved:'¡Progreso guardado en la nube!',clFail:'No se pudo guardar ahora. Inténtalo de nuevo.',clEmpty:'Aún no hay progreso en la nube',clBad:'Guardado de la nube inválido',clDesc:'Nivel {0} · Récord {1}',clAskT:'PROGRESO EN LA NUBE',clAskP:'Encontramos un progreso guardado:<br><b>Nivel {0} · Récord {1}</b><br>{2} monedas · {3} gemas<br><br>¿Usarlo en este celular?',clYesB:'CARGAR',clHi:'¡Hola, {0}!',rkNotSent:'Partida fuera del ranking: juego automático o alterado detectado',fixClock:'AJUSTA LA FECHA DEL CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTABLE',d_calm:'Calma el peligro del mundo por 15 pisos: viento en las nubes, velocidad loca en la aurora y ondas en el espacio',ev3:'¡Ondas gravitacionales! Sigue el ritmo',revTxt:'Tu torre tiene {0} pisos. ¡Vuelve con el bloque a tamaño máximo!',reviveWide:'¡TAMAÑO MÁXIMO!',bonusGot:'¡BONUS GRATIS: {0}!',grew:'¡EL BLOQUE CRECIÓ!',noHazard:'¡Nada que estabilizar aquí todavía!',powersNote:'Toca los poderes de la barra durante la partida. ¿Se acabó? Toca el + verde y gana 1 con un video (1 vez por partida de cada poder). Los bloques brillantes son bonus gratis.',howTo:'Cómo jugar',howToT:'CÓMO JUGAR',tipBar:'Estos son <b>tus poderes</b>: ¡tócalos cuando quieras!',tipBonus:'¡Bloque brillante! Acértalo y gana un <b>bonus gratis</b>',tipGrow:'¡<b>3 perfectos seguidos</b> hacen crecer el bloque!',tipStab1:'¡Viento en las nubes! Usa <b>ESTABILIZAR</b> para pararlo',tipStab2:'¡Velocidad loca! <b>ESTABILIZAR</b> lo normaliza',tipStab3:'¡Ondas gravitacionales! Mira los anillos: azul brillante = el bloque acelera. <b>ESTABILIZAR</b> lo calma',h_tapT:'Toca en el momento justo',h_tapP:'Toca cuando el bloque esté sobre la torre. Lo que sobresale se corta.',h_perfT:'Perfecto y combo',h_perfP:'Acierta de lleno para un PERFECTO. ¡3 perfectos seguidos y el bloque vuelve a crecer!',h_bonusT:'Bonus gratis',h_bonusP:'Los bloques brillantes con ★ dan un bonus al instante, gratis: Lento, Imán, Ancho o Monedas x2.',h_powT:'Tus poderes',h_powP:'Los botones de abajo son tuyos: tócalos para usarlos. Cómpralos en la tienda o gana 1 con un video (1 vez por partida de cada uno).',h_worldsT:'Mundos y peligros',h_worldsP:'Las nubes tienen viento, la aurora velocidad loca y el espacio ondas gravitacionales. ESTABILIZAR calma todo.',h_rankT:'Ranking mundial',h_rankP:'Tu récord entra al ranking con tu bandera. ¡El Nº1 del mes gana 50 gemas!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
 for(const k in L2)Object.assign(L[k],L2[k]);
 
 let LANG=S.settings.lang||((navigator.language||'pt').slice(0,2));if(!L[LANG])LANG='en';
@@ -616,7 +622,7 @@ function playStep(s,t0,e){
 function unlockAudio(){audioInit();if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().then(()=>{if(S.settings.music)musicStart()});else if(S.settings.music)musicStart()}
 document.addEventListener('pointerdown',unlockAudio,{capture:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))sfx.ui()},{capture:true});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(state==='play')pauseGame();A.ctx&&A.ctx.suspend()}else if(A.ctx)A.ctx.resume()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror()}else{if(A.ctx)A.ctx.resume();if(state==='revive'&&!$('revive').hidden)revCountdown(Math.max(2,revLeft));onResumeOnline()}});
 const buzz=ms=>{if(!S.settings.vib)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;void el.offsetWidth;el.textContent=s;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
 function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${sub}</small><span>${txt}</span></div>`}
@@ -654,27 +660,26 @@ const skinOf=id=>SKINS.find(s=>s.id===id)||SKINS[0];
 function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
 
 /* ---- desempenho: cada bloco da torre vira uma imagem pronta (desenhar imagem é muito mais leve que redesenhar a skin).
-   Skins paradas: desenha 1 vez e reaproveita. Skins animadas: os 3 blocos do topo animam ao vivo todo frame e os de baixo
-   continuam animando, atualizados em rodízio dentro de um limite de tempo por frame (a animação não para, e o FPS não cai). ---- */
-const BC={id:null,dpr:0,anim:false,per:1,rr:0};
+   Skins paradas: desenha 1 vez e reaproveita. Skins "divididas" (base + brilho): a base fica pronta e só o brilho é desenhado.
+   Skins animadas simples: desenhadas normalmente. Blocos fora da tela não são desenhados. ---- */
+const BC={id:null,dpr:0,w:0,mode:'live'};
 function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=document.createElement('canvas');cv.width=PW;cv.height=BH;const c=cv.getContext('2d',{willReadFrequently:true});const t0=tNow;
   const snap=t=>{tNow=t;c.clearRect(0,0,PW,BH);block(0,0,PW,3,1,c,sk);return c.getImageData(0,0,PW,BH).data};
-  // compara vários momentos (brilhos que passam de vez em quando também contam como animação)
-  let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k+=8)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
-  const n=12,st=performance.now();for(let k=0;k<n;k++){tNow=t0+k*16;block(0,0,240,k,1,c,sk)}const ms=(performance.now()-st)/n;tNow=t0;
-  return {anim,ms}}
-// modos: 'cache' (skin parada: desenha 1x), 'live' (animada e leve: desenha normal), 'mix' (animada e pesada: topo ao vivo + rodízio embaixo)
-function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR)return;const pr=sk.fx?{anim:true,ms:0}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.anim=pr.anim;
-  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.per=0;BC.sk=sk;
+  // compara vários momentos (brilhos que passam de vez em quando também contam como animação), todos os canais
+  let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k++)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
+  tNow=t0;return {anim}}
+function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR&&BC.w===W)return;const pr=sk.fx?{anim:true}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.w=W;
+  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;
   for(const b of (typeof stack!=='undefined'?stack:[]))b.cv=null}
 function bcRender(b){const sk=BC.sk||skinOf(S.skin);const pw=Math.ceil(b.w*DPR)+2,ph=Math.ceil(BH*DPR)+1;let cv=b.cv;if(!cv||cv.width!==pw||cv.height!==ph){cv=document.createElement('canvas');cv.width=pw;cv.height=ph;b.cv=cv}
   const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,ph);c.setTransform(DPR,0,0,DPR,-b.x*DPR,0);
-  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvT=tNow}
+  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvX=b.x;b.cvW=b.w}
 // desenha a torre visível (first..fim) usando o cache
-function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live'?1e9:0;
-  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);const age=tNow-b.t0;
-    if(k>=n-live||age<260){if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}else block(b.x,y,b.w,b.i);continue}
-    if(!b.cv)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR);
+function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live';
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
+    if(live||age<260){if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}else block(b.x,y,b.w,b.i);continue}
+    // bloco mudou de tamanho/lugar (poder Largo, reviver): refaz a imagem
+    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR);
     if(BC.mode==='split'&&b.w>.5){ctx.save();rr(ctx,b.x,y,b.w,BH,sk.r??5);ctx.clip();sk.fx(ctx,b.x,y,b.w,b.i);ctx.restore()}}
   // libera memória dos blocos que já saíram da tela
   for(let k=Math.max(0,first-6);k<first;k++)stack[k].cv=null}
@@ -787,6 +792,11 @@ splitSkin('matrix',(c,x,y,w,i)=>{c.fillStyle='#03140a';c.fillRect(x,y,w,BH);c.st
 
 /* ---- TEMPESTADE VIOLETA (pedido de um testador): escudo de energia roxo, borda neon bem visível
    e uma corrente elétrica que corre pela borda de cada bloco, em cascata pela torre ---- */
+// brilhos prontos da Tempestade Violeta (feitos 1 vez)
+let VS=null;function voidSprites(){if(VS)return VS;const mk=(w,h,f)=>{const cv=document.createElement('canvas');cv.width=w*2;cv.height=h*2;const c=cv.getContext('2d');c.scale(2,2);f(c);return cv};
+  const glow=col=>mk(32,32,c=>{const g=c.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,col);g.addColorStop(1,'rgba(160,80,255,0)');c.fillStyle=g;c.fillRect(0,0,32,32)});
+  const sweep=mk(56,BH,c=>{const g=c.createLinearGradient(0,0,56,0);g.addColorStop(0,'rgba(200,150,255,0)');g.addColorStop(.5,'rgba(235,210,255,.38)');g.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=g;c.beginPath();c.moveTo(18,0);c.lineTo(54,0);c.lineTo(38,BH);c.lineTo(2,BH);c.fill()});
+  return VS={glow:[glow('rgba(245,225,255,.95)'),glow('rgba(200,240,255,.9)')],sweep,col:[['#ffffff','rgba(225,185,255,.7)','rgba(225,185,255,.3)'],['#ffffff','rgba(140,220,255,.7)','rgba(140,220,255,.3)']]}}
 function rimPt(x,y,w,h,s){const P=2*(w+h);s=((s%P)+P)%P;if(s<w)return[x+s,y];s-=w;if(s<h)return[x+w,y+s];s-=h;if(s<w)return[x+w-s,y+h];s-=w;return[x,y+h-s]}
 SKINS.push({id:'void',cur:'gem',price:150,
  base(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#7b3ff2','#2b0b72','#5b21b6']);c.fillRect(x,y,w,BH);
@@ -796,13 +806,14 @@ SKINS.push({id:'void',cur:'gem',price:150,
    const g=c.createLinearGradient(0,y,0,y+BH);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.35,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(x,y,w,BH);
    // borda neon dupla
    c.strokeStyle='rgba(150,70,255,.75)';c.lineWidth=4;c.strokeRect(x+2,y+2,w-4,BH-4);c.strokeStyle='#e9d5ff';c.lineWidth=1.6;c.strokeRect(x+1,y+1,w-2,BH-2)},
- fx(c,x,y,w,i){if(w<14)return;const P=2*(w-3+BH-3),sp=tNow*.32+i*61,x0=x+1.5,y0=y+1.5,ww=w-3,hh=BH-3;
-   // 2 faíscas correndo pela borda (sentidos opostos) com rastro brilhante
-   c.lineCap='round';for(const dir of [1,-1]){const s0=dir>0?sp:P-sp*.8+i*23;for(let k=0;k<18;k++){const a=rimPt(x0,y0,ww,hh,s0-dir*k*5),b=rimPt(x0,y0,ww,hh,s0-dir*(k+1)*5);
-     c.strokeStyle=k<3?'#ffffff':`rgba(${dir>0?'225,185,255':'140,220,255'},${(1-k/18).toFixed(2)})`;c.lineWidth=k<3?3.4:3-k*.14;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
-     const h=rimPt(x0,y0,ww,hh,s0);const gl=c.createRadialGradient(h[0],h[1],0,h[0],h[1],16);gl.addColorStop(0,dir>0?'rgba(245,225,255,.95)':'rgba(200,240,255,.9)');gl.addColorStop(1,'rgba(160,80,255,0)');c.fillStyle=gl;c.fillRect(h[0]-16,h[1]-16,32,32)}
+ fx(c,x,y,w,i){if(w<14)return;const P=2*(w-3+BH-3),sp=tNow*.32+i*61,x0=x+1.5,y0=y+1.5,ww=w-3,hh=BH-3,G=voidSprites();
+   // 2 faíscas correndo pela borda (sentidos opostos): rastro em 3 trechos (poucos traços = leve)
+   c.lineCap='round';c.lineJoin='round';
+   for(let d=0;d<2;d++){const dir=d?-1:1,s0=d?P-sp*.8+i*23:sp;
+     for(let part=0;part<3;part++){c.strokeStyle=G.col[d][part];c.lineWidth=3.2-part*.8;c.beginPath();for(let k=part*6;k<=part*6+6;k++){const q=rimPt(x0,y0,ww,hh,s0-dir*k*5);k===part*6?c.moveTo(q[0],q[1]):c.lineTo(q[0],q[1])}c.stroke()}
+     const h=rimPt(x0,y0,ww,hh,s0);c.drawImage(G.glow[d],h[0]-16,h[1]-16,32,32)}
    // luz varrendo o escudo em diagonal a cada ~3s
-   const ph=((tNow+i*140)%3000)/3000,sx=x-40+ph*(w+80);if(ph<.99){const sg=c.createLinearGradient(sx-18,0,sx+18,0);sg.addColorStop(0,'rgba(200,150,255,0)');sg.addColorStop(.5,'rgba(235,210,255,.38)');sg.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=sg;c.beginPath();c.moveTo(sx-10,y);c.lineTo(sx+26,y);c.lineTo(sx+10,y+BH);c.lineTo(sx-26,y+BH);c.fill()}
+   const ph=((tNow+i*140)%3000)/3000;if(ph<.99)c.drawImage(G.sweep,x-58+ph*(w+80),y,56,BH);
    // estalo elétrico curto de vez em quando
    const slot=Math.floor(tNow/140),q=hash(slot*1.3+i*2.7);if(q>.72){let px=x+6+hash(slot+i)*(w-40),py=y+BH/2;c.strokeStyle='rgba(245,230,255,.95)';c.lineWidth=1.3;c.beginPath();c.moveTo(px,py);for(let s2=1;s2<=5;s2++){px+=6;py=y+BH/2+(hash(slot*2.1+s2+i)-.5)*14;c.lineTo(px,py)}c.stroke()}},
  draw(c,x,y,w,i){this.base(c,x,y,w,i);this.fx(c,x,y,w,i)}});
@@ -822,7 +833,8 @@ const WORLDS=[
 const EVENT={1:'Cuidado com o vento',2:'Blocos em velocidade maluca',3:'Velocidade máxima maior'};
 const worldOf=f=>{let k=0;for(let j=0;j<WORLDS.length;j++)if(f>=WORLDS[j].at)k=j;return k};
 let skyF=0,city=[],clouds=[],stars=[];
-function buildCity(){city=[];let x=-10;while(x<W+10){const w=26+Math.random()*40,h=40+Math.random()*120;city.push({x,w,h,win:Array.from({length:12},()=>Math.random()<.35)});x+=w+4}}
+let cityW=0;
+function buildCity(){if(city.length&&Math.abs(W-cityW)<40)return;cityW=W;city=[];let x=-10;while(x<W+10){const w=26+Math.random()*40,h=40+Math.random()*120;city.push({x,w,h,win:Array.from({length:12},()=>Math.random()<.35)});x+=w+4}}
 for(let k=0;k<26;k++)clouds.push({f:14+k*2.2+Math.random()*2,x:Math.random(),s:.6+Math.random()*.8,v:(Math.random()-.5)*.0004});
 for(let k=0;k<90;k++)stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.8+.4,p:Math.random()*6});
 function skyColor(key){let col=WORLDS[0][key].slice();for(let k=1;k<WORLDS.length;k++){const t=clamp((skyF-(WORLDS[k].at-8))/8,0,1);col=col.map((v,j)=>v+(WORLDS[k][key][j]-v)*t)}return `rgb(${col.map(v=>v|0).join(',')})`}
@@ -865,7 +877,9 @@ const SCN=[
 ];
 // depois do 360 os cenários continuam aparecendo, sorteados (mas sempre iguais pra cada andar)
 const PROC=['galaxy','giant','asteroids','comet','planet','nebula','crystalp','station'];
-function sceneAt(n){const f=390+n*32;const a=hash(n*7.7),b=hash(n*3.1+1);const k=PROC[(a*PROC.length)|0];
+const SCN_MEMO=[];
+function sceneAt(n){return SCN_MEMO[n]||(SCN_MEMO[n]=sceneAt0(n))}
+function sceneAt0(n){const f=390+n*32;const a=hash(n*7.7),b=hash(n*3.1+1);const k=PROC[(a*PROC.length)|0];
   return {f,p:k==='asteroids'||k==='comet'?.85:.3+b*.35,k,x:.2+b*.6,r:k==='galaxy'?.4+b*.25:40+b*40,c1:hsl(b*360,80,70),c2:hsl(b*360+40,70,35),ring:`hsla(${a*360},90%,80%,.7)`}}
 function drawScenery(){
   if(skyF<85)return;
@@ -873,7 +887,7 @@ function drawScenery(){
   ctx.save();ctx.globalAlpha=fade;
   const list=SCN.slice();const top=Math.floor(Math.max(0,skyF-360)/32);for(let n=Math.max(0,top-3);n<=top+3;n++)list.push(sceneAt(n));
   const base=H*.35;
-  for(const o of list){const y=base+(yOf(o.f)-base)*o.p;if(y<-H*.8||y>H*1.8)continue;const x=(o.x??.5)*W;ctx.globalAlpha=fade;DRAW[o.k](x,y,o)}
+  for(const o of list){const y=base+(yOf(o.f)-base)*o.p;const rad=o.k==='galaxy'?W*(o.r||.6)*.65:o.k==='nebula'?W*.9:o.k==='asteroids'?H*1.1:o.k==='whale'||o.k==='wormhole'?W*.6:(o.r||60)*1.6+40;if(y-rad>H||y+rad<0)continue;const x=(o.x??.5)*W;ctx.globalAlpha=fade;DRAW[o.k](x,y,o)}
   ctx.restore();
 }
 const DRAW={
@@ -943,6 +957,8 @@ function setCombo(txt){const el=$('combo');if(el.textContent!==txt)el.textConten
 
 function drop(){
   if(state!=='play'||!moving)return;
+  // bloco ainda nem chegou na torre (ex.: toque duplo no JOGAR/REVIVER): ignora em vez de perder a partida
+  if(!moving.entered){const tp=stack[stack.length-1];if(Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)<=0)return}
   $('hint').hidden=true;
   const top=stack[stack.length-1],m=moving;
   if(run.errs&&run.errs.length<3000)run.errs.push({e:Math.abs(m.x-top.x),tol:perfTol(),mag:P.magnet>0});
@@ -979,7 +995,7 @@ function drop(){
   const wd=worldOf(score);
   speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
   if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(rnd()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
-  if([25,50,100].includes(score))setTimeout(()=>tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar'),2600);
+  if([25,50,100].includes(score)&&mode!=='daily')setTimeout(()=>{if(state==='play')tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar')},2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
   renderPw();renderAbar();spawn();
@@ -997,15 +1013,17 @@ function applyAbility(k){
   addFloat(W/2,yOf(stack.length)-40,t('a_'+k)+'!',POWERS[k==='calm'?'calm':k].col,22);
   renderPw();renderAbar();
 }
+let rewBusy=false;
 async function rewardAbility(k,inGame){
-  if(inGame){state='ad'}
+  if(rewBusy)return;rewBusy=true;
+  if(inGame){state='ad'}N&&N.setPlaying&&N.setPlaying(false);
   musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);
   if(ok){S.inv[k]=(S.inv[k]||0)+1;if(inGame&&run)run.vid[k]=true;save();sfx.coin();toast(t('gotAbility',t('a_'+k)))}else toast(t('noVideo'));
   if(inGame&&state==='ad'){state='play';lastT=performance.now()}
-  renderAbar();if(!$('shop').hidden)renderShop();
+  rewBusy=false;renderAbar();if(!$('shop').hidden)renderShop();
 }
 function useAbility(k){
-  if(state!=='play')return;
+  if(state!=='play'||mode==='daily')return;
   if(k==='calm'&&!hazard()){toast(t('noHazard'));const b=document.querySelector('.ab[data-a=calm]');b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');return}
   if((S.inv[k]||0)<=0){
     // vídeo pra recuperar o poder: só 1 vez por partida, de cada poder
@@ -1017,7 +1035,7 @@ document.querySelectorAll('.ab').forEach(b=>{b.addEventListener('pointerdown',e=
 
 /* ================= PAUSE ================= */
 function pauseGame(){if(state!=='play')return;state='pause';$('pause').hidden=false;$('pauseBtn').hidden=true;$('abar').hidden=true}
-function resumeGame(){$('pause').hidden=true;$('settings').hidden=true;state='play';$('pauseBtn').hidden=false;$('abar').hidden=false;lastT=performance.now()}
+function resumeGame(){$('pause').hidden=true;$('settings').hidden=true;state='play';$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';lastT=performance.now()}
 $('pauseBtn').onclick=pauseGame;$('resume').onclick=resumeGame;
 $('quit').onclick=()=>{$('pause').hidden=true;moving=null;finish()};
 $('pauseSet').onclick=()=>openSettings('pause');
@@ -1029,15 +1047,19 @@ function lose(){
   if(score<3||(!canVideo&&!canGem)||mode==='daily'){setTimeout(finish,700);return}
   setTimeout(()=>{
     $('revTxt').textContent=t('revTxt',score);$('revVideo').hidden=!canVideo;$('revGem').hidden=!canGem;$('revGemCost').textContent=gemCost();
-    $('revive').hidden=false;const st=performance.now();$('revCount').textContent=5;$('ringArc').style.strokeDashoffset=0;
-    clearInterval(revTimer);let lastS=5;revTimer=setInterval(()=>{const el=(performance.now()-st)/1000;$('ringArc').style.strokeDashoffset=301.6*Math.min(1,el/5);const s=Math.max(0,Math.ceil(5-el));if(s!==lastS){lastS=s;sfx.tick()}$('revCount').textContent=s;if(el>=5){clearInterval(revTimer);$('revive').hidden=true;finish()}},50);
+    $('revive').hidden=false;revCountdown(5);
   },650);
 }
+// contagem do reviver (pausa se o app for pro fundo)
+let revLeft=5;
+function revCountdown(secs){clearInterval(revTimer);revLeft=secs;const st=performance.now();let lastS=-1;
+  const tick=()=>{const el=(performance.now()-st)/1000;revLeft=Math.max(0,secs-el);$('ringArc').style.strokeDashoffset=301.6*Math.min(1,(5-revLeft)/5);const sN=Math.ceil(revLeft);if(sN!==lastS){if(lastS>=0)sfx.tick();lastS=sN}$('revCount').textContent=sN;if(revLeft<=0){clearInterval(revTimer);$('revive').hidden=true;finish()}};
+  tick();revTimer=setInterval(tick,50)}
 function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
   {const top=stack[stack.length-1],nw=W*BASEW;top.x=clamp(top.x+top.w/2-nw/2,0,W-nw);top.w=nw;top.t0=tNow;rings.push({x:top.x,y:yOf(top.i),w:nw,t0:tNow,i:top.i});setTimeout(()=>addFloat(W/2,yOf(top.i)-40,t('reviveWide'),'#4fe39a',20),200)}
-  speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
+  speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
 $('revVideo').onclick=async()=>{if(state!=='revive'||$('revive').hidden)return;clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
-$('revGem').onclick=()=>{if(state!=='revive'||$('revive').hidden)return;const cost=gemCost();if(S.gems<cost){clearInterval(revTimer);$('revive').hidden=true;toast(t('noGems'));finish();return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
+$('revGem').onclick=()=>{if(state!=='revive'||$('revive').hidden)return;const cost=gemCost();if(S.gems<cost){toast(t('noGems'));buzz(30);return}S.gems-=cost;gemRevives++;save();wallet();doRevive()};
 $('revSkip').onclick=()=>{if(state!=='revive')return;clearInterval(revTimer);$('revive').hidden=true;finish()};
 function musicDuck(on){if(!A.ctx)return;A.master.gain.setTargetAtTime(on?0:.9,A.ctx.currentTime,.1)}
 
@@ -1106,7 +1128,7 @@ function flyCoins(n,from){
 }
 function finish(){
   if(state==='over')return;
-  state='over';P={slow:0,magnet:0,x2:0,calm:0};renderPw();$('pauseBtn').hidden=true;$('hud').hidden=true;$('abar').hidden=true;
+  state='over';P={slow:0,magnet:0,x2:0,calm:0};renderPw();$('hint').hidden=true;$('pauseBtn').hidden=true;$('hud').hidden=true;$('abar').hidden=true;
   const endBonus=Math.floor(score/2);const total=run.blocks+run.perf+run.chest+endBonus;
   const isNew=mode!=='daily'&&score>S.best&&score>0;if(isNew)S.best=score;
   const mult=isNew?2:1,final=total*mult;
@@ -1124,9 +1146,11 @@ function finish(){
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
 function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt'].forEach(p=>$(p).hidden=true)}
-function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
+function startGame(){setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
-function showMenu(){hideAll();mode='normal';$('dlyTag').hidden=true;state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
+// mostra um aviso só quando o jogador estiver no menu (nunca por cima de uma partida)
+function whenMenu(fn,tries=0){if(state==='menu'&&!$('menu').hidden&&$('mis').hidden&&$('clAsk').hidden&&$('rkWin').hidden&&$('ovt').hidden)fn();else if(tries<60)setTimeout(()=>whenMenu(fn,tries+1),2500)}
+function showMenu(){hideAll();$('hint').hidden=true;mode='normal';$('dlyTag').hidden=true;state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
 function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let i=0;
   el.classList.remove('idle');el.innerHTML=['BIG','STACK'].map(w=>`<span class="ln">${[...w].map(ch=>`<i style="--i:${i};background:${cols[(i++)%cols.length]}">${ch}</i>`).join('')}</span>`).join('');
   clearTimeout(buildLogo.t);buildLogo.t=setTimeout(()=>el.classList.add('idle'),1200)}
@@ -1197,8 +1221,9 @@ function renderShop(){
       d.appendChild(b);g.appendChild(d)});
   }
 }
-function drawPreviews(){
-  for(const p of previews){const c=p.cv;const r=c.getBoundingClientRect();if(!r.width)continue;
+let pvF=0;
+function drawPreviews(){if((pvF++)&1)return; // 30 fps nas prévias da loja
+  const vh=innerHeight;for(const p of previews){const c=p.cv;const r=c.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>vh)continue;
     const pw=Math.round(r.width*DPR),ph=Math.round(r.height*DPR);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
     const x=c.getContext('2d');x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,r.width,r.height);
     const ww=r.width*.66,cx=(r.width-ww)/2,y0=(r.height-BH*2)/2;
@@ -1218,9 +1243,12 @@ function runVerdict(sc){
   if(stack.length-1!==sc)why.push('state');                      // placar não bate com a torre
   if(taps.length>=25){
     const cnt={};let mx=0;taps.forEach(tp=>{const k=tp.x+','+tp.y;cnt[k]=(cnt[k]||0)+1;if(cnt[k]>mx)mx=cnt[k]});
-    if(mx/taps.length>.8)why.push('samepx');                      // sempre no mesmo pixel = autoclick
     const iv=[];for(let k=1;k<taps.length;k++)iv.push(taps[k].t-taps[k-1].t);
     const mean=iv.reduce((a,b)=>a+b,0)/iv.length,sd=Math.sqrt(iv.reduce((a,b)=>a+(b-mean)**2,0)/iv.length);
+    // sempre no mesmo pixel = autoclick. Com mouse (Chromebook/emulador) o cursor parado é normal,
+    // então aí só conta se o ritmo também for regular demais
+    const mouse=taps.filter(tp=>tp.pt==='mouse').length>taps.length/2;
+    if(mx/taps.length>.8&&(!mouse||(mean>0&&sd/mean<.15)))why.push('samepx');
     if(mean>0&&sd/mean<.03)why.push('rhythm');                   // ritmo perfeito de máquina
   }
   if(errs.length>=120&&errs.filter(e=>e.e>=e.tol).length<=1)why.push('perfect'); // 120 perfeitos quase sem erro
@@ -1230,9 +1258,9 @@ function runVerdict(sc){
 /* ================= COMPETITIVO =================
    Patentes, linha do rival, "fulano te passou", desafio diário, prêmios Top 3/Top 10, conquistas,
    perfil do jogador e card de recorde pra compartilhar. */
-const dayKey=(d=new Date())=>'d_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1)+'_'+pad2(d.getUTCDate());
-const prevDayKey=()=>dayKey(new Date(Date.now()-864e5));
-const dayEndMs=()=>{const d=new Date();return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1)};
+const dayKey=(d=new Date(nowSrv()))=>'d_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1)+'_'+pad2(d.getUTCDate());
+const prevDayKey=()=>dayKey(new Date(nowSrv()-864e5));
+const dayEndMs=()=>{const d=new Date(nowSrv());return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1)+(Date.now()-nowSrv())};
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const seedOf=str=>[...str].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261);
 
@@ -1274,9 +1302,8 @@ async function snapBelow(){const on=OL();if(!on||!on.below)return;const k=monthK
   try{const rows=await on.below(k,ms,7);const uid=on.uid();S.cp={k,ms,t:Date.now(),below:rows.filter(r=>r.id!==uid&&r.n!==S.lb.name).map(r=>r.id).slice(0,6)};save()}catch(e){}}
 async function checkOvertakes(){const on=OL();const k=monthKey(),ms=monthBest();if(!on||!on.above||S.cp.k!==k||!S.cp.below.length||!ms)return;
   try{const rows=await on.above(k,ms,10);const who=rows.filter(r=>S.cp.below.includes(r.id));if(!who.length)return;
-    const pos=await on.rank(k,ms);showOvertake(who,pos)}catch(e){}}
-function showOvertake(who,pos,tries=0){
-  if(state!=='menu'||$('menu').hidden||!$('mis').hidden||!$('rkWin').hidden){if(tries<20)setTimeout(()=>showOvertake(who,pos,tries+1),3000);return}
+    const pos=await on.rank(k,ms);whenMenu(()=>showOvertake(who,pos))}catch(e){}}
+function showOvertake(who,pos){if(!$('ovt').hidden)return;
   $('ovtList').innerHTML=who.slice(0,3).map(r=>`<div><span>${flag(r.c)}</span><span>${esc(r.n)}</span><b>${r.s}</b></div>`).join('');
   $('ovtP').textContent=t('ovtP',pos);$('ovt').hidden=false;sfx.whoosh()}
 $('ovtGo').onclick=()=>{$('ovt').hidden=true;mode='normal';startGame()};
@@ -1287,9 +1314,12 @@ const DAILY_TRIES=3,DPRIZE=[10,6,4];
 function dailyInfo(){const k=dayKey();if(S.dly.k!==k){S.dly.k=k;S.dly.tries=0;S.dly.best=0;S.dly.sent=0}return S.dly}
 function dailyBtn(){const d=dailyInfo(),left=DAILY_TRIES-d.tries;$('dlyLeft').textContent=left>0?t('dlyLeft',left):t('dlyDone');$('openDaily').classList.toggle('done',left<=0)}
 function startDaily(){const d=dailyInfo();if(d.tries>=DAILY_TRIES){toast(t('dlyNoTries'));openRank();setRankTab('day');return}
-  d.tries++;if(d.tries===1)S.dly.days++;save();mode='daily';startGame()}
+  d.tries++;if(d.tries===1)S.dly.days++;save();mode='daily';startGame();run.dk=d.k}
 $('openDaily').onclick=startDaily;
-function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;const d=dailyInfo();const left=DAILY_TRIES-d.tries;
+function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;
+  // a partida começou num dia e terminou no outro (meia-noite UTC): não vale pro ranking de hoje
+  if(run.dk&&run.dk!==dayKey()){$('oDly').innerHTML=`<b>${t('dlyTag')}</b><br>${t('dlyExpired')}`;$('oDly').hidden=false;$('again').textContent=t('again');return}
+  const d=dailyInfo();const left=DAILY_TRIES-d.tries;
   $('oDly').innerHTML=`<b>${t('dlyTag')}</b><br>${left>0?t('dlyLeftLong',left):t('dlyOver')}`;$('oDly').hidden=false;
   $('again').textContent=left>0?t('dlyAgain'):t('again');
   const why=runVerdict(sc);if(why.length){S.lb.flag=(S.lb.flag||0)+1;S.lb.why=why.join(',');save();if(sc>0){el.innerHTML=`<span>${t('rkNotSent')}</span>`;el.hidden=false}return}
@@ -1299,10 +1329,13 @@ function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;const d=dailyInfo(
 }
 async function showDayPos(){const on=OL(),d=dailyInfo();if(!on||!d.sent||$('over').hidden)return;
   try{const pos=await on.rank(dayKey(),d.sent);if($('over').hidden)return;$('oRank').innerHTML=`<span>${flag(S.lb.cc)} <b>#${pos}</b> ${t('rkInDay')}</span>`;$('oRank').hidden=false}catch(e){}}
-async function checkDailyPrize(){const on=OL();if(!on)return;const pk=prevDayKey();if(S.dwon.chk===pk)return;
-  try{let top=await on.top(pk,5);S.dwon.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;save();wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}save()}catch(e){}}
-
+async function checkDailyPrize(){const on=OL();if(!on)return;const keys=[];for(let k=1;k<=7;k++){const dk=dayKey(new Date(nowSrv()-k*864e5));if(dk===S.dwon.chk)break;keys.push(dk)}
+  for(const pk of keys.reverse()){try{let top=await on.top(pk,5);top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
+    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}
+    S.dwon.chk=pk;save()}catch(e){return}}}
+// voltou pro app (ex.: deixou aberto de um dia pro outro): confere prêmios e reenvia o que faltou
+let resumeAt=0;function onResumeOnline(){if(Date.now()-resumeAt<60000)return;resumeAt=Date.now();const on=OL();if(!on)return;
+  syncScores().then(()=>{checkPrize();checkDailyPrize()}).catch(()=>{})}
 /* ---- estatísticas ---- */
 function trackStats(){const st=S.st;st.runs++;st.floors+=score;st.perf+=perfects;st.combo=Math.max(st.combo,maxCombo);st.time+=Math.round((run.play||0)/1000)}
 
@@ -1387,9 +1420,10 @@ function overExtras(){if(mode!=='daily'){$('oDly').hidden=true;$('again').textCo
 // Placar mensal (o Nº1 ganha 50 cristais e zera todo dia 1) + placar geral fixo, com a bandeira do país.
 const OL=()=>window.Online&&window.Online.configured?window.Online:null;
 const pad2=n=>(n<10?'0':'')+n;
-const monthKey=(d=new Date())=>'m_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1);
-const prevMonthKey=()=>{const d=new Date();d.setUTCDate(1);d.setUTCHours(12,0,0,0);d.setUTCMonth(d.getUTCMonth()-1);return monthKey(d)};
-const monthEndMs=()=>{const d=new Date();return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)};
+const nowSrv=()=>Date.now()-(typeof srvSkew==='number'?srvSkew:0); // hora do Google (não a do celular)
+const monthKey=(d=new Date(nowSrv()))=>'m_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1);
+const prevMonthKey=()=>{const d=new Date(nowSrv());d.setUTCDate(1);d.setUTCHours(12,0,0,0);d.setUTCMonth(d.getUTCMonth()-1);return monthKey(d)};
+const monthEndMs=()=>{const d=new Date(nowSrv());return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)+(Date.now()-nowSrv())};
 const CCS='AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CL CM CN CO CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FR GA GB GD GE GH GM GN GQ GR GT GW GY HK HN HR HT HU ID IE IL IN IQ IR IS IT JM JO JP KE KG KH KM KN KR KW KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MK ML MM MN MO MR MT MU MV MW MX MY MZ NA NE NG NI NL NO NP NZ OM PA PE PG PH PK PL PR PS PT PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SY SZ TD TG TH TJ TL TM TN TO TR TT TW TZ UA UG US UY UZ VA VC VE VN VU WS YE ZA ZM ZW'.split(' ');
 const flag=cc=>/^[A-Z]{2}$/.test(cc||'')?String.fromCodePoint(...[...cc].map(ch=>127397+ch.charCodeAt(0))):'🏳️';
 function ccName(cc){try{return new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[LANG]||'en'],{type:'region'}).of(cc)||cc}catch(e){return cc}}
@@ -1414,14 +1448,21 @@ function cleanName(v){let n=String(v||'').replace(/[^\p{L}\p{N} ._-]/gu,'').repl
 
 /* ---- enviar recordes ---- */
 function trackMonth(sc){const k=monthKey();if(S.lb.mb.k!==k)S.lb.mb={k,s:0};if(sc>S.lb.mb.s)S.lb.mb.s=sc;save()}
+const RA={s:-1,p:0,t:0}; // posição no geral (cache: só pergunta de novo se o recorde mudar)
 let lbBusy=null;
+// envia; se o servidor recusar (ex.: lá já tem um recorde maior, de um save antigo restaurado), adota o valor de lá
+async function submitSafe(on,board,v){try{await on.submit(board,v,S.lb.name,S.lb.cc);return v}
+  catch(e){if(!/permission|PERMISSION/.test(String(e&&(e.code||e.message))))throw e;const m=await on.mine(board);if(m&&m.s>v){await on.submit(board,m.s,S.lb.name,S.lb.cc);return m.s}throw e}}
 function syncScores(force){
-  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;
+  const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;const nameAt=S.lb.name+'|'+S.lb.cc;
   lbBusy=(async()=>{let ok=true;
-    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);await on.submit('all',v,S.lb.name,S.lb.cc);S.lb.all=v;save()}}catch(e){ok=false}
+    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);S.lb.all=await submitSafe(on,'all',v);save()}}catch(e){ok=false}
     try{const k=monthKey();if(S.lb.mk!==k){S.lb.mk=k;S.lb.ms=0}
-      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);await on.submit(k,v,S.lb.name,S.lb.cc);S.lb.ms=v;save()}}catch(e){ok=false}
-    if(ok&&force&&S.lb.dirty){S.lb.dirty=false;save()}
+      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);S.lb.ms=await submitSafe(on,k,v);save()}}catch(e){ok=false}
+    // desafio diário que não chegou a ser enviado (sem internet, erro...)
+    try{if(typeof dayKey==='function'&&S.dly&&S.dly.k===dayKey()&&S.dly.best>S.dly.sent){await on.submit(dayKey(),S.dly.best,S.lb.name,S.lb.cc);S.dly.sent=S.dly.best;save()}}catch(e){}
+    // só limpa o "precisa reenviar" se o nome/país não mudou no meio do envio
+    if(ok&&force&&S.lb.dirty&&nameAt===S.lb.name+'|'+S.lb.cc){S.lb.dirty=false;save()}
     return ok})().finally(()=>{lbBusy=null});
   return lbBusy;
 }
@@ -1433,9 +1474,9 @@ function rankAfterRun(sc){
   if(sc>(S.lb.rb||0))S.lb.rb=sc;trackMonth(sc);
   const on=OL();if(!on||sc<=0)return;
   syncScores().then(async()=>{
-    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}RV.t=0;
+    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
-    try{const [rm,ra]=await Promise.all([on.rank(k,ms),S.lb.all?on.rank('all',S.lb.all):Promise.resolve(0)]);if($('over').hidden)return;
+    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await on.rank('all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([on.rank(k,ms),allPos()]);if($('over').hidden)return;
       S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
   });
 }
@@ -1445,7 +1486,7 @@ const MPRIZE=[50,30,20,10,10,10,10,10,10,10];
 async function checkPrize(){
   const on=OL();if(!on)return;const pk=prevMonthKey();if(S.lb.chk===pk)return;
   try{let top=await on.top(pk,15);S.lb.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();showPrizeWin(pk,idx+1,g)}
+    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();whenMenu(()=>showPrizeWin(pk,idx+1,g))}
     save()}catch(e){}
 }
 function monthLabel(k){const m=/m_(\d{4})_(\d{2})/.exec(k);if(!m)return '';return new Date(Date.UTC(+m[1],+m[2]-1,15)).toLocaleDateString({pt:'pt-BR',en:'en-US',es:'es-ES'}[LANG],{month:'long',year:'numeric',timeZone:'UTC'})}
@@ -1468,9 +1509,10 @@ function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidd
 function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span>${tierSVG(tierOf(r.s),17)}<span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
 // mesmo jogador com 2 entradas (ex.: reinstalou o app e ganhou outro ID): mostra só a melhor.
 // As suas entradas antigas somem e fica só a atual.
-function dedupeRows(rows,uid){const key=r=>String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
-  const myK=mineR?key(mineR):(S.lb.name.toLowerCase()+'|'+S.lb.cc);const seen=new Set();
-  return rows.filter(r=>{if(r.id===uid)return true;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
+function dedupeRows(rows,uid){const old=S.lb.uids||[];const auto=n=>/^(Jogador|Player|Jugador)\d{4}$/.test(n||'');
+  const key=r=>auto(r.n)?'#'+r.id:String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
+  const myK=mineR?key(mineR):S.lb.pg?(S.lb.name.toLowerCase()+'|'+S.lb.cc):'#'+uid;const seen=new Set();
+  return rows.filter(r=>{if(r.id===uid)return true;if(old.includes(r.id))return false;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
 async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
@@ -1524,7 +1566,7 @@ $('pfSave').onclick=()=>{const changed=pfCC!==S.lb.cc;S.lb.cc=pfCC;S.lb.edited=t
 async function onlineBoot(){const on=OL();if(!on)return;
   try{const st=await on.serverNow();if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}catch(e){}
   // celular novo / reinstalado: o login anônimo muda, então reenvia os recordes na conta nova
-  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
+  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.uids=(S.lb.uids||[]).concat(S.lb.uid).slice(-10);S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
   await syncScores();
   // se a sua entrada foi apagada do ranking (ex.: limpeza), manda de novo o seu recorde
   try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}
@@ -1580,7 +1622,9 @@ $('closeHelp').onclick=()=>{$('help').hidden=true;cancelAnimationFrame(helpRAF);
 /* ================= SAVE NA NUVEM (Google Play Games) ================= */
 // O save vai selado pra nuvem. Ao carregar, o selo é conferido (save editado é recusado).
 const CL=()=>window.Native&&window.Native.isNative&&window.Native.cloud?window.Native.cloud:null;
-let clPlayer=null,clLast=0,clBusy=false;
+let clPlayer=null,clLast=0,clBusy=false,clBootDone=false,clCloudProg=null;
+// "tamanho" do progresso (nível e XP só aumentam jogando) — usado pra nunca salvar por cima de um progresso maior
+const progOf=s=>(s.lvl||1)*1e6+(s.xp||0);
 function clPayload(){save();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
 function clParse(txt){try{const o=JSON.parse(txt||'');if(!o||!o.d||!o.h||SEAL(o.d)!==o.h)return null;const s=JSON.parse(o.d);return {o,s}}catch(e){return null}}
 function clDesc(s){return t('clDesc',s.lvl||1,s.best||0)}
@@ -1596,11 +1640,12 @@ async function clSignIn(interactive){const c=CL();if(!c)return false;
 async function clSaveNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}
   clBusy=true;clRender();
-  try{await c.save(clPayload(),clDesc(S));clLast=Date.now();if(manual){sfx.coin();toast(t('clSaved'))}}
+  try{await c.save(clPayload(),clDesc(S),progOf(S));clLast=Date.now();clCloudProg=progOf(S);if(manual){sfx.coin();toast(t('clSaved'))}}
   catch(e){if(manual)toast(t('clFail'))}
   clBusy=false;clRender()}
 // salva sozinho no fim das partidas e ao sair do app (no máximo 1x por minuto)
-function cloudAuto(){if(clPlayer&&Date.now()-clLast>60000)clSaveNow(false)}
+// (só depois de comparar com a nuvem, e nunca por cima de um progresso maior)
+function cloudAuto(){if(!clPlayer||!clBootDone||(clCloudProg!=null&&progOf(S)<clCloudProg))return;if(Date.now()-clLast>60000)clSaveNow(false)}
 async function clLoadNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}
   clBusy=true;clRender();let r=null;
@@ -1611,21 +1656,26 @@ async function clLoadNow(manual){const c=CL();if(!c||clBusy)return;
   clAsk(p);
 }
 function clAsk(p){const s=p.s;$('clAskP').innerHTML=t('clAskP',s.lvl||1,s.best||0,s.coins||0,s.gems||0);$('clAsk').hidden=false;
-  $('clYes').onclick=async()=>{$('clAsk').hidden=true;try{localStorage.setItem('empilha_save',p.o.d);localStorage.setItem('empilha_sig',p.o.h);localStorage.setItem('empilha_bak',p.o.d);localStorage.setItem('empilha_bak_sig',p.o.h)}catch(e){return}
+  $('clYes').onclick=async()=>{$('clAsk').hidden=true;restoring=true;clearTimeout(mirT);mirT=0;try{localStorage.setItem('empilha_save',p.o.d);localStorage.setItem('empilha_sig',p.o.h);localStorage.setItem('empilha_bak',p.o.d);localStorage.setItem('empilha_bak_sig',p.o.h)}catch(e){return}
     // atualiza também o espelho do backup do Android, senão ele "restauraria" o save antigo por cima
     const NN=window.Native;try{if(NN&&NN.prefSet){await NN.prefSet('bs_save',p.o.d);await NN.prefSet('bs_sig',p.o.h)}}catch(e){}
     location.reload()};
-  $('clNo').onclick=()=>{$('clAsk').hidden=true}}
-$('clSave').onclick=()=>clSaveNow(true);$('clLoad').onclick=()=>clLoadNow(true);$('clSign').onclick=()=>clSignIn(true).then(ok=>{if(ok)toast(t('clHi',clPlayer))});
+  // recusou: vale o progresso deste celular (pode salvar por cima)
+  $('clNo').onclick=()=>{$('clAsk').hidden=true;clCloudProg=progOf(S)}}
+$('clSave').onclick=()=>clSaveNow(true);$('clLoad').onclick=()=>clLoadNow(true);$('clSign').onclick=()=>clSignIn(true).then(ok=>{if(ok){toast(t('clHi',clPlayer));if(!clBootDone)clCompare()}});
 // ao abrir: entra em silêncio e, se este celular estiver "novo" e a nuvem tiver progresso, oferece recuperar
 (async()=>{if(!CL())return;clRender();
   if(!(await clSignIn(false))){
     // 1ª vez que abre o jogo: chama a tela do Play Games uma única vez (depois fica só o botão Entrar)
     let first=false;try{first=!localStorage.getItem('bs_clauto');localStorage.setItem('bs_clauto','1')}catch(e){}
     if(!first)return;await new Promise(r=>setTimeout(r,1200));if(!(await clSignIn(true)))return;toast(t('clHi',clPlayer))}
-  try{const r=await CL().load();const p=r&&r.data?clParse(r.data):null;if(!p)return;
-    const fresh=!BOOT_LOCAL||(S.best<(p.s.best||0)&&S.lvl<=(p.s.lvl||1)&&S.xp+S.lvl*100<(p.s.xp||0)+(p.s.lvl||1)*100);
-    if(fresh&&(p.s.best||0)>0)clAsk(p)}catch(e){}})();
+  clCompare()})();
+// compara com a nuvem ao entrar: se lá tiver mais progresso, oferece recuperar (quando estiver no menu)
+async function clCompare(){if(clBusy)return;clBusy=true;let p=null,ok=false;
+  try{const r=await CL().load();ok=true;p=r&&r.data?clParse(r.data):null}catch(e){}
+  clBusy=false;clRender();if(!ok)return;
+  clCloudProg=p?progOf(p.s):0;clBootDone=true;
+  if(p&&(p.s.best||0)>0&&(!BOOT_LOCAL||progOf(p.s)>progOf(S)))whenMenu(()=>clAsk(p))}
 
 /* ================= LOOP ================= */
 let wasPlaying=false;
@@ -1640,6 +1690,7 @@ function frame(tt){
     let sp=speed*(P.slow>0?.55:1);
     if(P.calm<=0){if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
+    if(!moving.entered){const tp=stack[stack.length-1];if(tp&&Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)>0)moving.entered=true}
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
   }
   if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
@@ -1663,7 +1714,7 @@ function frame(tt){
   }
   // anéis do perfeito
   for(let k=rings.length-1;k>=0;k--){const r=rings[k],a=tNow-r.t0;if(a>450){rings.splice(k,1);continue}const e=a*.09;ctx.save();ctx.globalAlpha=1-a/450;ctx.strokeStyle='#fff';ctx.lineWidth=3*(1-a/450)+1;rr(ctx,r.x-e,yOf(r.i)-e*.6,r.w+e*2,BH+e*1.2,8);ctx.stroke();ctx.restore()}
-  for(let k=debris.length-1;k>=0;k--){const d=debris[k];d.vy+=.5*dt;d.y+=d.vy*dt;d.x+=d.vx*dt;d.r+=d.vr*dt;ctx.save();ctx.translate(d.x+d.w/2,d.y+BH/2);ctx.rotate(d.r);block(-d.w/2,-BH/2,d.w,d.i,.9);ctx.restore();if(d.y>H+200)debris.splice(k,1)}
+  for(let k=debris.length-1;k>=0;k--){const d=debris[k];d.vy+=.5*dt;d.y+=d.vy*dt;d.x+=d.vx*dt;d.r+=d.vr*dt;ctx.save();ctx.translate(d.x+d.w/2,d.y+BH/2);ctx.rotate(d.r);ctx.translate(-(d.x+d.w/2),-(d.y+BH/2));block(d.x,d.y,d.w,d.i,.9);ctx.restore();if(d.y>H+200)debris.splice(k,1)}
   for(let k=parts.length-1;k>=0;k--){const p=parts[k];p.vy+=.15*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=.025*dt;ctx.globalAlpha=Math.max(0,p.l);ctx.fillStyle=p.col;const s=6*p.l+2;ctx.fillRect(p.x-s/2,p.y-s/2,s,s);if(p.l<=0)parts.splice(k,1)}
   ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='alphabetic';
   for(let k=floats.length-1;k>=0;k--){const f=floats[k];f.y-=1.1*dt;f.l-=.018*dt;ctx.globalAlpha=Math.max(0,f.l);const sc=f.l>.85?1+(f.l-.85)*2:1;ctx.font=`900 ${f.size*sc}px Nunito, sans-serif`;ctx.lineWidth=4;ctx.strokeStyle='rgba(0,0,0,.45)';ctx.strokeText(f.txt,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.txt,f.x,f.y);if(f.l<=0)floats.splice(k,1)}
@@ -1674,10 +1725,10 @@ function frame(tt){
 
 let lastTap=0;
 const tap=e=>{if(state!=='play')return;e.preventDefault();if(e.isPrimary===false)return;const n=performance.now();if(n-lastTap<110)return;lastTap=n;
-  if(run&&run.taps&&run.taps.length<3000)run.taps.push({t:n,x:Math.round(e.clientX),y:Math.round(e.clientY),tr:e.isTrusted!==false});drop()};
+  if(run&&run.taps&&run.taps.length<3000)run.taps.push({t:n,x:Math.round(e.clientX),y:Math.round(e.clientY),tr:e.isTrusted!==false,pt:e.pointerType||''});drop()};
 cv.addEventListener('pointerdown',tap);
 addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(state==='play')drop();else if(state==='menu')startGame()}if(e.code==='Escape'){state==='play'?pauseGame():state==='pause'&&resumeGame()}});
-$('play').onclick=()=>{mode='normal';startGame()};$('again').onclick=()=>{if(mode==='daily')startDaily();else startGame()};
+$('play').onclick=()=>{mode='normal';startGame()};$('again').onclick=()=>{if(mode==='daily'&&dailyInfo().tries<DAILY_TRIES)startDaily();else{mode='normal';startGame()}};
 
 /* ================= INTRO ================= */
 function runIntro(done){
@@ -1698,11 +1749,13 @@ runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden
 if(N){
   N.initAds();
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
-  N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend();cloudAuto()});
+  N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror();cloudAuto()});
   N.onBack(()=>{
+    if(!$('clAsk').hidden){$('clNo').click();return}
+    if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('ovt').hidden){$('ovtNo').click();return}
     if(!$('pp').hidden){showMenu();return}
-    if(!$('clAsk').hidden){$('clNo').click();return}
+    if(state==='revive'&&!$('revive').hidden){$('revSkip').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}
     if(!$('prof').hidden){$('pfCancel').click();return}

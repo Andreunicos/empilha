@@ -30,27 +30,26 @@ const skinOf=id=>SKINS.find(s=>s.id===id)||SKINS[0];
 function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
 
 /* ---- desempenho: cada bloco da torre vira uma imagem pronta (desenhar imagem é muito mais leve que redesenhar a skin).
-   Skins paradas: desenha 1 vez e reaproveita. Skins animadas: os 3 blocos do topo animam ao vivo todo frame e os de baixo
-   continuam animando, atualizados em rodízio dentro de um limite de tempo por frame (a animação não para, e o FPS não cai). ---- */
-const BC={id:null,dpr:0,anim:false,per:1,rr:0};
+   Skins paradas: desenha 1 vez e reaproveita. Skins "divididas" (base + brilho): a base fica pronta e só o brilho é desenhado.
+   Skins animadas simples: desenhadas normalmente. Blocos fora da tela não são desenhados. ---- */
+const BC={id:null,dpr:0,w:0,mode:'live'};
 function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=document.createElement('canvas');cv.width=PW;cv.height=BH;const c=cv.getContext('2d',{willReadFrequently:true});const t0=tNow;
   const snap=t=>{tNow=t;c.clearRect(0,0,PW,BH);block(0,0,PW,3,1,c,sk);return c.getImageData(0,0,PW,BH).data};
-  // compara vários momentos (brilhos que passam de vez em quando também contam como animação)
-  let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k+=8)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
-  const n=12,st=performance.now();for(let k=0;k<n;k++){tNow=t0+k*16;block(0,0,240,k,1,c,sk)}const ms=(performance.now()-st)/n;tNow=t0;
-  return {anim,ms}}
-// modos: 'cache' (skin parada: desenha 1x), 'live' (animada e leve: desenha normal), 'mix' (animada e pesada: topo ao vivo + rodízio embaixo)
-function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR)return;const pr=sk.fx?{anim:true,ms:0}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.anim=pr.anim;
-  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.per=0;BC.sk=sk;
+  // compara vários momentos (brilhos que passam de vez em quando também contam como animação), todos os canais
+  let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k++)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
+  tNow=t0;return {anim}}
+function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR&&BC.w===W)return;const pr=sk.fx?{anim:true}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.w=W;
+  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;
   for(const b of (typeof stack!=='undefined'?stack:[]))b.cv=null}
 function bcRender(b){const sk=BC.sk||skinOf(S.skin);const pw=Math.ceil(b.w*DPR)+2,ph=Math.ceil(BH*DPR)+1;let cv=b.cv;if(!cv||cv.width!==pw||cv.height!==ph){cv=document.createElement('canvas');cv.width=pw;cv.height=ph;b.cv=cv}
   const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,ph);c.setTransform(DPR,0,0,DPR,-b.x*DPR,0);
-  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvT=tNow}
+  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvX=b.x;b.cvW=b.w}
 // desenha a torre visível (first..fim) usando o cache
-function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live'?1e9:0;
-  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);const age=tNow-b.t0;
-    if(k>=n-live||age<260){if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}else block(b.x,y,b.w,b.i);continue}
-    if(!b.cv)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR);
+function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live';
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
+    if(live||age<260){if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}else block(b.x,y,b.w,b.i);continue}
+    // bloco mudou de tamanho/lugar (poder Largo, reviver): refaz a imagem
+    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR);
     if(BC.mode==='split'&&b.w>.5){ctx.save();rr(ctx,b.x,y,b.w,BH,sk.r??5);ctx.clip();sk.fx(ctx,b.x,y,b.w,b.i);ctx.restore()}}
   // libera memória dos blocos que já saíram da tela
   for(let k=Math.max(0,first-6);k<first;k++)stack[k].cv=null}
