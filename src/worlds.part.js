@@ -69,7 +69,7 @@ function drawScenery(){
 }
 const DRAW={
  galaxy(x,y,o){const R=W*(o.r||.6);const rot=tNow*.00004;const g=ctx.createRadialGradient(x,y,0,x,y,R*1.05);g.addColorStop(0,'rgba(255,230,190,.55)');g.addColorStop(.18,'rgba(200,120,255,.25)');g.addColorStop(.6,'rgba(90,60,200,.10)');g.addColorStop(1,'rgba(40,20,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,R*1.05,R*.62,0,0,TAU2);ctx.fill();
-   for(const p of GAL){const a=p.a+rot;const px=x+Math.cos(a)*p.r*R,py=y+Math.sin(a)*p.r*R*.58;ctx.fillStyle=hsl(p.h,90,p.l,.85);ctx.fillRect(px,py,p.s,p.s)}
+   for(const p of GAL){const a=p.a+rot;const px=x+Math.cos(a)*p.r*R,py=y+Math.sin(a)*p.r*R*.58;ctx.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));ctx.fillRect(px,py,p.s,p.s)}
    const c=ctx.createRadialGradient(x,y,0,x,y,R*.16);c.addColorStop(0,'rgba(255,250,230,1)');c.addColorStop(1,'rgba(255,200,140,0)');ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,R*.16,0,TAU2);ctx.fill()},
  station(x,y){ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(tNow*.0004)*.25);ctx.fillStyle='#3b6bd6';ctx.fillRect(-52,-9,34,18);ctx.fillRect(18,-9,34,18);ctx.strokeStyle='rgba(180,210,255,.8)';ctx.lineWidth=1;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(-52+k*8.5,-9);ctx.lineTo(-52+k*8.5,9);ctx.stroke();ctx.beginPath();ctx.moveTo(18+k*8.5,-9);ctx.lineTo(18+k*8.5,9);ctx.stroke()}
    ctx.fillStyle='#c9d1e3';ctx.fillRect(-18,-3,36,6);ctx.beginPath();ctx.arc(0,0,11,0,TAU2);ctx.fill();ctx.fillStyle='#8fa0bf';ctx.beginPath();ctx.arc(0,0,11,0,Math.PI);ctx.fill();ctx.fillStyle='#7fe0ff';ctx.beginPath();ctx.arc(-3,-3,3.5,0,TAU2);ctx.fill();

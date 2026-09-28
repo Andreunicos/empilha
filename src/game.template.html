@@ -610,9 +610,10 @@ function spawn(){
 }
 function yOf(i){return H-190-i*BH+cam}
 function addFloat(x,y,txt,col,size=18){const near=floats.filter(f=>f.l>.75&&Math.abs(f.y-y)<22).length;floats.push({x,y:y-near*24,txt,col,l:1,size})}
-function renderPw(){$('pw').innerHTML=Object.entries(P).filter(([,v])=>v>0).map(([k,v])=>`<span class="chip" style="background:${POWERS[k].col}">${t('p_'+k)} ${v}</span>`).join('')}
-function setScore(){const el=$('score');el.textContent=score;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
-function setCombo(txt){const el=$('combo');el.textContent=txt;if(txt){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
+let pwHTML='';function renderPw(){const h=Object.entries(P).filter(([,v])=>v>0).map(([k,v])=>`<span class="chip" style="background:${POWERS[k].col}">${t('p_'+k)} ${v}</span>`).join('');if(h!==pwHTML){pwHTML=h;$('pw').innerHTML=h}}
+function popAnim(el){el.classList.remove('pop');requestAnimationFrame(()=>el.classList.add('pop'))}
+function setScore(){const el=$('score');el.textContent=score;popAnim(el)}
+function setCombo(txt){const el=$('combo');if(el.textContent!==txt)el.textContent=txt;if(txt)popAnim(el)}
 
 function drop(){
   if(state!=='play'||!moving)return;
@@ -883,8 +884,10 @@ function drawPreviews(){
 //@@HELP@@
 //@@CLOUD@@
 /* ================= LOOP ================= */
+let wasPlaying=false;
 function frame(tt){
   requestAnimationFrame(frame);tNow=tt||0;
+  if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
   const wd=worldOf(score);
@@ -903,9 +906,7 @@ function frame(tt){
   const la=tNow-landT,bounce=la<500?3.5*Math.exp(-la/110)*Math.sin(la/28):0;
   const first=Math.max(0,stack.length-Math.ceil(H/BH)-2);
   const top=stack[stack.length-1];
-  for(let k=first;k<stack.length;k++){const b=stack[k];const y=yOf(b.i)+bounce*(k/stack.length);const age=tNow-b.t0;
-    if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}
-    else block(b.x,y,b.w,b.i)}
+  drawStack(first,(k,b)=>yOf(b.i)+bounce*(k/stack.length));
   if(moving&&(state==='play'||state==='menu'||state==='pause'||state==='ad')){
     const y=yOf(moving.i);
     // sombra do bloco sobre a torre
@@ -946,6 +947,8 @@ addEventListener('resize',resize);resize();
 SKINS.forEach(sk=>{if(sk.cur==='lvl'&&sk.price<=S.lvl&&!S.owned.includes(sk.id))S.owned.push(sk.id)});save();
 applyLang();wallet();ensureMissions();showMenu();
 requestAnimationFrame(frame);
+// aquece o desenho da skin durante a abertura (a 1ª partida não engasga)
+setTimeout(()=>{try{bcSync();const wc=document.createElement('canvas');wc.width=400;wc.height=BH*2;const c=wc.getContext('2d');for(let k=0;k<40;k++){tNow+=16;block(0,0,300,k,1,c)}}catch(e){}},300);
 runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
 if(N){
   N.initAds();

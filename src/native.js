@@ -15,16 +15,20 @@ const IS_TEST_AD = REWARDED_ID === TEST_REWARDED;
 
 const isNative = Capacitor.isNativePlatform();
 let adReady = false, adLoading = false, adsOk = false;
+// enquanto o jogador está numa partida, o vídeo não é baixado (baixar anúncio pesa e derrubava o FPS nas primeiras partidas)
+let playing = false, adWanted = false;
+function setPlaying(v) { playing = !!v; if (!playing && adWanted) { adWanted = false; setTimeout(loadAd, 400); } }
 
 async function loadAd() {
   if (!adsOk || adReady || adLoading) return;
+  if (playing) { adWanted = true; return; }
   adLoading = true;
   try {
     await AdMob.prepareRewardVideoAd({ adId: REWARDED_ID, isTesting: IS_TEST_AD });
     adReady = true;
   } catch (e) {
     adReady = false;
-    setTimeout(loadAd, 30000); // tenta de novo em 30 s
+    setTimeout(loadAd, 30000); // tenta de novo em 30 s (se estiver jogando, espera a partida acabar)
   } finally { adLoading = false; }
 }
 
@@ -89,7 +93,7 @@ async function buy(productId) {
 
 window.Native = {
   isNative,
-  initAds, showRewarded, initBilling, buy,
+  initAds, showRewarded, initBilling, buy, setPlaying,
   onBack(fn) { if (isNative) App.addListener('backButton', fn); },
   exitApp() { if (isNative) App.exitApp(); },
   onPause(fn) { if (isNative) App.addListener('pause', fn); },

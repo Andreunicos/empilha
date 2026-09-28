@@ -1,6 +1,8 @@
 /* ================= SKINS NOVAS (v1.2) ================= */
 // padrões sempre em coordenadas do mundo (x), pra que os pedaços cortados continuem batendo com o bloco de baixo
 const TAU=Math.PI*2;
+const PB={};function plasmaBuf(cols,rows){const k=cols+'x'+rows;let b=PB[k];if(!b){const cv=document.createElement('canvas');cv.width=cols;cv.height=rows;const c=cv.getContext('2d');b=PB[k]={cv,c,img:c.createImageData(cols,rows)}}return b}
+function hsl2rgb(h,s,l,d,o){h=((h%360)+360)%360/360;const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;const f=t=>{t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p};d[o]=f(h+1/3)*255;d[o+1]=f(h)*255;d[o+2]=f(h-1/3)*255;d[o+3]=255}
 SKINS.push(
  {id:'chocolate',cur:'coin',price:800,draw(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#8a5134','#6b3a22','#4e2915']);c.fillRect(x,y,w,BH);const s=22;
    for(let X=Math.floor(x/s)*s;X<x+w;X+=s){c.fillStyle='rgba(255,220,190,.16)';c.fillRect(X+3,y+6,s-6,3);c.fillRect(X+3,y+6,3,BH-12);c.fillStyle='rgba(30,10,0,.35)';c.fillRect(X+3,y+BH-8,s-6,3);c.fillRect(X+s-6,y+6,3,BH-11)}
@@ -66,25 +68,59 @@ SKINS.push(
  {id:'matrix',cur:'gem',price:110,draw(c,x,y,w,i){c.fillStyle='#03140a';c.fillRect(x,y,w,BH);c.font='bold 10px monospace';c.textAlign='center';c.textBaseline='top';const cw=9;
    for(let X=Math.floor(x/cw)*cw;X<x+w;X+=cw){const a=hash(X*.31+i*7);const sp=.02+a*.03;const head=((tNow*sp+a*100)%(BH+30))-10;for(let r=0;r<4;r++){const yy=y+r*9;const d=head-yy;const alpha=d<0?.28:d<9?1:Math.max(.28,1-d/40);const ch='01ｱｲｳｴｵｶｷｸｹｺ7Z3'[((Math.round(X/cw)*7+r*13+Math.floor(tNow*.004))%15+15)%15];c.fillStyle=d>=0&&d<9?`rgba(200,255,210,${alpha})`:`rgba(40,230,90,${alpha})`;c.fillText(ch,X+cw/2,yy)}}
    c.strokeStyle='rgba(40,230,90,.6)';c.lineWidth=1.5;c.strokeRect(x+.75,y+.75,w-1.5,BH-1.5)}},
- {id:'plasma',cur:'gem',price:140,draw(c,x,y,w,i){const tt=tNow*.002;const s=6;for(let X=Math.floor(x/s)*s;X<x+w;X+=s)for(let Y=0;Y<BH;Y+=s){const v=Math.sin(X*.04+tt)+Math.sin((Y+i*BH)*.09+tt*1.3)+Math.sin((X+Y+i*20)*.03-tt*.8);const h=265+v*55+Math.sin(X*.01)*20;c.fillStyle=hsl(h,95,55+v*6);c.fillRect(X,y+Y,s+.5,s+.5)}
-   c.fillStyle='rgba(255,255,255,.18)';c.fillRect(x,y,w,4);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(x,y+BH-4,w,4)}},
- // pedido de um testador: vazio roxo, elétrico, com borda neon bem visível
- {id:'void',cur:'gem',price:150,draw(c,x,y,w,i){const tt=tNow*.001;
-   c.fillStyle=vgrad(c,y,['#1c0736','#07010f','#1c0736']);c.fillRect(x,y,w,BH);
-   // energia roxa girando dentro do bloco
-   for(let X=Math.floor(x/56)*56-56;X<x+w+56;X+=56){const a=hash(X*.13+i*5.3);const cx=X+28+Math.sin(tt*1.3+a*6)*16,cy=y+BH/2+Math.cos(tt*1.9+a*6)*6,R=30+a*8;
-     const x0=Math.max(x,cx-R),x1=Math.min(x+w,cx+R);if(x1<=x0)continue;const g=c.createRadialGradient(cx,cy,0,cx,cy,R);
-     g.addColorStop(0,`rgba(245,215,255,${.75+.25*Math.sin(tt*3.1+a*9)})`);g.addColorStop(.22,'rgba(190,90,255,.8)');g.addColorStop(.55,'rgba(120,35,230,.45)');g.addColorStop(1,'rgba(40,0,90,0)');c.fillStyle=g;c.fillRect(x0,y,x1-x0,BH)}
-   // faixa de energia no meio pulsando
-   {const cg=c.createLinearGradient(0,y,0,y+BH);const pz=.25+.2*Math.sin(tt*2.2+i);cg.addColorStop(0,'rgba(150,50,255,0)');cg.addColorStop(.5,`rgba(200,120,255,${pz})`);cg.addColorStop(1,'rgba(150,50,255,0)');c.fillStyle=cg;c.fillRect(x,y,w,BH)}
-   // partículas sendo puxadas pro centro
-   for(let X=Math.floor(x/13)*13;X<x+w;X+=13){const a=hash(X*.7+i*2.1);const ph=(tt*.6+a)%1;const py=y+(a>.5?ph*BH/2:BH-ph*BH/2);c.fillStyle=`rgba(225,170,255,${.9*(1-ph)})`;c.fillRect(X+a*8,py,1.8,1.8)}
-   // raios elétricos piscando
-   const slot=Math.floor(tNow/110);c.lineCap='round';c.lineJoin='round';
-   for(let k=0;k<2;k++){const a=hash(slot*1.37+i*3.1+k*9.7);if(a<.3)continue;const len=26+a*50;let px=x+hash(slot*.9+k*5+i)*Math.max(1,w-len),py=y+5+hash(slot*2.3+k+i*.7)*(BH-10);
-     const pts=[[px,py]];for(let s2=1;s2<=6;s2++){px+=len/6;py=Math.min(y+BH-3,Math.max(y+3,py+(hash(slot*3.7+s2*1.9+k*4+i)-.5)*12));pts.push([px,py])}
-     [['rgba(170,80,255,.45)',7],['rgba(215,160,255,.95)',3],['rgba(255,255,255,1)',1.3]].forEach(([col,lw])=>{c.strokeStyle=col;c.lineWidth=lw;c.beginPath();pts.forEach(([u,v],n)=>n?c.lineTo(u,v):c.moveTo(u,v));c.stroke()})}
-   // borda neon (fácil de ver onde o bloco termina)
-   const pulse=.75+.25*Math.sin(tt*4+i*.8);c.strokeStyle='rgba(120,30,230,.9)';c.lineWidth=4;c.strokeRect(x+2,y+2,w-4,BH-4);
-   c.strokeStyle=`rgba(220,150,255,${pulse})`;c.lineWidth=2;c.strokeRect(x+1,y+1,w-2,BH-2);c.fillStyle=`rgba(255,235,255,${.5*pulse})`;c.fillRect(x+1,y+1,w-2,1.2)}}
+ {id:'plasma',cur:'gem',price:140,draw(c,x,y,w,i){const tt=tNow*.002;const s=6;const X0=Math.floor(x/s)*s,cols=Math.ceil((x+w-X0)/s)+1,rows=Math.ceil(BH/s);
+   // calcula as cores numa imagem pequena (1 pixel por quadradinho) e amplia de uma vez: mesmo visual, muito menos trabalho
+   const pc=plasmaBuf(cols,rows),d=pc.img.data;let o=0;
+   for(let Y=0;Y<rows*s;Y+=s)for(let X=X0;X<X0+cols*s;X+=s){const v=Math.sin(X*.04+tt)+Math.sin((Y+i*BH)*.09+tt*1.3)+Math.sin((X+Y+i*20)*.03-tt*.8);hsl2rgb(265+v*55+Math.sin(X*.01)*20,.95,(55+v*6)/100,d,o);o+=4}
+   pc.c.putImageData(pc.img,0,0);const sm=c.imageSmoothingEnabled;c.imageSmoothingEnabled=false;c.drawImage(pc.cv,0,0,cols,rows,X0,y,cols*s,rows*s);c.imageSmoothingEnabled=sm;
+   c.fillStyle='rgba(255,255,255,.18)';c.fillRect(x,y,w,4);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(x,y+BH-4,w,4)}}
+
 );
+
+
+/* ---- skins "divididas": a parte parada (base) é desenhada 1 vez e guardada; só o brilho/movimento (fx) é desenhado todo frame.
+   Mantém 100% da animação e corta quase todo o custo. ---- */
+function splitSkin(id,base,fx){const sk=SKINS.find(s=>s.id===id);if(!sk)return;sk.base=base;sk.fx=fx;sk.draw=function(c,x,y,w,i){base(c,x,y,w,i);fx(c,x,y,w,i)}}
+const WA=Array.from({length:21},(_,k)=>`rgba(255,255,255,${k/20})`); // brancos com transparência prontos
+splitSkin('galaxy',(c,x,y,w,i)=>{const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#1b0b45');g.addColorStop(.5,'#5a1d8f');g.addColorStop(1,'#0e2a6b');c.fillStyle=g;c.fillRect(x,y,w,BH);
+   const nx=hash(i*3.1)*W;const rg=c.createRadialGradient(nx,y+BH/2,0,nx,y+BH/2,70);rg.addColorStop(0,'rgba(255,120,200,.45)');rg.addColorStop(1,'rgba(255,120,200,0)');c.fillStyle=rg;c.fillRect(x,y,w,BH);bevel(c,x,y,w,.18,.3)},
+ (c,x,y,w,i)=>{for(let X=Math.floor(x/9)*9;X<x+w;X+=9){const a=hash(X*.7+i*13);if(a>.45){c.fillStyle=WA[Math.round((.4+.6*Math.abs(Math.sin(tNow*.003+X)))*20)];const s=a>.9?2.2:1.3;c.fillRect(X+hash(X+i)*6,y+4+hash(X*1.3+i)*(BH-8),s,s)}}});
+splitSkin('honey',(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#ffd35c','#f6a91c','#d97d06']);c.fillRect(x,y,w,BH);const r=7,hx=r*1.5,hy=r*Math.sqrt(3);c.strokeStyle='rgba(140,70,0,.45)';c.lineWidth=1.6;
+   for(let col=Math.floor(x/hx)-1;col*hx<x+w+hx;col++){const cx=col*hx,off=(col%2+2)%2?hy/2:0;for(let cy=y-hy+off+((i*5)%hy);cy<y+BH+hy;cy+=hy){c.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a))}c.closePath();c.stroke()}}bevel(c,x,y,w,.25,.25)},
+ (c,x,y,w,i)=>{const p=.5+.5*Math.sin(tNow*.003+i);c.fillStyle=`rgba(255,250,210,${(.25+.2*p).toFixed(2)})`;c.fillRect(x,y,w,4)});
+splitSkin('crystal',(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#e6c6ff','#a86bf0','#6a2fc0']);c.fillRect(x,y,w,BH);const s=16;
+   for(let X=Math.floor(x/s)*s;X<x+w+s;X+=s){const a=hash(X*.29+i*4),h=BH*(.45+a*.5);c.fillStyle=`rgba(255,255,255,${.18+a*.25})`;c.beginPath();c.moveTo(X,y+BH);c.lineTo(X+s/2,y+BH-h);c.lineTo(X+s/2+2,y+BH);c.fill();c.fillStyle=`rgba(60,0,120,${.15+a*.2})`;c.beginPath();c.moveTo(X+s/2+2,y+BH);c.lineTo(X+s/2,y+BH-h);c.lineTo(X+s,y+BH);c.fill()}bevel(c,x,y,w,.45,.2)},
+ (c,x,y,w,i)=>{const sp=((tNow*.2+i*70)%(W+200))-100;if(sp>x-8&&sp<x+w+8){c.fillStyle='#fff';c.beginPath();c.moveTo(sp,y+BH/2-6);c.lineTo(sp+1.6,y+BH/2);c.lineTo(sp,y+BH/2+6);c.lineTo(sp-1.6,y+BH/2);c.fill();c.fillRect(sp-5,y+BH/2-.8,10,1.6)}});
+splitSkin('diamond',(c,x,y,w,i)=>{c.fillStyle='#bdf3ff';c.fillRect(x,y,w,BH);const s=17;for(let X=Math.floor(x/s)*s;X<x+w;X+=s){const a=hash(X*.37+i),b=hash(X*.91+i);c.fillStyle=`rgba(255,255,255,${.25+a*.6})`;c.beginPath();c.moveTo(X,y);c.lineTo(X+s,y);c.lineTo(X+s/2,y+BH/2);c.fill();c.fillStyle=`rgba(60,160,220,${.2+b*.45})`;c.beginPath();c.moveTo(X,y+BH);c.lineTo(X+s,y+BH);c.lineTo(X+s/2,y+BH/2);c.fill()}bevel(c,x,y,w,.5,.18)},
+ (c,x,y,w,i)=>{const sp=((tNow*.25+i*60)%(W+160))-80;if(sp>x-10&&sp<x+w+10){c.fillStyle='#fff';c.beginPath();c.moveTo(sp,y+BH/2-7);c.lineTo(sp+2,y+BH/2);c.lineTo(sp,y+BH/2+7);c.lineTo(sp-2,y+BH/2);c.fill()}});
+// matrix: letras vêm de uma "folha" pronta (desenhar imagem é bem mais leve que escrever texto)
+const MX_CH='01ｱｲｳｴｵｶｷｸｹｺ7Z3';let MX=null;
+function mxAtlas(){if(MX&&MX.d===DPR)return MX;const d=DPR||1,cw=10,chh=11;const cv=document.createElement('canvas');cv.width=Math.ceil(MX_CH.length*cw*d);cv.height=Math.ceil(chh*2*d);const c=cv.getContext('2d');c.scale(d,d);c.font='bold 10px monospace';c.textAlign='center';c.textBaseline='top';
+  [...MX_CH].forEach((ch,k)=>{c.fillStyle='rgb(40,230,90)';c.fillText(ch,k*cw+cw/2,0);c.fillStyle='rgb(200,255,210)';c.fillText(ch,k*cw+cw/2,chh)});return MX={cv,d,cw,chh}}
+splitSkin('matrix',(c,x,y,w,i)=>{c.fillStyle='#03140a';c.fillRect(x,y,w,BH);c.strokeStyle='rgba(40,230,90,.6)';c.lineWidth=1.5;c.strokeRect(x+.75,y+.75,w-1.5,BH-1.5)},
+ (c,x,y,w,i)=>{const A=mxAtlas(),cw=9,ga=c.globalAlpha;
+   for(let X=Math.floor(x/cw)*cw;X<x+w;X+=cw){const a=hash(X*.31+i*7);const sp=.02+a*.03;const head=((tNow*sp+a*100)%(BH+30))-10;for(let r=0;r<4;r++){const yy=y+r*9;const d=head-yy;const al=d<0?.28:d<9?1:Math.max(.28,1-d/40);const k=((Math.round(X/cw)*7+r*13+Math.floor(tNow*.004))%15+15)%15;const br=d>=0&&d<9?1:0;
+     c.globalAlpha=ga*al;c.drawImage(A.cv,k*A.cw*A.d,br*A.chh*A.d,A.cw*A.d,A.chh*A.d,X+cw/2-A.cw/2,yy,A.cw,A.chh)}}c.globalAlpha=ga;
+   c.strokeStyle='rgba(40,230,90,.6)';c.lineWidth=1.5;c.strokeRect(x+.75,y+.75,w-1.5,BH-1.5)});
+
+/* ---- TEMPESTADE VIOLETA (pedido de um testador): escudo de energia roxo, borda neon bem visível
+   e uma corrente elétrica que corre pela borda de cada bloco, em cascata pela torre ---- */
+function rimPt(x,y,w,h,s){const P=2*(w+h);s=((s%P)+P)%P;if(s<w)return[x+s,y];s-=w;if(s<h)return[x+w,y+s];s-=h;if(s<w)return[x+w-s,y+h];s-=w;return[x,y+h-s]}
+SKINS.push({id:'void',cur:'gem',price:150,
+ base(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#7b3ff2','#2b0b72','#5b21b6']);c.fillRect(x,y,w,BH);
+   // escudo de hexágonos bem sutil
+   const r=6,hx=r*1.5,hy=r*Math.sqrt(3);c.strokeStyle='rgba(215,180,255,.28)';c.lineWidth=1;
+   for(let col=Math.floor(x/hx)-1;col*hx<x+w+hx;col++){const cx=col*hx,off=(col%2+2)%2?hy/2:0;for(let cy=y-hy+off;cy<y+BH+hy;cy+=hy){c.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a))}c.closePath();c.stroke()}}
+   const g=c.createLinearGradient(0,y,0,y+BH);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.35,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(x,y,w,BH);
+   // borda neon dupla
+   c.strokeStyle='rgba(150,70,255,.75)';c.lineWidth=4;c.strokeRect(x+2,y+2,w-4,BH-4);c.strokeStyle='#e9d5ff';c.lineWidth=1.6;c.strokeRect(x+1,y+1,w-2,BH-2)},
+ fx(c,x,y,w,i){if(w<14)return;const P=2*(w-3+BH-3),sp=tNow*.32+i*61,x0=x+1.5,y0=y+1.5,ww=w-3,hh=BH-3;
+   // 2 faíscas correndo pela borda (sentidos opostos) com rastro brilhante
+   c.lineCap='round';for(const dir of [1,-1]){const s0=dir>0?sp:P-sp*.8+i*23;for(let k=0;k<18;k++){const a=rimPt(x0,y0,ww,hh,s0-dir*k*5),b=rimPt(x0,y0,ww,hh,s0-dir*(k+1)*5);
+     c.strokeStyle=k<3?'#ffffff':`rgba(${dir>0?'225,185,255':'140,220,255'},${(1-k/18).toFixed(2)})`;c.lineWidth=k<3?3.4:3-k*.14;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
+     const h=rimPt(x0,y0,ww,hh,s0);const gl=c.createRadialGradient(h[0],h[1],0,h[0],h[1],16);gl.addColorStop(0,dir>0?'rgba(245,225,255,.95)':'rgba(200,240,255,.9)');gl.addColorStop(1,'rgba(160,80,255,0)');c.fillStyle=gl;c.fillRect(h[0]-16,h[1]-16,32,32)}
+   // luz varrendo o escudo em diagonal a cada ~3s
+   const ph=((tNow+i*140)%3000)/3000,sx=x-40+ph*(w+80);if(ph<.99){const sg=c.createLinearGradient(sx-18,0,sx+18,0);sg.addColorStop(0,'rgba(200,150,255,0)');sg.addColorStop(.5,'rgba(235,210,255,.38)');sg.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=sg;c.beginPath();c.moveTo(sx-10,y);c.lineTo(sx+26,y);c.lineTo(sx+10,y+BH);c.lineTo(sx-26,y+BH);c.fill()}
+   // estalo elétrico curto de vez em quando
+   const slot=Math.floor(tNow/140),q=hash(slot*1.3+i*2.7);if(q>.72){let px=x+6+hash(slot+i)*(w-40),py=y+BH/2;c.strokeStyle='rgba(245,230,255,.95)';c.lineWidth=1.3;c.beginPath();c.moveTo(px,py);for(let s2=1;s2<=5;s2++){px+=6;py=y+BH/2+(hash(slot*2.1+s2+i)-.5)*14;c.lineTo(px,py)}c.stroke()}},
+ draw(c,x,y,w,i){this.base(c,x,y,w,i);this.fx(c,x,y,w,i)}});
