@@ -21,7 +21,7 @@ function skyColor(key){let col=WORLDS[0][key].slice();for(let k=1;k<WORLDS.lengt
 function drawWorld(){
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,skyColor('top'));g.addColorStop(1,skyColor('bot'));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   const nightA=clamp((skyF-40)/15,0,1)*.9+.25*(1-clamp(skyF/20,0,1));
-  for(const s of stars){const a=nightA*(.4+.6*Math.abs(Math.sin(tNow*.001+s.p)));if(a<.02)continue;ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(s.x*W,((s.y*H+cam*.08)%H),s.s,s.s)}
+  for(const s of stars){const a=nightA*(.4+.6*Math.abs(Math.sin(tNow*.001+s.p)));if(a<.02)continue;ctx.fillStyle=WA[Math.min(20,Math.round(a*20))];ctx.fillRect(s.x*W,((s.y*H+cam*.08)%H),s.s,s.s)}
   // aurora
   const au=clamp((skyF-44)/8,0,1)*(1-clamp((skyF-96)/8,0,1));
   if(au>0){for(let b=0;b<3;b++){ctx.beginPath();const base=H*(.18+b*.12);ctx.moveTo(0,base);for(let X=0;X<=W;X+=10)ctx.lineTo(X,base+Math.sin(X*.012+tNow*.0006*(b+1)+b)*26);ctx.lineTo(W,base+70);ctx.lineTo(0,base+70);const ag=ctx.createLinearGradient(0,base-30,0,base+70);ag.addColorStop(0,`rgba(90,255,170,0)`);ag.addColorStop(.4,`rgba(${b?120:80},255,${b?220:160},${.22*au})`);ag.addColorStop(1,'rgba(90,255,170,0)');ctx.fillStyle=ag;ctx.fill()}}
@@ -41,6 +41,8 @@ function drawWorld(){
    então conforme a torre sobe, galáxias, planetas e buracos negros vão surgindo lá em cima e descendo. */
 const TAU2=Math.PI*2;
 const GAL=(()=>{const pts=[];for(let k=0;k<1100;k++){const arm=k%3,t=Math.random(),r=Math.pow(t,.8);const a=arm*TAU2/3+r*5.2+(Math.random()-.5)*.55*(1-r*.5);pts.push({r:r+(Math.random()-.5)*.04,a,s:Math.random()*1.6+.5,h:r<.25?45:Math.random()<.5?290:200,l:r<.25?85:65+Math.random()*25})}return pts})();
+const GSP={};function galSprite(R){const k=Math.round(R)+'_'+DPR;if(GSP.k===k)return GSP.cv;const d=DPR||1,S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
+  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.k=k;GSP.cv=cv;return cv}
 const ROCKS=Array.from({length:14},(_,k)=>({x:Math.random(),y:(Math.random()-.5)*2,r:5+Math.random()*13,v:(Math.random()-.5)*.0002,sp:(Math.random()-.5)*.002,sides:6+(k%3)}));
 const SCN=[
  {f:112,p:.7,k:'station',x:.78},
@@ -72,7 +74,7 @@ function drawScenery(){
 }
 const DRAW={
  galaxy(x,y,o){const R=W*(o.r||.6);const rot=tNow*.00004;const g=ctx.createRadialGradient(x,y,0,x,y,R*1.05);g.addColorStop(0,'rgba(255,230,190,.55)');g.addColorStop(.18,'rgba(200,120,255,.25)');g.addColorStop(.6,'rgba(90,60,200,.10)');g.addColorStop(1,'rgba(40,20,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,R*1.05,R*.62,0,0,TAU2);ctx.fill();
-   for(const p of GAL){const a=p.a+rot;const px=x+Math.cos(a)*p.r*R,py=y+Math.sin(a)*p.r*R*.58;ctx.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));ctx.fillRect(px,py,p.s,p.s)}
+   const sp=galSprite(R);ctx.save();ctx.translate(x,y);ctx.scale(1,.58);ctx.rotate(rot);ctx.drawImage(sp,-R-4,-R-4,2*R+8,2*R+8);ctx.restore();
    const c=ctx.createRadialGradient(x,y,0,x,y,R*.16);c.addColorStop(0,'rgba(255,250,230,1)');c.addColorStop(1,'rgba(255,200,140,0)');ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,R*.16,0,TAU2);ctx.fill()},
  station(x,y){ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(tNow*.0004)*.25);ctx.fillStyle='#3b6bd6';ctx.fillRect(-52,-9,34,18);ctx.fillRect(18,-9,34,18);ctx.strokeStyle='rgba(180,210,255,.8)';ctx.lineWidth=1;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(-52+k*8.5,-9);ctx.lineTo(-52+k*8.5,9);ctx.stroke();ctx.beginPath();ctx.moveTo(18+k*8.5,-9);ctx.lineTo(18+k*8.5,9);ctx.stroke()}
    ctx.fillStyle='#c9d1e3';ctx.fillRect(-18,-3,36,6);ctx.beginPath();ctx.arc(0,0,11,0,TAU2);ctx.fill();ctx.fillStyle='#8fa0bf';ctx.beginPath();ctx.arc(0,0,11,0,Math.PI);ctx.fill();ctx.fillStyle='#7fe0ff';ctx.beginPath();ctx.arc(-3,-3,3.5,0,TAU2);ctx.fill();

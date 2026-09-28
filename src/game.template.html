@@ -476,7 +476,8 @@
 const $=id=>document.getElementById(id);
 const cv=$('c'),ctx=cv.getContext('2d');
 let W,H,DPR;
-function resize(){DPR=Math.min(devicePixelRatio||1,2);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCity()}
+let QCAP=(()=>{try{return +localStorage.getItem('bs_q')||2}catch(e){return 2}})();
+function resize(){DPR=Math.min(devicePixelRatio||1,QCAP);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCity()}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const VERSION=(window.EMPILHA_CONFIG&&window.EMPILHA_CONFIG.version)||'1.1';
 
@@ -674,7 +675,7 @@ const RANDOM_POWERS=['slow','magnet','wide','x2'];
 // bônus grátis: durante vento/velocidade/ondas o LENTO fica bem mais raro (10% em vez de 25%)
 function pickBonus(){const unstable=hazard()&&!(P&&P.calm>0);const w={slow:unstable?1:3,magnet:3,wide:3,x2:3};
   let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=rnd()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
-let mode='normal',rnd=Math.random;
+let mode='normal',rnd=Math.random,tapGrace=0;
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={slow:{col:'#7fd1ff',n:6},magnet:{col:'#ff5d8f',n:3},wide:{col:'#4fe39a',n:0},x2:{col:'#ffc23d',n:10},calm:{col:'#b9a3ff',n:15}};
 const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},calm:{price:500,n:15}};
@@ -700,7 +701,8 @@ function setCombo(txt){const el=$('combo');if(el.textContent!==txt)el.textConten
 function drop(){
   if(state!=='play'||!moving)return;
   // bloco ainda nem chegou na torre (ex.: toque duplo no JOGAR/REVIVER): ignora em vez de perder a partida
-  if(!moving.entered){const tp=stack[stack.length-1];if(Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)<=0)return}
+  // logo depois de começar/reviver, um toque duplo não conta (evita perder na hora sem querer)
+  if(performance.now()<tapGrace)return;
   $('hint').hidden=true;
   const top=stack[stack.length-1],m=moving;
   if(run.errs&&run.errs.length<3000)run.errs.push({e:Math.abs(m.x-top.x),tol:perfTol(),mag:P.magnet>0});
@@ -797,7 +799,7 @@ let revLeft=5;
 function revCountdown(secs){clearInterval(revTimer);revLeft=secs;const st=performance.now();let lastS=-1;
   const tick=()=>{const el=(performance.now()-st)/1000;revLeft=Math.max(0,secs-el);$('ringArc').style.strokeDashoffset=301.6*Math.min(1,(5-revLeft)/5);const sN=Math.ceil(revLeft);if(sN!==lastS){if(lastS>=0)sfx.tick();lastS=sN}$('revCount').textContent=sN;if(revLeft<=0){clearInterval(revTimer);$('revive').hidden=true;finish()}};
   tick();revTimer=setInterval(tick,50)}
-function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
+function doRevive(){tapGrace=performance.now()+350;clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
   {const top=stack[stack.length-1],nw=W*BASEW;top.x=clamp(top.x+top.w/2-nw/2,0,W-nw);top.w=nw;top.t0=tNow;rings.push({x:top.x,y:yOf(top.i),w:nw,t0:tNow,i:top.i});setTimeout(()=>addFloat(W/2,yOf(top.i)-40,t('reviveWide'),'#4fe39a',20),200)}
   speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
 $('revVideo').onclick=async()=>{if(state!=='revive'||$('revive').hidden)return;clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
@@ -889,7 +891,7 @@ function finish(){
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
 function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt','coll'].forEach(p=>$(p).hidden=true)}
-function startGame(){setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
+function startGame(){tapGrace=performance.now()+350;setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
 // atualização disponível na Play Store: avisa ao abrir e atualiza com 1 toque
 let updInfo=null;
@@ -1019,9 +1021,12 @@ function drawPreviews(){if((pvF++)&1)return; // 30 fps nas prévias da loja
 //@@HELP@@
 //@@CLOUD@@
 /* ================= LOOP ================= */
-let wasPlaying=false;
+let wasPlaying=false,qN=0,qSum=0;
+// mede o FPS durante a partida; se ficar abaixo de ~45 fps, reduz a resolução um degrau (2 -> 1.75 -> 1.5 -> 1.25 -> 1) e lembra
+function qualityWatch(ms){if(state!=='play'||document.hidden)return;if(ms>100)return;qSum+=ms;if(++qN<120)return;const avg=qSum/qN;qN=0;qSum=0;
+  if(avg>22&&QCAP>1&&(devicePixelRatio||1)>1){QCAP=Math.max(1,+(Math.min(QCAP,devicePixelRatio||1)-.25).toFixed(2));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}}
 function frame(tt){
-  requestAnimationFrame(frame);tNow=tt||0;
+  requestAnimationFrame(frame);qualityWatch((tt||0)-tNow);tNow=tt||0;
   if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
@@ -1031,7 +1036,6 @@ function frame(tt){
     let sp=speed*(P.slow>0?.55:1);
     if(P.calm<=0){/*vento das nuvens 40% mais fraco*/if(wd===1)sp*=1+.33*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
-    if(!moving.entered){const tp=stack[stack.length-1];if(tp&&Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)>0)moving.entered=true}
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
   }
   if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}

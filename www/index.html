@@ -476,7 +476,8 @@
 const $=id=>document.getElementById(id);
 const cv=$('c'),ctx=cv.getContext('2d');
 let W,H,DPR;
-function resize(){DPR=Math.min(devicePixelRatio||1,2);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCity()}
+let QCAP=(()=>{try{return +localStorage.getItem('bs_q')||2}catch(e){return 2}})();
+function resize(){DPR=Math.min(devicePixelRatio||1,QCAP);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCity()}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const VERSION=(window.EMPILHA_CONFIG&&window.EMPILHA_CONFIG.version)||'1.1';
 
@@ -1298,7 +1299,7 @@ function skyColor(key){let col=WORLDS[0][key].slice();for(let k=1;k<WORLDS.lengt
 function drawWorld(){
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,skyColor('top'));g.addColorStop(1,skyColor('bot'));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   const nightA=clamp((skyF-40)/15,0,1)*.9+.25*(1-clamp(skyF/20,0,1));
-  for(const s of stars){const a=nightA*(.4+.6*Math.abs(Math.sin(tNow*.001+s.p)));if(a<.02)continue;ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(s.x*W,((s.y*H+cam*.08)%H),s.s,s.s)}
+  for(const s of stars){const a=nightA*(.4+.6*Math.abs(Math.sin(tNow*.001+s.p)));if(a<.02)continue;ctx.fillStyle=WA[Math.min(20,Math.round(a*20))];ctx.fillRect(s.x*W,((s.y*H+cam*.08)%H),s.s,s.s)}
   // aurora
   const au=clamp((skyF-44)/8,0,1)*(1-clamp((skyF-96)/8,0,1));
   if(au>0){for(let b=0;b<3;b++){ctx.beginPath();const base=H*(.18+b*.12);ctx.moveTo(0,base);for(let X=0;X<=W;X+=10)ctx.lineTo(X,base+Math.sin(X*.012+tNow*.0006*(b+1)+b)*26);ctx.lineTo(W,base+70);ctx.lineTo(0,base+70);const ag=ctx.createLinearGradient(0,base-30,0,base+70);ag.addColorStop(0,`rgba(90,255,170,0)`);ag.addColorStop(.4,`rgba(${b?120:80},255,${b?220:160},${.22*au})`);ag.addColorStop(1,'rgba(90,255,170,0)');ctx.fillStyle=ag;ctx.fill()}}
@@ -1318,6 +1319,8 @@ function drawWorld(){
    então conforme a torre sobe, galáxias, planetas e buracos negros vão surgindo lá em cima e descendo. */
 const TAU2=Math.PI*2;
 const GAL=(()=>{const pts=[];for(let k=0;k<1100;k++){const arm=k%3,t=Math.random(),r=Math.pow(t,.8);const a=arm*TAU2/3+r*5.2+(Math.random()-.5)*.55*(1-r*.5);pts.push({r:r+(Math.random()-.5)*.04,a,s:Math.random()*1.6+.5,h:r<.25?45:Math.random()<.5?290:200,l:r<.25?85:65+Math.random()*25})}return pts})();
+const GSP={};function galSprite(R){const k=Math.round(R)+'_'+DPR;if(GSP.k===k)return GSP.cv;const d=DPR||1,S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
+  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.k=k;GSP.cv=cv;return cv}
 const ROCKS=Array.from({length:14},(_,k)=>({x:Math.random(),y:(Math.random()-.5)*2,r:5+Math.random()*13,v:(Math.random()-.5)*.0002,sp:(Math.random()-.5)*.002,sides:6+(k%3)}));
 const SCN=[
  {f:112,p:.7,k:'station',x:.78},
@@ -1349,7 +1352,7 @@ function drawScenery(){
 }
 const DRAW={
  galaxy(x,y,o){const R=W*(o.r||.6);const rot=tNow*.00004;const g=ctx.createRadialGradient(x,y,0,x,y,R*1.05);g.addColorStop(0,'rgba(255,230,190,.55)');g.addColorStop(.18,'rgba(200,120,255,.25)');g.addColorStop(.6,'rgba(90,60,200,.10)');g.addColorStop(1,'rgba(40,20,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,R*1.05,R*.62,0,0,TAU2);ctx.fill();
-   for(const p of GAL){const a=p.a+rot;const px=x+Math.cos(a)*p.r*R,py=y+Math.sin(a)*p.r*R*.58;ctx.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));ctx.fillRect(px,py,p.s,p.s)}
+   const sp=galSprite(R);ctx.save();ctx.translate(x,y);ctx.scale(1,.58);ctx.rotate(rot);ctx.drawImage(sp,-R-4,-R-4,2*R+8,2*R+8);ctx.restore();
    const c=ctx.createRadialGradient(x,y,0,x,y,R*.16);c.addColorStop(0,'rgba(255,250,230,1)');c.addColorStop(1,'rgba(255,200,140,0)');ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,R*.16,0,TAU2);ctx.fill()},
  station(x,y){ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(tNow*.0004)*.25);ctx.fillStyle='#3b6bd6';ctx.fillRect(-52,-9,34,18);ctx.fillRect(18,-9,34,18);ctx.strokeStyle='rgba(180,210,255,.8)';ctx.lineWidth=1;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(-52+k*8.5,-9);ctx.lineTo(-52+k*8.5,9);ctx.stroke();ctx.beginPath();ctx.moveTo(18+k*8.5,-9);ctx.lineTo(18+k*8.5,9);ctx.stroke()}
    ctx.fillStyle='#c9d1e3';ctx.fillRect(-18,-3,36,6);ctx.beginPath();ctx.arc(0,0,11,0,TAU2);ctx.fill();ctx.fillStyle='#8fa0bf';ctx.beginPath();ctx.arc(0,0,11,0,Math.PI);ctx.fill();ctx.fillStyle='#7fe0ff';ctx.beginPath();ctx.arc(-3,-3,3.5,0,TAU2);ctx.fill();
@@ -1390,7 +1393,7 @@ const RANDOM_POWERS=['slow','magnet','wide','x2'];
 // bônus grátis: durante vento/velocidade/ondas o LENTO fica bem mais raro (10% em vez de 25%)
 function pickBonus(){const unstable=hazard()&&!(P&&P.calm>0);const w={slow:unstable?1:3,magnet:3,wide:3,x2:3};
   let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=rnd()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
-let mode='normal',rnd=Math.random;
+let mode='normal',rnd=Math.random,tapGrace=0;
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={slow:{col:'#7fd1ff',n:6},magnet:{col:'#ff5d8f',n:3},wide:{col:'#4fe39a',n:0},x2:{col:'#ffc23d',n:10},calm:{col:'#b9a3ff',n:15}};
 const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},calm:{price:500,n:15}};
@@ -1416,7 +1419,8 @@ function setCombo(txt){const el=$('combo');if(el.textContent!==txt)el.textConten
 function drop(){
   if(state!=='play'||!moving)return;
   // bloco ainda nem chegou na torre (ex.: toque duplo no JOGAR/REVIVER): ignora em vez de perder a partida
-  if(!moving.entered){const tp=stack[stack.length-1];if(Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)<=0)return}
+  // logo depois de começar/reviver, um toque duplo não conta (evita perder na hora sem querer)
+  if(performance.now()<tapGrace)return;
   $('hint').hidden=true;
   const top=stack[stack.length-1],m=moving;
   if(run.errs&&run.errs.length<3000)run.errs.push({e:Math.abs(m.x-top.x),tol:perfTol(),mag:P.magnet>0});
@@ -1513,7 +1517,7 @@ let revLeft=5;
 function revCountdown(secs){clearInterval(revTimer);revLeft=secs;const st=performance.now();let lastS=-1;
   const tick=()=>{const el=(performance.now()-st)/1000;revLeft=Math.max(0,secs-el);$('ringArc').style.strokeDashoffset=301.6*Math.min(1,(5-revLeft)/5);const sN=Math.ceil(revLeft);if(sN!==lastS){if(lastS>=0)sfx.tick();lastS=sN}$('revCount').textContent=sN;if(revLeft<=0){clearInterval(revTimer);$('revive').hidden=true;finish()}};
   tick();revTimer=setInterval(tick,50)}
-function doRevive(){clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
+function doRevive(){tapGrace=performance.now()+350;clearInterval(revTimer);$('revive').hidden=true;combo=0;setCombo('');
   {const top=stack[stack.length-1],nw=W*BASEW;top.x=clamp(top.x+top.w/2-nw/2,0,W-nw);top.w=nw;top.t0=tNow;rings.push({x:top.x,y:yOf(top.i),w:nw,t0:tNow,i:top.i});setTimeout(()=>addFloat(W/2,yOf(top.i)-40,t('reviveWide'),'#4fe39a',20),200)}
   speed=Math.max(SPEED0*.62,speed*.85);state='play';$('hud').hidden=false;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();lastT=performance.now();spawn();sfx.revive();toast(t('back2'))}
 $('revVideo').onclick=async()=>{if(state!=='revive'||$('revive').hidden)return;clearInterval(revTimer);$('revive').hidden=true;musicDuck(true);const ok=await Ads.showRewarded();musicDuck(false);if(ok){videoUsed=true;doRevive()}else{toast(t('noVideo'));finish()}};
@@ -1605,7 +1609,7 @@ function finish(){
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
 function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt','coll'].forEach(p=>$(p).hidden=true)}
-function startGame(){setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
+function startGame(){tapGrace=performance.now()+350;setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
 // atualização disponível na Play Store: avisa ao abrir e atualiza com 1 toque
 let updInfo=null;
@@ -2177,9 +2181,12 @@ async function clCompare(){if(clBusy)return;clBusy=true;let p=null,ok=false;
   if(p&&(p.s.best||0)>0&&(!BOOT_LOCAL||progOf(p.s)>progOf(S)))whenMenu(()=>clAsk(p))}
 
 /* ================= LOOP ================= */
-let wasPlaying=false;
+let wasPlaying=false,qN=0,qSum=0;
+// mede o FPS durante a partida; se ficar abaixo de ~45 fps, reduz a resolução um degrau (2 -> 1.75 -> 1.5 -> 1.25 -> 1) e lembra
+function qualityWatch(ms){if(state!=='play'||document.hidden)return;if(ms>100)return;qSum+=ms;if(++qN<120)return;const avg=qSum/qN;qN=0;qSum=0;
+  if(avg>22&&QCAP>1&&(devicePixelRatio||1)>1){QCAP=Math.max(1,+(Math.min(QCAP,devicePixelRatio||1)-.25).toFixed(2));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}}
 function frame(tt){
-  requestAnimationFrame(frame);tNow=tt||0;
+  requestAnimationFrame(frame);qualityWatch((tt||0)-tNow);tNow=tt||0;
   if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
@@ -2189,7 +2196,6 @@ function frame(tt){
     let sp=speed*(P.slow>0?.55:1);
     if(P.calm<=0){/*vento das nuvens 40% mais fraco*/if(wd===1)sp*=1+.33*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
-    if(!moving.entered){const tp=stack[stack.length-1];if(tp&&Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)>0)moving.entered=true}
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
   }
   if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
