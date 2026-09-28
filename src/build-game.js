@@ -12,6 +12,9 @@ html=html.replace('//@@SKINS@@',()=>fs.readFileSync(path.join(d,'skins.part.js')
          .replace('//@@COMPETE@@',()=>fs.readFileSync(path.join(d,'compete.part.js'),'utf8'))
          .replace('//@@CLOUD@@',()=>fs.readFileSync(path.join(d,'cloud.part.js'),'utf8'))
          .replace('//@@I18N@@',()=>fs.readFileSync(path.join(d,'i18n_more.js'),'utf8'));
+// trava de segurança: se o código do jogo tiver erro de sintaxe, a montagem FALHA (nunca sai um app quebrado)
+{const a=html.indexOf('<script>\n(()=>{'),b=html.indexOf('</script>',a);
+  try{new Function(html.slice(a+'<script>'.length,b))}catch(e){console.error('ERRO DE SINTAXE no jogo:',e.message);process.exit(1)}}
 // Versão da loja: o código do jogo é compactado e embaralhado (ofuscado) pra dificultar mods e trapaças.
 if(process.env.OBFUSCATE==='1'){
   const esbuild=require('esbuild'),JO=require('javascript-obfuscator');
