@@ -1,14 +1,18 @@
 rules_version = '2';
 // Regras do placar mundial do Big Stack.
 // Cada jogador (login anônimo) só escreve o próprio recorde, só pode aumentar,
-// e o placar do mês só aceita o mês atual.
+// o placar do mês só aceita o mês atual e o do desafio diário só aceita o dia atual (UTC).
 service cloud.firestore {
   match /databases/{database}/documents {
     function monthBoard() {
       return 'm_' + string(request.time.year()) + '_' + (request.time.month() < 10 ? '0' : '') + string(request.time.month());
     }
+    function dayBoard() {
+      return 'd_' + string(request.time.year()) + '_' + (request.time.month() < 10 ? '0' : '') + string(request.time.month())
+        + '_' + (request.time.day() < 10 ? '0' : '') + string(request.time.day());
+    }
     function isBoard(b) {
-      return b == 'all' || b.matches('m_[0-9]{4}_[0-9]{2}');
+      return b == 'all' || b.matches('m_[0-9]{4}_[0-9]{2}') || b.matches('d_[0-9]{4}_[0-9]{2}_[0-9]{2}');
     }
     function notBanned() {
       return !exists(/databases/$(database)/documents/ban/$(request.auth.uid));
@@ -16,7 +20,7 @@ service cloud.firestore {
     function validScore(b, uid) {
       let d = request.resource.data;
       return request.auth != null && request.auth.uid == uid
-        && (b == 'all' || b == monthBoard())
+        && (b == 'all' || b == monthBoard() || b == dayBoard())
         && d.keys().hasOnly(['n', 'c', 's', 't']) && d.keys().hasAll(['n', 'c', 's', 't'])
         && d.n is string && d.n.size() >= 1 && d.n.size() <= 16
         && d.c is string && d.c.size() == 2

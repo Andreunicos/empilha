@@ -76,6 +76,32 @@ public class PlayGamesSavePlugin extends Plugin {
         });
     }
 
+    // ---- conquistas ----
+    @PluginMethod
+    public void unlock(PluginCall call) {
+        final String id = call.getString("id");
+        if (id == null || id.isEmpty()) {
+            call.reject("missing id");
+            return;
+        }
+        try {
+            PlayGames.getAchievementsClient(getActivity()).unlock(id);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("unlock failed", e);
+        }
+    }
+
+    @PluginMethod
+    public void showAchievements(final PluginCall call) {
+        PlayGames.getAchievementsClient(getActivity()).getAchievementsIntent()
+            .addOnSuccessListener(intent -> {
+                getActivity().startActivityForResult(intent, 9003);
+                call.resolve();
+            })
+            .addOnFailureListener(e -> call.reject("achievements failed", e));
+    }
+
     @PluginMethod
     public void save(PluginCall call) {
         final String name = call.getString("name", DEFAULT_SLOT);

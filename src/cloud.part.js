@@ -12,6 +12,7 @@ async function clSignIn(interactive){const c=CL();if(!c)return false;
   let r=null;try{r=await c.signIn(interactive);clPlayer=r&&r.signedIn?(r.name||'Play Games'):null}catch(e){clPlayer=null;r={error:String(e&&e.message||e)}}
   if(interactive&&!clPlayer&&r&&r.error)toast(t('clErr',String(r.error).slice(0,90)));
   if(clPlayer&&r.name&&typeof setPlayName==='function')setPlayName(r.name);
+  if(clPlayer)try{pgsSyncAll()}catch(e){}
   clRender();return !!clPlayer}
 async function clSaveNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}

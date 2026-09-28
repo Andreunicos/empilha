@@ -135,6 +135,28 @@
   .pack .big{font-family:"Bungee",Impact,sans-serif;font-size:28px;padding-block:16px;display:flex;justify-content:center;align-items:center;gap:4px}
   .pack .best{font-size:11px;font-weight:900;letter-spacing:.1em;color:#fff;background:var(--pink);border-radius:6px;padding:2px 6px;align-self:center}
   .note{font-size:12px!important;color:var(--muted);max-width:40ch;margin-inline:auto!important}
+  .btn.dlyb{background:linear-gradient(160deg,#39d0e6,#2a7fd6);color:#fff;box-shadow:0 5px 0 #1d5a9e;width:min(100%,320px);gap:8px}
+  .btn.dlyb svg{width:22px;height:22px;flex:none}.btn.dlyb small{font:900 12px "Nunito",sans-serif;background:rgba(0,0,0,.25);border-radius:99px;padding:2px 8px;letter-spacing:.02em}
+  .btn.dlyb.done{filter:saturate(.5) brightness(.85)}
+  .btn.share{background:linear-gradient(160deg,#4fe39a,#27b877);color:#08301d;box-shadow:0 5px 0 #1a8a55}.btn.share svg{width:18px;height:18px}
+  #dlyTag{font:900 12px "Nunito",sans-serif;letter-spacing:.14em;color:#7fe7ff;background:rgba(0,0,0,.35);border-radius:99px;padding:3px 12px;margin:0 auto 4px;width:max-content}
+  .tier{vertical-align:-3px;flex:none}
+  .rrow .tier{margin-right:6px}
+  .ppcard{width:100%;background:linear-gradient(160deg,#2a2356,#1b1640);border-radius:18px;padding:16px;display:flex;gap:14px;align-items:center;text-align:left;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
+  .ppcard .fl{font-size:44px;line-height:1}.ppcard .nm{font-family:"Bungee",Impact,sans-serif;font-size:21px;word-break:break-all}
+  .ppcard .tr{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;margin-top:4px}.ppcard .lv{font-size:13px;color:var(--muted);font-weight:800;margin-top:2px}
+  .ppgrid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ppgrid div{background:rgba(255,255,255,.06);border-radius:14px;padding:10px 12px;text-align:left}.ppgrid b{display:block;font-family:"Bungee",Impact,sans-serif;font-size:22px}.ppgrid span{font-size:12px;font-weight:800;color:var(--muted)}
+  .ppmed{width:100%;display:flex;flex-wrap:wrap;gap:8px}.ppmed .md{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:99px;padding:6px 12px 6px 6px;font-weight:900;font-size:13px}
+  .ppmed .md i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:"Bungee",Impact,sans-serif;font-size:13px;color:#1a1030}
+  .ppmed .none{color:var(--muted);font-size:13px;font-weight:700;text-align:left}
+  .ppach{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
+  .ach{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:14px;padding:8px 12px;text-align:left}
+  .ach img{width:46px;height:46px;border-radius:12px;flex:none}.ach.lock img{filter:grayscale(1) brightness(.55)}.ach.lock{opacity:.8}
+  .ach b{display:block;font-size:14px}.ach span{font-size:12px;color:var(--muted);font-weight:700}.ach .bar{margin-top:5px;height:6px}
+  .ovtic{font-size:56px;animation:pop .7s ease-in-out infinite alternate}
+  .ovtlist{display:flex;flex-direction:column;gap:6px;width:min(100%,320px)}.ovtlist div{background:rgba(255,255,255,.07);border-radius:12px;padding:8px 12px;font-weight:900;display:flex;gap:8px;align-items:center}
+  .ovtlist b{margin-left:auto;font-family:"Bungee",Impact,sans-serif}
   .sec{width:100%;text-align:left;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
   .days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:100%}
   .day{background:var(--card);border-radius:10px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:900;color:var(--muted);border:2px solid transparent}
@@ -249,7 +271,7 @@
   <div class="wallet"><span class="pill" id="pCoins"><i class="coin"></i><span id="wCoins">0</span></span><span class="pill" id="pGems"><i class="gem"></i><span id="wGems">0</span></span></div>
   <button class="icon-btn" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="icon-btn" id="pauseBtn" aria-label="Pausa" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg></button>
-  <div class="hud" id="hud" hidden><div id="score">0</div><div id="combo"></div><div id="pw"></div></div>
+  <div class="hud" id="hud" hidden><div id="dlyTag" hidden data-t="dlyTag"></div><div id="score">0</div><div id="combo"></div><div id="pw"></div></div>
   <div id="hint" hidden data-t="hint"></div>
   <div id="abar" hidden>
     <button class="ab a-magnet" data-a="magnet" aria-label="Ímã"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 4v8a6 6 0 0 0 12 0V4"/><path d="M6 4v3M18 4v3" stroke="#ffe8a0" stroke-width="3.4"/></svg><span class="bd"></span><span class="lbl" data-t="a_magnet"></span></button>
@@ -264,7 +286,8 @@
     <p data-t="tagline"></p>
     <div class="lvl"><div class="badge" id="mLvl">1</div><div class="info"><div class="t"><span data-t="level" style="color:var(--ink)"></span><span id="mXp">0/90 XP</span></div><div class="bar"><i id="mBar" style="width:0"></i></div></div></div>
     <button class="btn play" id="play" data-t="play"></button>
-    <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button></div>
+    <button class="btn dlyb sm" id="openDaily"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M12 12.3l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="currentColor"/></svg><span data-t="dlyB"></span><small id="dlyLeft"></small></button>
+    <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button><button class="btn alt sm" id="openPP" data-t="ppB"></button></div>
     <button class="btn rankb sm" id="openRank"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg><span data-t="rankBtn"></span></button>
     <button class="link help-link" id="openHelp"><span class="q">?</span><span data-t="howTo"></span></button>
     <p id="bestMenu"></p>
@@ -295,7 +318,9 @@
     <div class="up" id="oUp" hidden></div>
     <button class="orank" id="oRank" hidden></button>
     <div class="up" id="oMis" hidden style="background:linear-gradient(160deg,#27b877,#1f9c62)"></div>
+    <div class="up" id="oDly" hidden style="background:linear-gradient(160deg,#2bb3c9,#2a7fd6)"></div>
     <button class="btn play" id="again" data-t="again"></button>
+    <button class="btn sm share" id="overShare"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.6 10.7l6.8-4M8.6 13.3l6.8 4" stroke="currentColor" stroke-width="2.2"/></svg><span data-t="shareB"></span></button>
     <div class="row"><button class="btn alt sm" id="overMenu" data-t="menu"></button><button class="btn alt sm" id="overShop" data-t="shop"></button></div>
   </div></div>
 
@@ -318,7 +343,7 @@
   <div class="panel full" id="rank" hidden><div class="inner">
     <div class="top"><h2 data-t="rankT"></h2><button class="btn alt sm" id="closeRank" data-t="back"></button></div>
     <button class="rme-btn" id="rkMe"><span class="fl" id="rkFlag"></span><span class="nm" id="rkName"></span><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg></button>
-    <div class="tabs"><button class="rtab" data-rt="month" data-t="rkMonth"></button><button class="rtab" data-rt="all" data-t="rkAll"></button></div>
+    <div class="tabs"><button class="rtab" data-rt="day" data-t="rkDay"></button><button class="rtab" data-rt="month" data-t="rkMonth"></button><button class="rtab" data-rt="all" data-t="rkAll"></button></div>
     <div class="rprize" id="rkPrize"></div>
     <div class="rlist" id="rkList"></div>
     <div class="rlist mine" id="rkMine" hidden></div>
@@ -336,6 +361,21 @@
     <div class="cclist" id="pfList" hidden></div>
     <button class="btn okb" id="pfSave" data-t="save"></button>
     <button class="link" id="pfCancel" data-t="cancel"></button>
+  </div></div>
+
+  <div class="panel full" id="pp" hidden><div class="inner">
+    <div class="top"><h2 data-t="ppT"></h2><button class="btn alt sm" id="closePP" data-t="back"></button></div>
+    <div class="ppcard" id="ppHead"></div>
+    <div class="row"><button class="btn sm share" id="ppShare"><span data-t="shareB"></span></button><button class="btn sm alt" id="ppPG" hidden data-t="pgAch"></button></div>
+    <div class="sec" data-t="ppStats"></div><div class="ppgrid" id="ppStats"></div>
+    <div class="sec" data-t="ppMedals"></div><div class="ppmed" id="ppMed"></div>
+    <div class="sec" data-t="ppAch"></div><div class="ppach" id="ppAch"></div>
+  </div></div>
+
+  <div class="panel" id="ovt" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
+    <div class="ovtic">⚔️</div>
+    <h2 class="gold" data-t="ovtT"></h2><div class="ovtlist" id="ovtList"></div><p id="ovtP"></p>
+    <button class="btn play" id="ovtGo" data-t="ovtGo"></button><button class="link" id="ovtNo" data-t="later"></button>
   </div></div>
 
   <div class="panel" id="rkWin" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
@@ -492,9 +532,9 @@ es:{powers:'Poderes',a_magnet:'IMÁN',a_slow:'LENTO',a_wide:'ANCHO',a_calm:'ANTI
 };
 /* ================= TEXTOS NOVOS (v1.2) ================= */
 const L2={
-pt:{s_void:'Tempestade Violeta',clErr:'Play Games não conectou ({0})',pfPgOn:'Nome da sua conta do Google Play Games',pfPgOff:'Entre no Play Games pra aparecer com o seu nome',pfAuto:'Nome automático',pfPgB:'ENTRAR NO PLAY GAMES',profP:'É assim que você aparece no ranking mundial. Escolha seu país.',cloudT:'Nuvem (Google Play Games)',clSaveB:'SALVAR',clLoadB:'CARREGAR',clSignB:'Entrar no Play Games',clNote:'Seu progresso é salvo sozinho na nuvem no fim das partidas. Em outro celular, entre no Play Games e toque em CARREGAR.',clOn:'Conectado: {0}',clOff:'Play Games não conectado',clNeedSign:'Entre no Play Games pra usar a nuvem',clSaved:'Progresso salvo na nuvem!',clFail:'Não deu pra salvar agora. Tente de novo.',clEmpty:'Nenhum progresso na nuvem ainda',clBad:'Save da nuvem inválido',clDesc:'Nível {0} · Recorde {1}',clAskT:'PROGRESSO NA NUVEM',clAskP:'Achamos um progresso salvo:<br><b>Nível {0} · Recorde {1}</b><br>{2} moedas · {3} cristais<br><br>Usar ele neste celular?',clYesB:'CARREGAR',clHi:'Olá, {0}!',rkNotSent:'Partida fora do ranking: jogo automático ou alterado detectado',fixClock:'ACERTE A DATA DO CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTÁVEL',d_calm:'Acalma o perigo do mundo por 15 andares: vento nas nuvens, velocidade maluca na aurora e ondas no espaço',ev3:'Ondas gravitacionais! Siga o ritmo',revTxt:'Sua torre tem {0} andares. Volte com o bloco no tamanho máximo!',reviveWide:'TAMANHO MÁXIMO!',bonusGot:'BÔNUS GRÁTIS: {0}!',grew:'O BLOCO CRESCEU!',noHazard:'Nada pra estabilizar aqui ainda!',powersNote:'Toque nos poderes da barra durante a partida. Acabou? Toque no + verde e ganhe 1 com vídeo (1 vez por partida de cada poder). Os blocos brilhantes são bônus grátis.',howTo:'Como jogar',howToT:'COMO JOGAR',tipBar:'Estes são <b>seus poderes</b>: toque pra usar quando quiser!',tipBonus:'Bloco brilhante! Acerte ele e ganhe um <b>bônus grátis</b>',tipGrow:'<b>3 perfeitos seguidos</b> fazem o bloco crescer!',tipStab1:'Vento nas nuvens! Use <b>ESTABILIZAR</b> pra parar o vento',tipStab2:'Velocidade maluca! <b>ESTABILIZAR</b> deixa tudo normal',tipStab3:'Ondas gravitacionais! Veja os anéis: quando brilham azul o bloco acelera. <b>ESTABILIZAR</b> acalma',h_tapT:'Toque na hora certa',h_tapP:'Toque quando o bloco estiver em cima da torre. O que passar da borda é cortado.',h_perfT:'Perfeito e combo',h_perfP:'Acerte em cheio pra fazer PERFEITO. 3 perfeitos seguidos e o bloco cresce de novo!',h_bonusT:'Bônus grátis',h_bonusP:'Blocos brilhantes com ★ dão um bônus na hora, de graça: Lento, Ímã, Largo ou Moedas x2.',h_powT:'Seus poderes',h_powP:'Os botões de baixo são seus: toque pra usar. Compre na loja ou ganhe 1 com vídeo (1 vez por partida de cada).',h_worldsT:'Mundos e perigos',h_worldsP:'Nuvens têm vento, a aurora tem velocidade maluca e o espaço tem ondas gravitacionais. ESTABILIZAR acalma todos.',h_rankT:'Ranking mundial',h_rankP:'Seu recorde entra no ranking com sua bandeira. O Nº1 do mês ganha 50 cristais!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
-en:{s_void:'Violet Storm',clErr:'Play Games didn\'t connect ({0})',pfPgOn:'Name from your Google Play Games account',pfPgOff:'Sign in to Play Games to show your name',pfAuto:'Automatic name',pfPgB:'SIGN IN TO PLAY GAMES',profP:'This is how you appear in the world ranking. Pick your country.',cloudT:'Cloud (Google Play Games)',clSaveB:'SAVE',clLoadB:'LOAD',clSignB:'Sign in to Play Games',clNote:'Your progress is saved to the cloud automatically after each run. On another phone, sign in to Play Games and tap LOAD.',clOn:'Connected: {0}',clOff:'Play Games not connected',clNeedSign:'Sign in to Play Games to use the cloud',clSaved:'Progress saved to the cloud!',clFail:'Couldn\'t save right now. Try again.',clEmpty:'No cloud progress yet',clBad:'Invalid cloud save',clDesc:'Level {0} · Best {1}',clAskT:'CLOUD PROGRESS',clAskP:'We found saved progress:<br><b>Level {0} · Best {1}</b><br>{2} coins · {3} gems<br><br>Use it on this phone?',clYesB:'LOAD',clHi:'Hi, {0}!',rkNotSent:'Run not sent to the ranking: automated or modified play detected',fixClock:'FIX YOUR PHONE DATE',a_calm:'STABILIZE',p_calm:'STABLE',d_calm:'Calms the world\'s hazard for 15 floors: wind in the clouds, crazy speed in the aurora and waves in space',ev3:'Gravity waves! Follow the rhythm',revTxt:'Your tower is {0} floors tall. Come back with a full-size block!',reviveWide:'FULL SIZE!',bonusGot:'FREE BONUS: {0}!',grew:'THE BLOCK GREW!',noHazard:'Nothing to stabilize here yet!',powersNote:'Tap the powers on the bar during a run. Out of one? Tap the green + and get 1 with a video (once per run for each power). Glowing blocks are free bonuses.',howTo:'How to play',howToT:'HOW TO PLAY',tipBar:'These are <b>your powers</b>: tap to use them anytime!',tipBonus:'Glowing block! Land it to get a <b>free bonus</b>',tipGrow:'<b>3 perfects in a row</b> make the block grow!',tipStab1:'Wind in the clouds! Use <b>STABILIZE</b> to stop it',tipStab2:'Crazy speed! <b>STABILIZE</b> makes it normal',tipStab3:'Gravity waves! Watch the rings: blue glow means the block speeds up. <b>STABILIZE</b> calms it',h_tapT:'Tap at the right time',h_tapP:'Tap when the block is over the tower. Whatever hangs off the edge is cut.',h_perfT:'Perfect and combo',h_perfP:'Land it exactly for a PERFECT. 3 perfects in a row and the block grows back!',h_bonusT:'Free bonuses',h_bonusP:'Glowing blocks with ★ give an instant free bonus: Slow, Magnet, Wide or Coins x2.',h_powT:'Your powers',h_powP:'The buttons at the bottom are yours: tap to use. Buy them in the shop or get 1 with a video (once per run each).',h_worldsT:'Worlds and hazards',h_worldsP:'Clouds have wind, the aurora has crazy speed and space has gravity waves. STABILIZE calms them all.',h_rankT:'World ranking',h_rankP:'Your record joins the ranking with your flag. Monthly #1 wins 50 gems!',rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
-es:{s_void:'Tormenta Violeta',clErr:'Play Juegos no conectó ({0})',pfPgOn:'Nombre de tu cuenta de Google Play Juegos',pfPgOff:'Entra en Play Juegos para aparecer con tu nombre',pfAuto:'Nombre automático',pfPgB:'ENTRAR EN PLAY JUEGOS',profP:'Así apareces en el ranking mundial. Elige tu país.',cloudT:'Nube (Google Play Juegos)',clSaveB:'GUARDAR',clLoadB:'CARGAR',clSignB:'Entrar en Play Juegos',clNote:'Tu progreso se guarda solo en la nube al final de cada partida. En otro celular, entra en Play Juegos y toca CARGAR.',clOn:'Conectado: {0}',clOff:'Play Juegos no conectado',clNeedSign:'Entra en Play Juegos para usar la nube',clSaved:'¡Progreso guardado en la nube!',clFail:'No se pudo guardar ahora. Inténtalo de nuevo.',clEmpty:'Aún no hay progreso en la nube',clBad:'Guardado de la nube inválido',clDesc:'Nivel {0} · Récord {1}',clAskT:'PROGRESO EN LA NUBE',clAskP:'Encontramos un progreso guardado:<br><b>Nivel {0} · Récord {1}</b><br>{2} monedas · {3} gemas<br><br>¿Usarlo en este celular?',clYesB:'CARGAR',clHi:'¡Hola, {0}!',rkNotSent:'Partida fuera del ranking: juego automático o alterado detectado',fixClock:'AJUSTA LA FECHA DEL CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTABLE',d_calm:'Calma el peligro del mundo por 15 pisos: viento en las nubes, velocidad loca en la aurora y ondas en el espacio',ev3:'¡Ondas gravitacionales! Sigue el ritmo',revTxt:'Tu torre tiene {0} pisos. ¡Vuelve con el bloque a tamaño máximo!',reviveWide:'¡TAMAÑO MÁXIMO!',bonusGot:'¡BONUS GRATIS: {0}!',grew:'¡EL BLOQUE CRECIÓ!',noHazard:'¡Nada que estabilizar aquí todavía!',powersNote:'Toca los poderes de la barra durante la partida. ¿Se acabó? Toca el + verde y gana 1 con un video (1 vez por partida de cada poder). Los bloques brillantes son bonus gratis.',howTo:'Cómo jugar',howToT:'CÓMO JUGAR',tipBar:'Estos son <b>tus poderes</b>: ¡tócalos cuando quieras!',tipBonus:'¡Bloque brillante! Acértalo y gana un <b>bonus gratis</b>',tipGrow:'¡<b>3 perfectos seguidos</b> hacen crecer el bloque!',tipStab1:'¡Viento en las nubes! Usa <b>ESTABILIZAR</b> para pararlo',tipStab2:'¡Velocidad loca! <b>ESTABILIZAR</b> lo normaliza',tipStab3:'¡Ondas gravitacionales! Mira los anillos: azul brillante = el bloque acelera. <b>ESTABILIZAR</b> lo calma',h_tapT:'Toca en el momento justo',h_tapP:'Toca cuando el bloque esté sobre la torre. Lo que sobresale se corta.',h_perfT:'Perfecto y combo',h_perfP:'Acierta de lleno para un PERFECTO. ¡3 perfectos seguidos y el bloque vuelve a crecer!',h_bonusT:'Bonus gratis',h_bonusP:'Los bloques brillantes con ★ dan un bonus al instante, gratis: Lento, Imán, Ancho o Monedas x2.',h_powT:'Tus poderes',h_powP:'Los botones de abajo son tuyos: tócalos para usarlos. Cómpralos en la tienda o gana 1 con un video (1 vez por partida de cada uno).',h_worldsT:'Mundos y peligros',h_worldsP:'Las nubes tienen viento, la aurora velocidad loca y el espacio ondas gravitacionales. ESTABILIZAR calma todo.',h_rankT:'Ranking mundial',h_rankP:'Tu récord entra al ranking con tu bandera. ¡El Nº1 del mes gana 50 gemas!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
+pt:{dlyB:'DESAFIO DIÁRIO',dlyLeft:'{0}/3',dlyDone:'feito',dlyTag:'DESAFIO DIÁRIO',dlyNoTries:'Suas 3 tentativas de hoje acabaram. Volte amanhã!',dlyLeftLong:'Ainda tem {0} tentativa(s) hoje',dlyOver:'Acabaram as tentativas de hoje. Veja o ranking do dia!',dlyAgain:'TENTAR DE NOVO',dlyWon:'Você ficou em #{0} no desafio de ontem! +{1} cristais',dlyRule:'mesmos blocos pra todos, sem poderes',rkDay:'Hoje',rkInDay:'no desafio de hoje',rkDayPrize:'Desafio de hoje:',rkPrize2:'Prêmios do mês:',rkTop10:'4º ao 10º: 10',rkWinT3:'TOP 3 DO MÊS!',rkWinT10:'TOP 10 DO MÊS!',rkWinPn:'Você ficou em #{0} no mundo em {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estatísticas',ppMedals:'Medalhas',ppAch:'Conquistas',ppMonth:'Recorde do mês',ppRuns:'Partidas',ppFloors:'Andares no total',ppPerf:'Perfeitos',ppCombo:'Maior combo',ppDaily:'Melhor no desafio',ppPos:'Melhor posição no mês',ppTime:'Tempo jogando',ppNoMed:'Fique no Top 10 do mês pra ganhar sua primeira medalha.',pgAch:'CONQUISTAS PLAY GAMES',shareB:'COMPARTILHAR',shareTxt:'Fiz {0} andares no Big Stack! Consegue me passar?',cardPos:'#{0} no mundo este mês',cardCta:'Consegue me passar?',cardGet:'Big Stack · Google Play',passedX:'Passou {0}!',yourBest:'SEU RECORDE {0}',ovtT:'TE PASSARAM!',ovtP:'Agora você é #{0} no mês. Bora pegar de volta?',ovtGo:'REVANCHE',later:'Depois',tier_bronze:'Bronze',tier_silver:'Prata',tier_gold:'Ouro',tier_diamond:'Diamante',tier_legend:'Lenda',tierNone:'Sem patente este mês',tierBest:'melhor: {0}',achGot:'🏆 Conquista: {0}',ach_first:'Primeiro bloco',achd_first:'Jogue sua primeira partida',ach_f25:'Acima das nuvens',achd_f25:'Chegue ao andar 25',ach_f50:'Aurora',achd_f50:'Chegue ao andar 50',ach_f100:'Astronauta',achd_f100:'Chegue ao andar 100',ach_f150:'Galáctico',achd_f150:'Chegue ao andar 150',ach_f250:'Horizonte de eventos',achd_f250:'Chegue ao andar 250',ach_c5:'Na mosca',achd_c5:'Faça um combo de 5 perfeitos',ach_c10:'Perfeccionista',achd_c10:'Faça um combo de 10 perfeitos',ach_p100:'Mão firme',achd_p100:'Some 100 perfeitos',ach_r100:'Viciado',achd_r100:'Jogue 100 partidas',ach_daily:'Desafiante',achd_daily:'Jogue um desafio diário',ach_top10:'Top 10 do mundo',achd_top10:'Entre no Top 10 do mês',ach_skins10:'Colecionador',achd_skins10:'Tenha 10 skins',s_void:'Tempestade Violeta',clErr:'Play Games não conectou ({0})',pfPgOn:'Nome da sua conta do Google Play Games',pfPgOff:'Entre no Play Games pra aparecer com o seu nome',pfAuto:'Nome automático',pfPgB:'ENTRAR NO PLAY GAMES',profP:'É assim que você aparece no ranking mundial. Escolha seu país.',cloudT:'Nuvem (Google Play Games)',clSaveB:'SALVAR',clLoadB:'CARREGAR',clSignB:'Entrar no Play Games',clNote:'Seu progresso é salvo sozinho na nuvem no fim das partidas. Em outro celular, entre no Play Games e toque em CARREGAR.',clOn:'Conectado: {0}',clOff:'Play Games não conectado',clNeedSign:'Entre no Play Games pra usar a nuvem',clSaved:'Progresso salvo na nuvem!',clFail:'Não deu pra salvar agora. Tente de novo.',clEmpty:'Nenhum progresso na nuvem ainda',clBad:'Save da nuvem inválido',clDesc:'Nível {0} · Recorde {1}',clAskT:'PROGRESSO NA NUVEM',clAskP:'Achamos um progresso salvo:<br><b>Nível {0} · Recorde {1}</b><br>{2} moedas · {3} cristais<br><br>Usar ele neste celular?',clYesB:'CARREGAR',clHi:'Olá, {0}!',rkNotSent:'Partida fora do ranking: jogo automático ou alterado detectado',fixClock:'ACERTE A DATA DO CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTÁVEL',d_calm:'Acalma o perigo do mundo por 15 andares: vento nas nuvens, velocidade maluca na aurora e ondas no espaço',ev3:'Ondas gravitacionais! Siga o ritmo',revTxt:'Sua torre tem {0} andares. Volte com o bloco no tamanho máximo!',reviveWide:'TAMANHO MÁXIMO!',bonusGot:'BÔNUS GRÁTIS: {0}!',grew:'O BLOCO CRESCEU!',noHazard:'Nada pra estabilizar aqui ainda!',powersNote:'Toque nos poderes da barra durante a partida. Acabou? Toque no + verde e ganhe 1 com vídeo (1 vez por partida de cada poder). Os blocos brilhantes são bônus grátis.',howTo:'Como jogar',howToT:'COMO JOGAR',tipBar:'Estes são <b>seus poderes</b>: toque pra usar quando quiser!',tipBonus:'Bloco brilhante! Acerte ele e ganhe um <b>bônus grátis</b>',tipGrow:'<b>3 perfeitos seguidos</b> fazem o bloco crescer!',tipStab1:'Vento nas nuvens! Use <b>ESTABILIZAR</b> pra parar o vento',tipStab2:'Velocidade maluca! <b>ESTABILIZAR</b> deixa tudo normal',tipStab3:'Ondas gravitacionais! Veja os anéis: quando brilham azul o bloco acelera. <b>ESTABILIZAR</b> acalma',h_tapT:'Toque na hora certa',h_tapP:'Toque quando o bloco estiver em cima da torre. O que passar da borda é cortado.',h_perfT:'Perfeito e combo',h_perfP:'Acerte em cheio pra fazer PERFEITO. 3 perfeitos seguidos e o bloco cresce de novo!',h_bonusT:'Bônus grátis',h_bonusP:'Blocos brilhantes com ★ dão um bônus na hora, de graça: Lento, Ímã, Largo ou Moedas x2.',h_powT:'Seus poderes',h_powP:'Os botões de baixo são seus: toque pra usar. Compre na loja ou ganhe 1 com vídeo (1 vez por partida de cada).',h_worldsT:'Mundos e perigos',h_worldsP:'Nuvens têm vento, a aurora tem velocidade maluca e o espaço tem ondas gravitacionais. ESTABILIZAR acalma todos.',h_rankT:'Ranking mundial',h_rankP:'Seu recorde entra no ranking com sua bandeira. O Nº1 do mês ganha 50 cristais!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Do mês',rkAll:'Geral',rkPrize:'O Nº1 do mês ganha',rkEnds:'Termina em {0}',rkLoading:'Carregando...',rkOff:'Sem conexão com o ranking agora. Seus recordes vão ser enviados quando a internet voltar.',rkSoon:'O ranking mundial chega em breve!',rkEmpty:'Ninguém pontuou neste mês ainda. Seja o primeiro!',rkNoScore:'Jogue uma partida para entrar no ranking!',rkDefName:'Jogador',profT:'SEU PERFIL',rkNamePh:'Seu nome',rkSearch:'Buscar país',save:'SALVAR',rkNameBad:'Escolha outro nome',rkWinT:'CAMPEÃO DO MÊS!',rkWinP:'Você foi o Nº1 do mundo em {0}!',rkInMonth:'no mês',rkInAll:'geral',rkTop1Now:'Você é o Nº1 agora! Segure até o fim do mês.',rkNote:'O ranking do mês zera todo dia 1. O ranking geral guarda o maior recorde de sempre.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALÁXIA',w5:'NEBULOSA',w6:'BURACO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'Uma galáxia inteira passando!',ev5:'As cores do universo',ev6:'Cuidado pra não ser sugado!',ev7:'Um mundo de cristal',ev8:'Até onde você vai?',s_chocolate:'Chocolate',s_honey:'Mel',s_denim:'Jeans',s_leopard:'Onça',s_zebra:'Zebra',s_camo:'Camuflado',s_pizza:'Pizza',s_grass:'Gramado',s_water:'Água',s_retro:'Retrô',s_comic:'Gibi',s_gift:'Presente',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fogo',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Vídeo desse poder já usado nesta partida'},
+en:{dlyB:'DAILY CHALLENGE',dlyLeft:'{0}/3',dlyDone:'done',dlyTag:'DAILY CHALLENGE',dlyNoTries:'Your 3 tries for today are used. Come back tomorrow!',dlyLeftLong:'{0} try(s) left today',dlyOver:'No tries left today. Check the daily ranking!',dlyAgain:'TRY AGAIN',dlyWon:'You were #{0} in yesterday’s challenge! +{1} gems',dlyRule:'same blocks for everyone, no powers',rkDay:'Today',rkInDay:'in today’s challenge',rkDayPrize:'Today’s challenge:',rkPrize2:'Monthly prizes:',rkTop10:'4th to 10th: 10',rkWinT3:'MONTHLY TOP 3!',rkWinT10:'MONTHLY TOP 10!',rkWinPn:'You were #{0} in the world in {1}!',ppB:'PROFILE',ppT:'PROFILE',ppStats:'Stats',ppMedals:'Medals',ppAch:'Achievements',ppMonth:'Monthly best',ppRuns:'Games',ppFloors:'Total floors',ppPerf:'Perfects',ppCombo:'Best combo',ppDaily:'Best challenge',ppPos:'Best monthly rank',ppTime:'Time played',ppNoMed:'Finish in the monthly Top 10 to earn your first medal.',pgAch:'PLAY GAMES ACHIEVEMENTS',shareB:'SHARE',shareTxt:'I stacked {0} floors in Big Stack! Can you beat me?',cardPos:'#{0} in the world this month',cardCta:'Can you beat me?',cardGet:'Big Stack · Google Play',passedX:'Passed {0}!',yourBest:'YOUR BEST {0}',ovtT:'YOU GOT PASSED!',ovtP:'You are now #{0} this month. Take it back?',ovtGo:'REMATCH',later:'Later',tier_bronze:'Bronze',tier_silver:'Silver',tier_gold:'Gold',tier_diamond:'Diamond',tier_legend:'Legend',tierNone:'No rank this month',tierBest:'best: {0}',achGot:'🏆 Achievement: {0}',ach_first:'First block',achd_first:'Play your first game',ach_f25:'Above the clouds',achd_f25:'Reach floor 25',ach_f50:'Aurora',achd_f50:'Reach floor 50',ach_f100:'Astronaut',achd_f100:'Reach floor 100',ach_f150:'Galactic',achd_f150:'Reach floor 150',ach_f250:'Event horizon',achd_f250:'Reach floor 250',ach_c5:'Bullseye',achd_c5:'Get a 5 perfect combo',ach_c10:'Perfectionist',achd_c10:'Get a 10 perfect combo',ach_p100:'Steady hand',achd_p100:'Land 100 perfects',ach_r100:'Hooked',achd_r100:'Play 100 games',ach_daily:'Challenger',achd_daily:'Play a daily challenge',ach_top10:'World Top 10',achd_top10:'Reach the monthly Top 10',ach_skins10:'Collector',achd_skins10:'Own 10 skins',s_void:'Violet Storm',clErr:'Play Games didn\'t connect ({0})',pfPgOn:'Name from your Google Play Games account',pfPgOff:'Sign in to Play Games to show your name',pfAuto:'Automatic name',pfPgB:'SIGN IN TO PLAY GAMES',profP:'This is how you appear in the world ranking. Pick your country.',cloudT:'Cloud (Google Play Games)',clSaveB:'SAVE',clLoadB:'LOAD',clSignB:'Sign in to Play Games',clNote:'Your progress is saved to the cloud automatically after each run. On another phone, sign in to Play Games and tap LOAD.',clOn:'Connected: {0}',clOff:'Play Games not connected',clNeedSign:'Sign in to Play Games to use the cloud',clSaved:'Progress saved to the cloud!',clFail:'Couldn\'t save right now. Try again.',clEmpty:'No cloud progress yet',clBad:'Invalid cloud save',clDesc:'Level {0} · Best {1}',clAskT:'CLOUD PROGRESS',clAskP:'We found saved progress:<br><b>Level {0} · Best {1}</b><br>{2} coins · {3} gems<br><br>Use it on this phone?',clYesB:'LOAD',clHi:'Hi, {0}!',rkNotSent:'Run not sent to the ranking: automated or modified play detected',fixClock:'FIX YOUR PHONE DATE',a_calm:'STABILIZE',p_calm:'STABLE',d_calm:'Calms the world\'s hazard for 15 floors: wind in the clouds, crazy speed in the aurora and waves in space',ev3:'Gravity waves! Follow the rhythm',revTxt:'Your tower is {0} floors tall. Come back with a full-size block!',reviveWide:'FULL SIZE!',bonusGot:'FREE BONUS: {0}!',grew:'THE BLOCK GREW!',noHazard:'Nothing to stabilize here yet!',powersNote:'Tap the powers on the bar during a run. Out of one? Tap the green + and get 1 with a video (once per run for each power). Glowing blocks are free bonuses.',howTo:'How to play',howToT:'HOW TO PLAY',tipBar:'These are <b>your powers</b>: tap to use them anytime!',tipBonus:'Glowing block! Land it to get a <b>free bonus</b>',tipGrow:'<b>3 perfects in a row</b> make the block grow!',tipStab1:'Wind in the clouds! Use <b>STABILIZE</b> to stop it',tipStab2:'Crazy speed! <b>STABILIZE</b> makes it normal',tipStab3:'Gravity waves! Watch the rings: blue glow means the block speeds up. <b>STABILIZE</b> calms it',h_tapT:'Tap at the right time',h_tapP:'Tap when the block is over the tower. Whatever hangs off the edge is cut.',h_perfT:'Perfect and combo',h_perfP:'Land it exactly for a PERFECT. 3 perfects in a row and the block grows back!',h_bonusT:'Free bonuses',h_bonusP:'Glowing blocks with ★ give an instant free bonus: Slow, Magnet, Wide or Coins x2.',h_powT:'Your powers',h_powP:'The buttons at the bottom are yours: tap to use. Buy them in the shop or get 1 with a video (once per run each).',h_worldsT:'Worlds and hazards',h_worldsP:'Clouds have wind, the aurora has crazy speed and space has gravity waves. STABILIZE calms them all.',h_rankT:'World ranking',h_rankP:'Your record joins the ranking with your flag. Monthly #1 wins 50 gems!',rankBtn:'WORLD RANKING',rankT:'RANKING',rkMonth:'Monthly',rkAll:'All time',rkPrize:'Monthly #1 wins',rkEnds:'Ends in {0}',rkLoading:'Loading...',rkOff:'Can\'t reach the ranking right now. Your records will be sent when you\'re back online.',rkSoon:'World ranking coming soon!',rkEmpty:'No scores this month yet. Be the first!',rkNoScore:'Play a game to join the ranking!',rkDefName:'Player',profT:'YOUR PROFILE',rkNamePh:'Your name',rkSearch:'Search country',save:'SAVE',rkNameBad:'Pick another name',rkWinT:'CHAMPION OF THE MONTH!',rkWinP:'You were #1 in the world in {0}!',rkInMonth:'this month',rkInAll:'all time',rkTop1Now:'You\'re #1 right now! Hold on until the end of the month.',rkNote:'The monthly ranking resets on the 1st. All time keeps your best record ever.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXY',w5:'NEBULA',w6:'BLACK HOLE',w7:'CRYSTAL',w8:'INFINITY',ev4:'A whole galaxy passing by!',ev5:'The colors of the universe',ev6:'Don\'t get sucked in!',ev7:'A world of crystal',ev8:'How far can you go?',s_chocolate:'Chocolate',s_honey:'Honey',s_denim:'Denim',s_leopard:'Leopard',s_zebra:'Zebra',s_camo:'Camo',s_pizza:'Pizza',s_grass:'Grass',s_water:'Water',s_retro:'Retro',s_comic:'Comic',s_gift:'Gift',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Toxic',s_aurora:'Aurora',s_crystal:'Crystal',s_fire:'Fire',s_matrix:'Code',s_plasma:'Plasma',vidOnce:'You already used the video for this power this run'},
+es:{dlyB:'DESAFÍO DIARIO',dlyLeft:'{0}/3',dlyDone:'hecho',dlyTag:'DESAFÍO DIARIO',dlyNoTries:'Se acabaron tus 3 intentos de hoy. ¡Vuelve mañana!',dlyLeftLong:'Te quedan {0} intento(s) hoy',dlyOver:'No quedan intentos hoy. ¡Mira el ranking del día!',dlyAgain:'OTRA VEZ',dlyWon:'¡Quedaste #{0} en el desafío de ayer! +{1} gemas',dlyRule:'mismos bloques para todos, sin poderes',rkDay:'Hoy',rkInDay:'en el desafío de hoy',rkDayPrize:'Desafío de hoy:',rkPrize2:'Premios del mes:',rkTop10:'4º al 10º: 10',rkWinT3:'¡TOP 3 DEL MES!',rkWinT10:'¡TOP 10 DEL MES!',rkWinPn:'¡Quedaste #{0} en el mundo en {1}!',ppB:'PERFIL',ppT:'PERFIL',ppStats:'Estadísticas',ppMedals:'Medallas',ppAch:'Logros',ppMonth:'Récord del mes',ppRuns:'Partidas',ppFloors:'Pisos en total',ppPerf:'Perfectos',ppCombo:'Mayor combo',ppDaily:'Mejor en el desafío',ppPos:'Mejor puesto del mes',ppTime:'Tiempo jugado',ppNoMed:'Entra en el Top 10 del mes para ganar tu primera medalla.',pgAch:'LOGROS PLAY JUEGOS',shareB:'COMPARTIR',shareTxt:'¡Hice {0} pisos en Big Stack! ¿Me superas?',cardPos:'#{0} del mundo este mes',cardCta:'¿Me superas?',cardGet:'Big Stack · Google Play',passedX:'¡Superaste a {0}!',yourBest:'TU RÉCORD {0}',ovtT:'¡TE SUPERARON!',ovtP:'Ahora eres #{0} del mes. ¿Lo recuperas?',ovtGo:'REVANCHA',later:'Después',tier_bronze:'Bronce',tier_silver:'Plata',tier_gold:'Oro',tier_diamond:'Diamante',tier_legend:'Leyenda',tierNone:'Sin rango este mes',tierBest:'mejor: {0}',achGot:'🏆 Logro: {0}',ach_first:'Primer bloque',achd_first:'Juega tu primera partida',ach_f25:'Sobre las nubes',achd_f25:'Llega al piso 25',ach_f50:'Aurora',achd_f50:'Llega al piso 50',ach_f100:'Astronauta',achd_f100:'Llega al piso 100',ach_f150:'Galáctico',achd_f150:'Llega al piso 150',ach_f250:'Horizonte de eventos',achd_f250:'Llega al piso 250',ach_c5:'En el blanco',achd_c5:'Haz un combo de 5 perfectos',ach_c10:'Perfeccionista',achd_c10:'Haz un combo de 10 perfectos',ach_p100:'Pulso firme',achd_p100:'Suma 100 perfectos',ach_r100:'Enganchado',achd_r100:'Juega 100 partidas',ach_daily:'Retador',achd_daily:'Juega un desafío diario',ach_top10:'Top 10 mundial',achd_top10:'Entra en el Top 10 del mes',ach_skins10:'Coleccionista',achd_skins10:'Ten 10 skins',s_void:'Tormenta Violeta',clErr:'Play Juegos no conectó ({0})',pfPgOn:'Nombre de tu cuenta de Google Play Juegos',pfPgOff:'Entra en Play Juegos para aparecer con tu nombre',pfAuto:'Nombre automático',pfPgB:'ENTRAR EN PLAY JUEGOS',profP:'Así apareces en el ranking mundial. Elige tu país.',cloudT:'Nube (Google Play Juegos)',clSaveB:'GUARDAR',clLoadB:'CARGAR',clSignB:'Entrar en Play Juegos',clNote:'Tu progreso se guarda solo en la nube al final de cada partida. En otro celular, entra en Play Juegos y toca CARGAR.',clOn:'Conectado: {0}',clOff:'Play Juegos no conectado',clNeedSign:'Entra en Play Juegos para usar la nube',clSaved:'¡Progreso guardado en la nube!',clFail:'No se pudo guardar ahora. Inténtalo de nuevo.',clEmpty:'Aún no hay progreso en la nube',clBad:'Guardado de la nube inválido',clDesc:'Nivel {0} · Récord {1}',clAskT:'PROGRESO EN LA NUBE',clAskP:'Encontramos un progreso guardado:<br><b>Nivel {0} · Récord {1}</b><br>{2} monedas · {3} gemas<br><br>¿Usarlo en este celular?',clYesB:'CARGAR',clHi:'¡Hola, {0}!',rkNotSent:'Partida fuera del ranking: juego automático o alterado detectado',fixClock:'AJUSTA LA FECHA DEL CELULAR',a_calm:'ESTABILIZAR',p_calm:'ESTABLE',d_calm:'Calma el peligro del mundo por 15 pisos: viento en las nubes, velocidad loca en la aurora y ondas en el espacio',ev3:'¡Ondas gravitacionales! Sigue el ritmo',revTxt:'Tu torre tiene {0} pisos. ¡Vuelve con el bloque a tamaño máximo!',reviveWide:'¡TAMAÑO MÁXIMO!',bonusGot:'¡BONUS GRATIS: {0}!',grew:'¡EL BLOQUE CRECIÓ!',noHazard:'¡Nada que estabilizar aquí todavía!',powersNote:'Toca los poderes de la barra durante la partida. ¿Se acabó? Toca el + verde y gana 1 con un video (1 vez por partida de cada poder). Los bloques brillantes son bonus gratis.',howTo:'Cómo jugar',howToT:'CÓMO JUGAR',tipBar:'Estos son <b>tus poderes</b>: ¡tócalos cuando quieras!',tipBonus:'¡Bloque brillante! Acértalo y gana un <b>bonus gratis</b>',tipGrow:'¡<b>3 perfectos seguidos</b> hacen crecer el bloque!',tipStab1:'¡Viento en las nubes! Usa <b>ESTABILIZAR</b> para pararlo',tipStab2:'¡Velocidad loca! <b>ESTABILIZAR</b> lo normaliza',tipStab3:'¡Ondas gravitacionales! Mira los anillos: azul brillante = el bloque acelera. <b>ESTABILIZAR</b> lo calma',h_tapT:'Toca en el momento justo',h_tapP:'Toca cuando el bloque esté sobre la torre. Lo que sobresale se corta.',h_perfT:'Perfecto y combo',h_perfP:'Acierta de lleno para un PERFECTO. ¡3 perfectos seguidos y el bloque vuelve a crecer!',h_bonusT:'Bonus gratis',h_bonusP:'Los bloques brillantes con ★ dan un bonus al instante, gratis: Lento, Imán, Ancho o Monedas x2.',h_powT:'Tus poderes',h_powP:'Los botones de abajo son tuyos: tócalos para usarlos. Cómpralos en la tienda o gana 1 con un video (1 vez por partida de cada uno).',h_worldsT:'Mundos y peligros',h_worldsP:'Las nubes tienen viento, la aurora velocidad loca y el espacio ondas gravitacionales. ESTABILIZAR calma todo.',h_rankT:'Ranking mundial',h_rankP:'Tu récord entra al ranking con tu bandera. ¡El Nº1 del mes gana 50 gemas!',rankBtn:'RANKING MUNDIAL',rankT:'RANKING',rkMonth:'Del mes',rkAll:'General',rkPrize:'El Nº1 del mes gana',rkEnds:'Termina en {0}',rkLoading:'Cargando...',rkOff:'Sin conexión con el ranking ahora. Tus récords se enviarán cuando vuelva internet.',rkSoon:'¡El ranking mundial llega pronto!',rkEmpty:'Nadie ha puntuado este mes. ¡Sé el primero!',rkNoScore:'¡Juega una partida para entrar al ranking!',rkDefName:'Jugador',profT:'TU PERFIL',rkNamePh:'Tu nombre',rkSearch:'Buscar país',save:'GUARDAR',rkNameBad:'Elige otro nombre',rkWinT:'¡CAMPEÓN DEL MES!',rkWinP:'¡Fuiste el Nº1 del mundo en {0}!',rkInMonth:'del mes',rkInAll:'general',rkTop1Now:'¡Eres el Nº1 ahora! Aguanta hasta fin de mes.',rkNote:'El ranking del mes se reinicia el día 1. El general guarda tu mejor récord.',dLeft:'{0}d {1}h',hLeft:'{0}h {1}min',w4:'GALAXIA',w5:'NEBULOSA',w6:'AGUJERO NEGRO',w7:'CRISTAL',w8:'INFINITO',ev4:'¡Una galaxia entera pasando!',ev5:'Los colores del universo',ev6:'¡Que no te trague!',ev7:'Un mundo de cristal',ev8:'¿Hasta dónde llegas?',s_chocolate:'Chocolate',s_honey:'Miel',s_denim:'Vaquero',s_leopard:'Leopardo',s_zebra:'Cebra',s_camo:'Camuflaje',s_pizza:'Pizza',s_grass:'Césped',s_water:'Agua',s_retro:'Retro',s_comic:'Cómic',s_gift:'Regalo',s_piano:'Piano',s_sakura:'Sakura',s_toxic:'Tóxico',s_aurora:'Aurora',s_crystal:'Cristal',s_fire:'Fuego',s_matrix:'Código',s_plasma:'Plasma',vidOnce:'Ya usaste el video de este poder en esta partida'}};
 for(const k in L2)Object.assign(L[k],L2[k]);
 
 let LANG=S.settings.lang||((navigator.language||'pt').slice(0,2));if(!L[LANG])LANG='en';
@@ -877,21 +917,22 @@ const hazard=()=>worldOf(score)>=1; // cidade não tem perigo; nuvens, aurora e 
 const RANDOM_POWERS=['slow','magnet','wide','x2'];
 // bônus grátis: durante vento/velocidade/ondas o LENTO fica bem mais raro (10% em vez de 25%)
 function pickBonus(){const unstable=hazard()&&!(P&&P.calm>0);const w={slow:unstable?1:3,magnet:3,wide:3,x2:3};
-  let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=Math.random()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
+  let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=rnd()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
+let mode='normal',rnd=Math.random;
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={slow:{col:'#7fd1ff',n:6},magnet:{col:'#ff5d8f',n:3},wide:{col:'#4fe39a',n:0},x2:{col:'#ffc23d',n:10},calm:{col:'#b9a3ff',n:15}};
 const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},calm:{price:500,n:15}};
 function reset(){
-  hue0=Math.random()*360;const w=W*BASEW;
+  rnd=mode==='daily'?mulberry(seedOf(dayKey())):Math.random;hue0=rnd()*360;const w=W*BASEW;
   stack=[{x:(W-w)/2,w,i:0,t0:-1e9}];debris=[];parts=[];floats=[];rings=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=SPEED0*.62;shake=0;flash=0;skyF=0;
-  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{},taps:[],errs:[],play:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
+  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{},taps:[],errs:[],play:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(rnd()*4|0);
   videoUsed=false;gemRevives=0;renderPw();spawn();
 }
 function spawn(){
   const top=stack[stack.length-1];const dir=stack.length%2?1:-1;
-  moving={w:top.w,x:dir>0?-top.w:W,dir,i:stack.length,v:.75+Math.random()*.6,pw:null};
-  if(state==='play'&&score>=nextPower){moving.pw=pickBonus();nextPower=score+8+(Math.random()*6|0);tip('bonus',t('tipBonus'),'mid')}
-  windDir=Math.random()<.5?-1:1;
+  moving={w:top.w,x:dir>0?-top.w:W,dir,i:stack.length,v:.75+rnd()*.6,pw:null};
+  if(state==='play'&&score>=nextPower){moving.pw=pickBonus();nextPower=score+8+(rnd()*6|0);tip('bonus',t('tipBonus'),'mid')}
+  windDir=rnd()<.5?-1:1;
 }
 function yOf(i){return H-190-i*BH+cam}
 function addFloat(x,y,txt,col,size=18){const near=floats.filter(f=>f.l>.75&&Math.abs(f.y-y)<22).length;floats.push({x,y:y-near*24,txt,col,l:1,size})}
@@ -934,10 +975,10 @@ function drop(){
   addFloat(nx+nw/2,yOf(m.i)-6,'+'+gain,gain>1?'#ffc23d':'#fff7e8');
   stack.push({x:nx,w:nw,i:m.i,t0:tNow});landT=tNow;
   if(m.grew){addFloat(nx+nw/2,yOf(m.i)-54,t('grew'),'#4fe39a',17);rings.push({x:nx,y:yOf(m.i),w:nw,t0:tNow+90,i:m.i});tip('grow',t('tipGrow'),'mid')}
-  score++;setScore();
+  score++;setScore();rivalStep();
   const wd=worldOf(score);
   speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
-  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(Math.random()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
+  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(rnd()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
   if([25,50,100].includes(score))setTimeout(()=>tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar'),2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
@@ -985,7 +1026,7 @@ $('pauseSet').onclick=()=>openSettings('pause');
 const gemCost=()=>10*(gemRevives+1);
 function lose(){
   state='revive';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;const canVideo=!videoUsed,canGem=gemRevives<2;
-  if(score<3||(!canVideo&&!canGem)){setTimeout(finish,700);return}
+  if(score<3||(!canVideo&&!canGem)||mode==='daily'){setTimeout(finish,700);return}
   setTimeout(()=>{
     $('revTxt').textContent=t('revTxt',score);$('revVideo').hidden=!canVideo;$('revGem').hidden=!canGem;$('revGemCost').textContent=gemCost();
     $('revive').hidden=false;const st=performance.now();$('revCount').textContent=5;$('ringArc').style.strokeDashoffset=0;
@@ -1067,9 +1108,10 @@ function finish(){
   if(state==='over')return;
   state='over';P={slow:0,magnet:0,x2:0,calm:0};renderPw();$('pauseBtn').hidden=true;$('hud').hidden=true;$('abar').hidden=true;
   const endBonus=Math.floor(score/2);const total=run.blocks+run.perf+run.chest+endBonus;
-  const isNew=score>S.best&&score>0;if(isNew)S.best=score;
+  const isNew=mode!=='daily'&&score>S.best&&score>0;if(isNew)S.best=score;
   const mult=isNew?2:1,final=total*mult;
   const before=S.coins;S.coins+=final;S.gems+=run.gems;
+  trackStats();
   const xp=score+perfects*2;const lvBefore=S.lvl;const ups=addXP(xp);const doneM=trackMissions(final);save();
   $('fScore').textContent=score;$('fBest').textContent=S.best;$('newRec').hidden=!isNew;
   const rows=[[t('e_blocks'),'+'+run.blocks],[t('e_perf'),'+'+run.perf]];if(run.chest)rows.push([t('e_chest'),'+'+run.chest]);rows.push([t('e_end'),'+'+endBonus]);
@@ -1077,14 +1119,14 @@ function finish(){
   $('oXpGain').textContent=`+${xp} XP`;$('oLvl').textContent=lvBefore;$('oBar').style.width='0%';setTimeout(()=>lvlUI('oLvl','oXp','oBar'),350);
   $('oUp').hidden=!ups.length;if(ups.length){const u=ups[ups.length-1];$('oUp').innerHTML=t('lvlUp',u.lvl,ups.reduce((a,r)=>a+r.coins,0))+(ups.some(r=>r.gems)?t('andGems'):'')+ups.filter(r=>r.skin).map(r=>'<br>'+t('newSkin',r.skin)).join('');setTimeout(()=>sfx.fanfare(),700)}
   $('oMis').hidden=!doneM.length;if(doneM.length)$('oMis').innerHTML=t('misDone')+doneM.join(' · ')+'<br>'+t('claimIn');
-  $('over').hidden=false;$('gear').hidden=false;rankAfterRun(score);cloudAuto();
+  $('over').hidden=false;$('gear').hidden=false;if(mode==='daily')dailyAfterRun(score);else rankAfterRun(score);overExtras();cloudAuto();checkAch();
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
-function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help'].forEach(p=>$(p).hidden=true)}
-function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();$('hint').hidden=S.best>=5;lastT=performance.now();sfx.whoosh()}
-function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot()}
-function showMenu(){hideAll();state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
+function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt'].forEach(p=>$(p).hidden=true)}
+function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
+function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
+function showMenu(){hideAll();mode='normal';$('dlyTag').hidden=true;state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
 function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let i=0;
   el.classList.remove('idle');el.innerHTML=['BIG','STACK'].map(w=>`<span class="ln">${[...w].map(ch=>`<i style="--i:${i};background:${cols[(i++)%cols.length]}">${ch}</i>`).join('')}</span>`).join('');
   clearTimeout(buildLogo.t);buildLogo.t=setTimeout(()=>el.classList.add('idle'),1200)}
@@ -1185,6 +1227,162 @@ function runVerdict(sc){
   return why;
 }
 
+/* ================= COMPETITIVO =================
+   Patentes, linha do rival, "fulano te passou", desafio diário, prêmios Top 3/Top 10, conquistas,
+   perfil do jogador e card de recorde pra compartilhar. */
+const dayKey=(d=new Date())=>'d_'+d.getUTCFullYear()+'_'+pad2(d.getUTCMonth()+1)+'_'+pad2(d.getUTCDate());
+const prevDayKey=()=>dayKey(new Date(Date.now()-864e5));
+const dayEndMs=()=>{const d=new Date();return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1)};
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const seedOf=str=>[...str].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261);
+
+S.st=Object.assign({runs:0,floors:0,perf:0,combo:0,time:0,bestPos:0,lastPos:0},S.st||{});
+S.ach=S.ach||{};S.med=S.med||[];S.dwon=S.dwon||{};S.cp=S.cp||{k:'',below:[]};
+S.dly=Object.assign({k:'',tries:0,best:0,sent:0,bestEver:0,days:0},S.dly||{});
+if(!S.st.combo&&S.best)S.st.floors=Math.max(S.st.floors,S.best);
+
+/* ---- patentes (pelo recorde do mês) ---- */
+const TIERS=[{k:'bronze',at:1,c1:'#f3b27a',c2:'#8a4a1f'},{k:'silver',at:40,c1:'#f4f7fc',c2:'#7d8aa0'},{k:'gold',at:80,c1:'#ffe79a',c2:'#c7870e'},{k:'diamond',at:130,c1:'#c4f6ff',c2:'#2f8fd6'},{k:'legend',at:200,c1:'#ffc2f3',c2:'#8a2bd6'}];
+const tierOf=s=>{let r=null;for(const tr of TIERS)if(s>=tr.at)r=tr;return r};
+const SHIELD='M12 2l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V5z';
+const TMARK={bronze:'M8 11l4 3 4-3v2.4l-4 3-4-3z',silver:'M8 8.5l4 3 4-3v2.4l-4 3-4-3zM8 13l4 3 4-3v2.4l-4 3-4-3z',gold:'M12 6.5l1.7 3.5 3.8.5-2.8 2.6.7 3.8L12 15l-3.4 1.9.7-3.8-2.8-2.6 3.8-.5z',diamond:'M12 6l4.5 5L12 17.5 7.5 11z',legend:'M6.5 15.5l-1-7 3.5 3 3-4.5 3 4.5 3.5-3-1 7z'};
+function tierSVG(tr,sz=18){if(!tr)return '';const id='tg'+tr.k;return `<svg class="tier" width="${sz}" height="${sz}" viewBox="0 0 24 24"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tr.c1}"/><stop offset="1" stop-color="${tr.c2}"/></linearGradient></defs><path d="${SHIELD}" fill="url(#${id})" stroke="rgba(0,0,0,.35)" stroke-width="1"/><path d="${TMARK[tr.k]}" fill="#fff" fill-opacity=".92"/></svg>`}
+function drawTier(c,tr,x,y,sz){if(!tr)return;c.save();c.translate(x,y);c.scale(sz/24,sz/24);const g=c.createLinearGradient(0,2,0,22);g.addColorStop(0,tr.c1);g.addColorStop(1,tr.c2);c.fillStyle=g;c.fill(new Path2D(SHIELD));c.lineWidth=1;c.strokeStyle='rgba(0,0,0,.35)';c.stroke(new Path2D(SHIELD));c.fillStyle='rgba(255,255,255,.92)';c.fill(new Path2D(TMARK[tr.k]));c.restore()}
+const monthBest=()=>S.lb.mk===monthKey()?S.lb.ms:0;
+
+/* ---- linha do rival (durante a partida) ---- */
+const RV={rows:[],board:'',t:0,passed:{}};
+const curBoard=()=>mode==='daily'?dayKey():monthKey();
+const curBest=()=>mode==='daily'?(S.dly.k===dayKey()?S.dly.best:0):S.best;
+async function loadRivals(board,myS){const on=OL();if(!on||!on.above)return;
+  try{const rows=await on.above(board,myS,10);const uid=on.uid();RV.rows=dedupeRows(rows.filter(r=>r.id!==uid),uid).sort((a,b)=>a.s-b.s);RV.board=board;RV.t=Date.now()}catch(e){}}
+function rivalStart(){RV.passed={};const b=curBoard();const myS=mode==='daily'?(S.dly.k===dayKey()?S.dly.sent:0):monthBest();
+  if(RV.board!==b)RV.rows=[];if(RV.board!==b||Date.now()-RV.t>180000||RV.myS!==myS){RV.myS=myS;loadRivals(b,myS)}}
+function rivalStep(){if(!RV.rows.length||RV.board!==curBoard())return;
+  for(const r of RV.rows){if(!RV.passed[r.id]&&score>r.s){RV.passed[r.id]=1;run.passed=(run.passed||0)+1;addFloat(W/2,yOf(score)-78,t('passedX',r.n),'#ffc23d',19);sfx.coin();buzz(20)}}}
+function rivalLine(y,col,label,dash){ctx.save();ctx.globalAlpha=.9;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.setLineDash(dash?[9,7]:[]);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='900 13px Nunito, sans-serif';const tw=ctx.measureText(label).width+18;const x=W-tw-8;ctx.fillStyle='rgba(15,16,36,.82)';rr(ctx,x,y-12,tw,24,12);ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=1.5;rr(ctx,x,y-12,tw,24,12);ctx.stroke();
+  ctx.fillStyle=col;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(label,x+9,y+.5);ctx.restore()}
+function drawRival(){if(state!=='play'&&state!=='pause'&&state!=='revive')return;
+  const best=curBest();if(best>score){const y=yOf(best);if(y>-20&&y<H+20)rivalLine(y,'#4fe39a',t('yourBest',best),true)}
+  if(RV.board!==curBoard())return;
+  const nx=RV.rows.find(r=>!RV.passed[r.id]&&r.s>=score);if(!nx)return;const y=yOf(nx.s);
+  if(y>-20&&y<H+20)rivalLine(y,'#ffc23d',`${flag(nx.c)} ${nx.n} · ${nx.s}`,false)}
+
+/* ---- "fulano te passou!" ---- */
+async function snapBelow(){const on=OL();if(!on||!on.below)return;const k=monthKey(),ms=monthBest();if(!ms)return;
+  try{const rows=await on.below(k,ms,7);const uid=on.uid();S.cp={k,ms,t:Date.now(),below:rows.filter(r=>r.id!==uid&&r.n!==S.lb.name).map(r=>r.id).slice(0,6)};save()}catch(e){}}
+async function checkOvertakes(){const on=OL();const k=monthKey(),ms=monthBest();if(!on||!on.above||S.cp.k!==k||!S.cp.below.length||!ms)return;
+  try{const rows=await on.above(k,ms,10);const who=rows.filter(r=>S.cp.below.includes(r.id));if(!who.length)return;
+    const pos=await on.rank(k,ms);showOvertake(who,pos)}catch(e){}}
+function showOvertake(who,pos,tries=0){
+  if(state!=='menu'||$('menu').hidden||!$('mis').hidden||!$('rkWin').hidden){if(tries<20)setTimeout(()=>showOvertake(who,pos,tries+1),3000);return}
+  $('ovtList').innerHTML=who.slice(0,3).map(r=>`<div><span>${flag(r.c)}</span><span>${esc(r.n)}</span><b>${r.s}</b></div>`).join('');
+  $('ovtP').textContent=t('ovtP',pos);$('ovt').hidden=false;sfx.whoosh()}
+$('ovtGo').onclick=()=>{$('ovt').hidden=true;mode='normal';startGame()};
+$('ovtNo').onclick=()=>{$('ovt').hidden=true};
+
+/* ---- desafio diário: mesma sequência de blocos pra todo mundo, 3 tentativas, ranking do dia ---- */
+const DAILY_TRIES=3,DPRIZE=[10,6,4];
+function dailyInfo(){const k=dayKey();if(S.dly.k!==k){S.dly.k=k;S.dly.tries=0;S.dly.best=0;S.dly.sent=0}return S.dly}
+function dailyBtn(){const d=dailyInfo(),left=DAILY_TRIES-d.tries;$('dlyLeft').textContent=left>0?t('dlyLeft',left):t('dlyDone');$('openDaily').classList.toggle('done',left<=0)}
+function startDaily(){const d=dailyInfo();if(d.tries>=DAILY_TRIES){toast(t('dlyNoTries'));openRank();setRankTab('day');return}
+  d.tries++;if(d.tries===1)S.dly.days++;save();mode='daily';startGame()}
+$('openDaily').onclick=startDaily;
+function dailyAfterRun(sc){const el=$('oRank');el.hidden=true;const d=dailyInfo();const left=DAILY_TRIES-d.tries;
+  $('oDly').innerHTML=`<b>${t('dlyTag')}</b><br>${left>0?t('dlyLeftLong',left):t('dlyOver')}`;$('oDly').hidden=false;
+  $('again').textContent=left>0?t('dlyAgain'):t('again');
+  const why=runVerdict(sc);if(why.length){S.lb.flag=(S.lb.flag||0)+1;S.lb.why=why.join(',');save();if(sc>0){el.innerHTML=`<span>${t('rkNotSent')}</span>`;el.hidden=false}return}
+  if(sc>d.best){d.best=sc;S.dly.bestEver=Math.max(S.dly.bestEver,sc)}save();
+  const on=OL();if(!on||d.best<=d.sent||d.best<=0){showDayPos();return}
+  on.submit(dayKey(),d.best,S.lb.name,S.lb.cc).then(()=>{d.sent=d.best;save();rkCache={};showDayPos()}).catch(()=>{});
+}
+async function showDayPos(){const on=OL(),d=dailyInfo();if(!on||!d.sent||$('over').hidden)return;
+  try{const pos=await on.rank(dayKey(),d.sent);if($('over').hidden)return;$('oRank').innerHTML=`<span>${flag(S.lb.cc)} <b>#${pos}</b> ${t('rkInDay')}</span>`;$('oRank').hidden=false}catch(e){}}
+async function checkDailyPrize(){const on=OL();if(!on)return;const pk=prevDayKey();if(S.dwon.chk===pk)return;
+  try{let top=await on.top(pk,5);S.dwon.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
+    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;save();wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}save()}catch(e){}}
+
+/* ---- estatísticas ---- */
+function trackStats(){const st=S.st;st.runs++;st.floors+=score;st.perf+=perfects;st.combo=Math.max(st.combo,maxCombo);st.time+=Math.round((run.play||0)/1000)}
+
+/* ---- conquistas (no jogo + Google Play Games) ---- */
+const ACH=[
+ {id:'first',ic:'play',c:['#7fe3ff','#2a7fd6'],n:1,f:()=>S.st.runs},
+ {id:'f25',ic:'25',c:['#a8e8ff','#3d8fd6'],n:25,f:()=>Math.max(S.best,S.dly.bestEver)},
+ {id:'f50',ic:'50',c:['#8dffc9','#1f9c62'],n:50,f:()=>Math.max(S.best,S.dly.bestEver)},
+ {id:'f100',ic:'100',c:['#c9b3ff','#5a3fd6'],n:100,f:()=>Math.max(S.best,S.dly.bestEver)},
+ {id:'f150',ic:'150',c:['#ffb3e6','#b0268a'],n:150,f:()=>Math.max(S.best,S.dly.bestEver)},
+ {id:'f250',ic:'250',c:['#ffd27a','#d9560b'],n:250,f:()=>Math.max(S.best,S.dly.bestEver)},
+ {id:'c5',ic:'x5',c:['#fff09a','#d99a0b'],n:5,f:()=>S.st.combo},
+ {id:'c10',ic:'x10',c:['#ffae8a','#d6362f'],n:10,f:()=>S.st.combo},
+ {id:'p100',ic:'star',c:['#fff3b0','#e0a100'],n:100,f:()=>S.st.perf},
+ {id:'r100',ic:'runs',c:['#b8f5d0','#2a9d6a'],n:100,f:()=>S.st.runs},
+ {id:'daily',ic:'cal',c:['#9ff0ff','#1f8fb8'],n:1,f:()=>S.dly.days},
+ {id:'top10',ic:'trophy',c:['#ffe79a','#c7870e'],n:1,f:()=>S.st.bestPos&&S.st.bestPos<=10?1:0},
+ {id:'skins10',ic:'skins',c:['#ffc2f3','#8a2bd6'],n:10,f:()=>S.owned.length},
+];
+// IDs das conquistas criadas no Play Console (Serviços do Play Games → Conquistas). Vazio = só no jogo.
+const PGS_ACH={};
+function pgsUnlock(id){const g=N&&N.games;if(g&&PGS_ACH[id]&&typeof clPlayer!=='undefined'&&clPlayer)g.unlock(PGS_ACH[id])}
+function pgsSyncAll(){for(const id in S.ach)pgsUnlock(id)}
+function checkAch(){const got=[];for(const a of ACH){if(S.ach[a.id])continue;if(a.f()>=a.n){S.ach[a.id]=Date.now();got.push(a);pgsUnlock(a.id)}}
+  if(got.length){save();got.forEach((a,k)=>setTimeout(()=>{toast(t('achGot',t('ach_'+a.id)));sfx.fanfare()},900+k*1800))}}
+const ICONS={};
+function achIcon(a,sz=96,sq=false){const key=a.id+sz+sq;if(ICONS[key])return ICONS[key];const cv=document.createElement('canvas');cv.width=cv.height=sz;const c=cv.getContext('2d');const u=sz/96;c.scale(u,u);
+  const g=c.createLinearGradient(0,0,0,96);g.addColorStop(0,a.c[0]);g.addColorStop(1,a.c[1]);c.fillStyle=g;rr(c,0,0,96,96,sq?0:22);c.fill();
+  c.fillStyle='rgba(255,255,255,.25)';rr(c,0,0,96,40,sq?0:22);c.fill();c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.beginPath();c.arc(48,48,34,0,TAU);c.stroke();
+  c.fillStyle='#fff';c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=5;c.lineJoin='round';c.textAlign='center';c.textBaseline='middle';
+  const txt=s=>{c.font=`${s.length>=3?26:32}px Bungee, Impact, sans-serif`;c.strokeText(s,48,51);c.fillText(s,48,51)};
+  const path=d=>{c.save();c.translate(20,20);c.scale(56/24,56/24);const p=new Path2D(d);c.lineWidth=2;c.stroke(p);c.fill(p);c.restore()};
+  ({play:()=>path('M8 5v14l11-7z'),star:()=>path('M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.4l-5.2 2.8 1-5.9L3.5 9.2l5.9-.8z'),
+    runs:()=>path('M5 18h14v2H5zM7 14h10v3H7zM9 10h6v3H9zM10.5 6h3v3h-3z'),cal:()=>path('M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 4v9h14v-9zM8 3h2v4H8zm6 0h2v4h-2z'),
+    trophy:()=>path('M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3z'),
+    skins:()=>path('M4 15h16v4H4zM6 10h12v4H6zM8 5h8v4H8z')}[a.ic]||(()=>txt(a.ic)))();
+  return ICONS[key]=cv.toDataURL()}
+
+/* ---- perfil do jogador ---- */
+const MEDC={1:'linear-gradient(160deg,#ffe79a,#e0a100)',2:'linear-gradient(160deg,#f4f7fc,#9aa6ba)',3:'linear-gradient(160deg,#f3b27a,#b0662c)'};
+function fmtTime(s){const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}min`:`${m}min`}
+function openPP(){hideAll();$('pp').hidden=false;checkAch();
+  const ms=monthBest(),tr=tierOf(ms),trBest=tierOf(Math.max(S.best,ms));
+  $('ppHead').innerHTML=`<span class="fl">${flag(S.lb.cc)}</span><div><div class="nm">${esc(S.lb.name)}</div><div class="tr">${tr?tierSVG(tr,20)+t('tier_'+tr.k):`<span style="color:var(--muted)">${t('tierNone')}</span>`}</div><div class="lv">${t('level')} ${S.lvl}${trBest&&trBest!==tr?' · '+t('tierBest',t('tier_'+trBest.k)):''}</div></div>`;
+  const st=S.st;const rows=[[S.best,t('best')],[ms,t('ppMonth')],[st.runs,t('ppRuns')],[st.floors,t('ppFloors')],[st.perf,t('ppPerf')],[st.combo,t('ppCombo')],[S.dly.bestEver,t('ppDaily')],[st.bestPos?'#'+st.bestPos:'—',t('ppPos')],[fmtTime(st.time),t('ppTime')],[Object.keys(S.ach).length+'/'+ACH.length,t('ppAch')]];
+  $('ppStats').innerHTML=rows.map(r=>`<div><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');
+  $('ppMed').innerHTML=S.med.length?S.med.slice().reverse().map(m=>`<div class="md"><i style="background:${MEDC[m.p]||'linear-gradient(160deg,#9ff0ff,#2a7fd6)'}">${m.p}</i>${monthLabel(m.k)}</div>`).join(''):`<div class="none">${t('ppNoMed')}</div>`;
+  $('ppAch').innerHTML=ACH.map(a=>{const ok=!!S.ach[a.id];const v=Math.min(a.f(),a.n);return `<div class="ach${ok?'':' lock'}"><img src="${achIcon(a)}" alt=""><div style="flex:1"><b>${t('ach_'+a.id)}</b><span>${t('achd_'+a.id)}</span>${!ok&&a.n>1?`<div class="bar"><i style="width:${v/a.n*100}%"></i></div>`:''}</div>${ok?'<span style="font-size:20px">✅</span>':''}</div>`}).join('');
+  $('ppPG').hidden=!(N&&N.games&&typeof clPlayer!=='undefined'&&clPlayer&&Object.keys(PGS_ACH).length)}
+$('openPP').onclick=openPP;$('closePP').onclick=showMenu;
+$('ppShare').onclick=()=>shareCard(Math.max(S.best,monthBest()));
+$('ppPG').onclick=()=>{N&&N.games&&N.games.showAchievements().catch(()=>toast(t('clFail')))};
+
+/* ---- card de recorde pra compartilhar ---- */
+function makeCard(sc){const Wc=1080,Hc=1350,cv=document.createElement('canvas');cv.width=Wc;cv.height=Hc;const c=cv.getContext('2d');
+  const wd=WORLDS[worldOf(sc)];const col=a=>`rgb(${a.join(',')})`;const g=c.createLinearGradient(0,0,0,Hc);g.addColorStop(0,col(wd.top));g.addColorStop(1,col(wd.bot));c.fillStyle=g;c.fillRect(0,0,Wc,Hc);
+  for(let k=0;k<120;k++){c.fillStyle=`rgba(255,255,255,${.25+hash(k*3.3)*.6})`;const s=1.5+hash(k*7.1)*3;c.fillRect(hash(k*1.7)*Wc,hash(k*2.9)*Hc*.7,s,s)}
+  // torre com a skin do jogador
+  c.save();c.translate(Wc/2,Hc-110);c.scale(2.3,2.3);const n=6;for(let k=0;k<n;k++){const w=170-k*6+(k%3)*4,x=-w/2+Math.sin(k*1.7)*7;block(x,-BH*(k+1),w,k,1,c)}c.restore();
+  {const sh=c.createLinearGradient(0,700,0,800);sh.addColorStop(0,'rgba(10,8,30,0)');sh.addColorStop(1,'rgba(10,8,30,0)');}
+  // logo
+  const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let ci=0;
+  const tile=(ch,x,y)=>{c.fillStyle=cols[(ci++)%cols.length];rr(c,x,y,74,74,16);c.fill();c.fillStyle='rgba(255,255,255,.3)';rr(c,x,y,74,14,8);c.fill();c.fillStyle='#fff';c.font='44px Bungee, Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(ch,x+37,y+40)};
+  [...'BIG'].forEach((ch,k)=>tile(ch,Wc/2-120+k*82,50));[...'STACK'].forEach((ch,k)=>tile(ch,Wc/2-202+k*82,134));
+  c.textAlign='center';c.textBaseline='alphabetic';c.fillStyle='#fff';c.font='190px Bungee, Impact, sans-serif';c.lineWidth=14;c.strokeStyle='rgba(0,0,0,.35)';c.strokeText(String(sc),Wc/2,420);c.fillText(String(sc),Wc/2,420);
+  c.font='900 40px Nunito, sans-serif';c.fillStyle='#ffc23d';c.fillText(t('floors').toUpperCase(),Wc/2,480);
+  // jogador
+  const tr=tierOf(Math.max(monthBest(),mode==='daily'?0:sc));c.font='900 48px Nunito, sans-serif';const nm=`${flag(S.lb.cc)} ${S.lb.name}`;const nw=c.measureText(nm).width+(tr?70:0);const px=Wc/2-nw/2;
+  c.fillStyle='rgba(10,8,30,.72)';rr(c,px-30,550,nw+60,96,48);c.fill();c.strokeStyle='rgba(255,255,255,.15)';c.lineWidth=2;rr(c,px-30,550,nw+60,96,48);c.stroke();if(tr)drawTier(c,tr,px,566,62);c.fillStyle='#fff';c.textAlign='left';c.fillText(nm,px+(tr?70:0),620);
+  c.textAlign='center';if(S.st.lastPos){c.font='900 40px Nunito, sans-serif';c.fillStyle='#fff';c.fillText(t('cardPos',S.st.lastPos),Wc/2,710)}
+  c.fillStyle='rgba(10,8,30,.7)';c.fillRect(0,Hc-110,Wc,110);c.fillStyle='#fff';c.font='900 42px Nunito, sans-serif';c.fillText(t('cardCta'),Wc/2,Hc-62);c.font='800 30px Nunito, sans-serif';c.fillStyle='#b8b3e6';c.fillText(t('cardGet'),Wc/2,Hc-22);
+  return cv.toDataURL('image/png')}
+const STORE_URL='https://play.google.com/store/apps/details?id=com.bighouse.bigstack';
+async function shareCard(sc){if(!sc){toast(t('rkNoScore'));return}const url=makeCard(sc);const txt=t('shareTxt',sc)+' '+STORE_URL;
+  if(N&&N.share){try{await N.share(url,txt);return}catch(e){}}
+  try{const blob=await (await fetch(url)).blob();const f=new File([blob],'bigstack.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return}}catch(e){}
+  const a=document.createElement('a');a.href=url;a.download='bigstack-recorde.png';a.click()}
+$('overShare').onclick=()=>shareCard(score);
+function overExtras(){if(mode!=='daily'){$('oDly').hidden=true;$('again').textContent=t('again')}}
+
 /* ================= RANKING MUNDIAL ================= */
 // Placar mensal (o Nº1 ganha 50 cristais e zera todo dia 1) + placar geral fixo, com a bandeira do país.
 const OL=()=>window.Online&&window.Online.configured?window.Online:null;
@@ -1235,34 +1433,39 @@ function rankAfterRun(sc){
   if(sc>(S.lb.rb||0))S.lb.rb=sc;trackMonth(sc);
   const on=OL();if(!on||sc<=0)return;
   syncScores().then(async()=>{
+    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}RV.t=0;
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
     try{const [rm,ra]=await Promise.all([on.rank(k,ms),S.lb.all?on.rank('all',S.lb.all):Promise.resolve(0)]);if($('over').hidden)return;
-      el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
+      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
   });
 }
 
 /* ---- prêmio do mês passado ---- */
+const MPRIZE=[50,30,20,10,10,10,10,10,10,10];
 async function checkPrize(){
   const on=OL();if(!on)return;const pk=prevMonthKey();if(S.lb.chk===pk)return;
-  try{const top=await on.top(pk,1);S.lb.chk=pk;
-    if(top[0]&&top[0].id===on.uid()&&top[0].s>0&&!S.lb.won[pk]){S.lb.won[pk]=true;S.gems+=50;save();wallet();showPrizeWin(pk)}
+  try{let top=await on.top(pk,15);S.lb.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
+    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();showPrizeWin(pk,idx+1,g)}
     save()}catch(e){}
 }
 function monthLabel(k){const m=/m_(\d{4})_(\d{2})/.exec(k);if(!m)return '';return new Date(Date.UTC(+m[1],+m[2]-1,15)).toLocaleDateString({pt:'pt-BR',en:'en-US',es:'es-ES'}[LANG],{month:'long',year:'numeric',timeZone:'UTC'})}
-function showPrizeWin(pk){$('rkWinP').textContent=t('rkWinP',monthLabel(pk));$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
+function showPrizeWin(pk,pos=1,g=50){$('rkWin').querySelector('h2').textContent=t(pos===1?'rkWinT':pos<=3?'rkWinT3':'rkWinT10');$('rkWinP').innerHTML=esc(pos===1?t('rkWinP',monthLabel(pk)):t('rkWinPn',pos,monthLabel(pk)))+`<br><b style="font-size:24px"><i class="gem"></i>+${g}</b>`;$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
 $('rkWinOk').onclick=()=>{$('rkWin').hidden=true;sfx.coin()};
 
 /* ---- tela do ranking ---- */
 let rkTab='month',rkBack='menu',rkCache={};
-function fmtLeft(){const ms=monthEndMs()-Date.now();const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);return d>0?t('dLeft',d,h):t('hLeft',h,mi)}
+function fmtLeft(){return fmtLeftTo(monthEndMs())}
+function fmtLeftTo(end){const ms=end-Date.now();const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);return d>0?t('dLeft',d,h):t('hLeft',h,mi)}
 function renderRankHead(){
   $('rkFlag').textContent=flag(S.lb.cc);$('rkName').textContent=S.lb.name;
   document.querySelectorAll('.rtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.rt===rkTab));
-  $('rkPrize').hidden=rkTab!=='month';
-  $('rkPrize').innerHTML=`<svg viewBox="0 0 24 24" class="tro"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="#ffc23d"/></svg><span>${t('rkPrize')} <b><i class="gem"></i>50</b></span><small>${t('rkEnds',fmtLeft())}</small>`;
+  $('rkPrize').hidden=rkTab==='all';const tro=`<svg viewBox="0 0 24 24" class="tro"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="#ffc23d"/></svg>`;
+  $('rkPrize').innerHTML=rkTab==='day'
+    ?`${tro}<span>${t('rkDayPrize')} <b>🥇<i class="gem"></i>10 · 🥈6 · 🥉4</b></span><small>${t('rkEnds',fmtLeftTo(dayEndMs()))} · ${t('dlyRule')}</small>`
+    :`${tro}<span>${t('rkPrize2')} <b>🥇<i class="gem"></i>50 · 🥈30 · 🥉20</b></span><small>${t('rkTop10')} · ${t('rkEnds',fmtLeft())}</small>`;
 }
 function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidden=false;renderRankHead();loadRank();if(!S.lb.edited)setTimeout(()=>{if(!$('rank').hidden&&!S.lb.edited)openProf()},500)}
-function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span><span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
+function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span>${tierSVG(tierOf(r.s),17)}<span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
 // mesmo jogador com 2 entradas (ex.: reinstalou o app e ganhou outro ID): mostra só a melhor.
 // As suas entradas antigas somem e fica só a atual.
 function dedupeRows(rows,uid){const key=r=>String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
@@ -1272,7 +1475,7 @@ async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
   if(!on){L.innerHTML=`<div class="rempty">${t(window.Online&&!window.Online.configured?'rkSoon':'rkOff')}</div>`;return}
-  const board=rkTab==='month'?monthKey():'all',tabAt=rkTab;
+  const board=rkTab==='month'?monthKey():rkTab==='day'?dayKey():'all',tabAt=rkTab;
   const c=rkCache[board];
   if(!c||Date.now()-c.t>60000)L.innerHTML=`<div class="rempty"><span class="spin"></span>${t('rkLoading')}</div>`;
   try{
@@ -1280,7 +1483,7 @@ async function loadRank(){
     let rows=c&&Date.now()-c.t<60000?c.rows:null;
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
-    const uid=on.uid();const myS=board==='all'?S.lb.all:(S.lb.mk===board?S.lb.ms:0);
+    const uid=on.uid();const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
     rows=dedupeRows(rows,uid);
     L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,r.id===uid)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
     const idx=rows.findIndex(r=>r.id===uid);
@@ -1288,10 +1491,12 @@ async function loadRank(){
       if(myS>0){const pos=await on.rank(board,myS);if(rkTab!==tabAt)return;mine.innerHTML=rowHTML({n:S.lb.name,c:S.lb.cc,s:myS},pos,true);mine.hidden=false}
       else{mine.innerHTML=`<div class="rempty sm">${t('rkNoScore')}</div>`;mine.hidden=false}
     }else if(idx===0&&board!=='all'){note.textContent=t('rkTop1Now')}
+    if(rkTab==='month'&&idx>=0){S.st.lastPos=idx+1;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,idx+1):idx+1}
     else{const me=L.querySelector('.me');me&&me.scrollIntoView({block:'center'})}
   }catch(e){if(rkTab===tabAt)L.innerHTML=`<div class="rempty">${t('rkOff')}</div>`}
 }
-document.querySelectorAll('.rtab').forEach(b=>b.onclick=()=>{rkTab=b.dataset.rt;renderRankHead();loadRank()});
+function setRankTab(k){rkTab=k;renderRankHead();loadRank()}
+document.querySelectorAll('.rtab').forEach(b=>b.onclick=()=>setRankTab(b.dataset.rt));
 $('openRank').onclick=openRank;$('oRank').onclick=openRank;
 $('closeRank').onclick=()=>{$('rank').hidden=true;rkBack==='over'?$('over').hidden=false:showMenu()};
 $('rkMe').onclick=()=>openProf();
@@ -1325,7 +1530,7 @@ async function onlineBoot(){const on=OL();if(!on)return;
   try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}
     const k=monthKey();if(S.lb.mk===k&&S.lb.ms>0&&!(await on.mine(k))){S.lb.ms=0;save()}
     if(S.lb.all===0||S.lb.ms===0)await syncScores()}catch(e){}
-  checkPrize()}
+  await checkPrize();await checkDailyPrize();await checkOvertakes();snapBelow();checkAch()}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);
 
 /* ================= DICAS, ONDAS E COMO JOGAR ================= */
@@ -1386,6 +1591,7 @@ async function clSignIn(interactive){const c=CL();if(!c)return false;
   let r=null;try{r=await c.signIn(interactive);clPlayer=r&&r.signedIn?(r.name||'Play Games'):null}catch(e){clPlayer=null;r={error:String(e&&e.message||e)}}
   if(interactive&&!clPlayer&&r&&r.error)toast(t('clErr',String(r.error).slice(0,90)));
   if(clPlayer&&r.name&&typeof setPlayName==='function')setPlayName(r.name);
+  if(clPlayer)try{pgsSyncAll()}catch(e){}
   clRender();return !!clPlayer}
 async function clSaveNow(manual){const c=CL();if(!c||clBusy)return;
   if(!clPlayer&&!(await clSignIn(manual))){if(manual)toast(t('clNeedSign'));return}
@@ -1445,6 +1651,7 @@ function frame(tt){
   const first=Math.max(0,stack.length-Math.ceil(H/BH)-2);
   const top=stack[stack.length-1];
   drawStack(first,(k,b)=>yOf(b.i)+bounce*(k/stack.length));
+  drawRival();
   if(moving&&(state==='play'||state==='menu'||state==='pause'||state==='ad')){
     const y=yOf(moving.i);
     // sombra do bloco sobre a torre
@@ -1470,7 +1677,7 @@ const tap=e=>{if(state!=='play')return;e.preventDefault();if(e.isPrimary===false
   if(run&&run.taps&&run.taps.length<3000)run.taps.push({t:n,x:Math.round(e.clientX),y:Math.round(e.clientY),tr:e.isTrusted!==false});drop()};
 cv.addEventListener('pointerdown',tap);
 addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(state==='play')drop();else if(state==='menu')startGame()}if(e.code==='Escape'){state==='play'?pauseGame():state==='pause'&&resumeGame()}});
-$('play').onclick=startGame;$('again').onclick=startGame;
+$('play').onclick=()=>{mode='normal';startGame()};$('again').onclick=()=>{if(mode==='daily')startDaily();else startGame()};
 
 /* ================= INTRO ================= */
 function runIntro(done){
@@ -1493,6 +1700,8 @@ if(N){
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
   N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend();cloudAuto()});
   N.onBack(()=>{
+    if(!$('ovt').hidden){$('ovtNo').click();return}
+    if(!$('pp').hidden){showMenu();return}
     if(!$('clAsk').hidden){$('clNo').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}

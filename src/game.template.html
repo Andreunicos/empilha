@@ -135,6 +135,28 @@
   .pack .big{font-family:"Bungee",Impact,sans-serif;font-size:28px;padding-block:16px;display:flex;justify-content:center;align-items:center;gap:4px}
   .pack .best{font-size:11px;font-weight:900;letter-spacing:.1em;color:#fff;background:var(--pink);border-radius:6px;padding:2px 6px;align-self:center}
   .note{font-size:12px!important;color:var(--muted);max-width:40ch;margin-inline:auto!important}
+  .btn.dlyb{background:linear-gradient(160deg,#39d0e6,#2a7fd6);color:#fff;box-shadow:0 5px 0 #1d5a9e;width:min(100%,320px);gap:8px}
+  .btn.dlyb svg{width:22px;height:22px;flex:none}.btn.dlyb small{font:900 12px "Nunito",sans-serif;background:rgba(0,0,0,.25);border-radius:99px;padding:2px 8px;letter-spacing:.02em}
+  .btn.dlyb.done{filter:saturate(.5) brightness(.85)}
+  .btn.share{background:linear-gradient(160deg,#4fe39a,#27b877);color:#08301d;box-shadow:0 5px 0 #1a8a55}.btn.share svg{width:18px;height:18px}
+  #dlyTag{font:900 12px "Nunito",sans-serif;letter-spacing:.14em;color:#7fe7ff;background:rgba(0,0,0,.35);border-radius:99px;padding:3px 12px;margin:0 auto 4px;width:max-content}
+  .tier{vertical-align:-3px;flex:none}
+  .rrow .tier{margin-right:6px}
+  .ppcard{width:100%;background:linear-gradient(160deg,#2a2356,#1b1640);border-radius:18px;padding:16px;display:flex;gap:14px;align-items:center;text-align:left;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
+  .ppcard .fl{font-size:44px;line-height:1}.ppcard .nm{font-family:"Bungee",Impact,sans-serif;font-size:21px;word-break:break-all}
+  .ppcard .tr{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;margin-top:4px}.ppcard .lv{font-size:13px;color:var(--muted);font-weight:800;margin-top:2px}
+  .ppgrid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ppgrid div{background:rgba(255,255,255,.06);border-radius:14px;padding:10px 12px;text-align:left}.ppgrid b{display:block;font-family:"Bungee",Impact,sans-serif;font-size:22px}.ppgrid span{font-size:12px;font-weight:800;color:var(--muted)}
+  .ppmed{width:100%;display:flex;flex-wrap:wrap;gap:8px}.ppmed .md{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:99px;padding:6px 12px 6px 6px;font-weight:900;font-size:13px}
+  .ppmed .md i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:"Bungee",Impact,sans-serif;font-size:13px;color:#1a1030}
+  .ppmed .none{color:var(--muted);font-size:13px;font-weight:700;text-align:left}
+  .ppach{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
+  .ach{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:14px;padding:8px 12px;text-align:left}
+  .ach img{width:46px;height:46px;border-radius:12px;flex:none}.ach.lock img{filter:grayscale(1) brightness(.55)}.ach.lock{opacity:.8}
+  .ach b{display:block;font-size:14px}.ach span{font-size:12px;color:var(--muted);font-weight:700}.ach .bar{margin-top:5px;height:6px}
+  .ovtic{font-size:56px;animation:pop .7s ease-in-out infinite alternate}
+  .ovtlist{display:flex;flex-direction:column;gap:6px;width:min(100%,320px)}.ovtlist div{background:rgba(255,255,255,.07);border-radius:12px;padding:8px 12px;font-weight:900;display:flex;gap:8px;align-items:center}
+  .ovtlist b{margin-left:auto;font-family:"Bungee",Impact,sans-serif}
   .sec{width:100%;text-align:left;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
   .days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:100%}
   .day{background:var(--card);border-radius:10px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:900;color:var(--muted);border:2px solid transparent}
@@ -249,7 +271,7 @@
   <div class="wallet"><span class="pill" id="pCoins"><i class="coin"></i><span id="wCoins">0</span></span><span class="pill" id="pGems"><i class="gem"></i><span id="wGems">0</span></span></div>
   <button class="icon-btn" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="icon-btn" id="pauseBtn" aria-label="Pausa" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg></button>
-  <div class="hud" id="hud" hidden><div id="score">0</div><div id="combo"></div><div id="pw"></div></div>
+  <div class="hud" id="hud" hidden><div id="dlyTag" hidden data-t="dlyTag"></div><div id="score">0</div><div id="combo"></div><div id="pw"></div></div>
   <div id="hint" hidden data-t="hint"></div>
   <div id="abar" hidden>
     <button class="ab a-magnet" data-a="magnet" aria-label="Ímã"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 4v8a6 6 0 0 0 12 0V4"/><path d="M6 4v3M18 4v3" stroke="#ffe8a0" stroke-width="3.4"/></svg><span class="bd"></span><span class="lbl" data-t="a_magnet"></span></button>
@@ -264,7 +286,8 @@
     <p data-t="tagline"></p>
     <div class="lvl"><div class="badge" id="mLvl">1</div><div class="info"><div class="t"><span data-t="level" style="color:var(--ink)"></span><span id="mXp">0/90 XP</span></div><div class="bar"><i id="mBar" style="width:0"></i></div></div></div>
     <button class="btn play" id="play" data-t="play"></button>
-    <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button></div>
+    <button class="btn dlyb sm" id="openDaily"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M12 12.3l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="currentColor"/></svg><span data-t="dlyB"></span><small id="dlyLeft"></small></button>
+    <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button><button class="btn alt sm" id="openPP" data-t="ppB"></button></div>
     <button class="btn rankb sm" id="openRank"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg><span data-t="rankBtn"></span></button>
     <button class="link help-link" id="openHelp"><span class="q">?</span><span data-t="howTo"></span></button>
     <p id="bestMenu"></p>
@@ -295,7 +318,9 @@
     <div class="up" id="oUp" hidden></div>
     <button class="orank" id="oRank" hidden></button>
     <div class="up" id="oMis" hidden style="background:linear-gradient(160deg,#27b877,#1f9c62)"></div>
+    <div class="up" id="oDly" hidden style="background:linear-gradient(160deg,#2bb3c9,#2a7fd6)"></div>
     <button class="btn play" id="again" data-t="again"></button>
+    <button class="btn sm share" id="overShare"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.6 10.7l6.8-4M8.6 13.3l6.8 4" stroke="currentColor" stroke-width="2.2"/></svg><span data-t="shareB"></span></button>
     <div class="row"><button class="btn alt sm" id="overMenu" data-t="menu"></button><button class="btn alt sm" id="overShop" data-t="shop"></button></div>
   </div></div>
 
@@ -318,7 +343,7 @@
   <div class="panel full" id="rank" hidden><div class="inner">
     <div class="top"><h2 data-t="rankT"></h2><button class="btn alt sm" id="closeRank" data-t="back"></button></div>
     <button class="rme-btn" id="rkMe"><span class="fl" id="rkFlag"></span><span class="nm" id="rkName"></span><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg></button>
-    <div class="tabs"><button class="rtab" data-rt="month" data-t="rkMonth"></button><button class="rtab" data-rt="all" data-t="rkAll"></button></div>
+    <div class="tabs"><button class="rtab" data-rt="day" data-t="rkDay"></button><button class="rtab" data-rt="month" data-t="rkMonth"></button><button class="rtab" data-rt="all" data-t="rkAll"></button></div>
     <div class="rprize" id="rkPrize"></div>
     <div class="rlist" id="rkList"></div>
     <div class="rlist mine" id="rkMine" hidden></div>
@@ -336,6 +361,21 @@
     <div class="cclist" id="pfList" hidden></div>
     <button class="btn okb" id="pfSave" data-t="save"></button>
     <button class="link" id="pfCancel" data-t="cancel"></button>
+  </div></div>
+
+  <div class="panel full" id="pp" hidden><div class="inner">
+    <div class="top"><h2 data-t="ppT"></h2><button class="btn alt sm" id="closePP" data-t="back"></button></div>
+    <div class="ppcard" id="ppHead"></div>
+    <div class="row"><button class="btn sm share" id="ppShare"><span data-t="shareB"></span></button><button class="btn sm alt" id="ppPG" hidden data-t="pgAch"></button></div>
+    <div class="sec" data-t="ppStats"></div><div class="ppgrid" id="ppStats"></div>
+    <div class="sec" data-t="ppMedals"></div><div class="ppmed" id="ppMed"></div>
+    <div class="sec" data-t="ppAch"></div><div class="ppach" id="ppAch"></div>
+  </div></div>
+
+  <div class="panel" id="ovt" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
+    <div class="ovtic">⚔️</div>
+    <h2 class="gold" data-t="ovtT"></h2><div class="ovtlist" id="ovtList"></div><p id="ovtP"></p>
+    <button class="btn play" id="ovtGo" data-t="ovtGo"></button><button class="link" id="ovtNo" data-t="later"></button>
   </div></div>
 
   <div class="panel" id="rkWin" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
@@ -592,21 +632,22 @@ const hazard=()=>worldOf(score)>=1; // cidade não tem perigo; nuvens, aurora e 
 const RANDOM_POWERS=['slow','magnet','wide','x2'];
 // bônus grátis: durante vento/velocidade/ondas o LENTO fica bem mais raro (10% em vez de 25%)
 function pickBonus(){const unstable=hazard()&&!(P&&P.calm>0);const w={slow:unstable?1:3,magnet:3,wide:3,x2:3};
-  let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=Math.random()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
+  let tot=0;for(const k of RANDOM_POWERS)tot+=w[k];let r=rnd()*tot;for(const k of RANDOM_POWERS){r-=w[k];if(r<0)return k}return 'x2'}
+let mode='normal',rnd=Math.random;
 let run,P,nextPower,windDir=1,videoUsed=false,gemRevives=0,revTimer=null;
 const POWERS={slow:{col:'#7fd1ff',n:6},magnet:{col:'#ff5d8f',n:3},wide:{col:'#4fe39a',n:0},x2:{col:'#ffc23d',n:10},calm:{col:'#b9a3ff',n:15}};
 const ABIL={magnet:{price:900,n:3},slow:{price:600,n:8},wide:{price:750,n:0},calm:{price:500,n:15}};
 function reset(){
-  hue0=Math.random()*360;const w=W*BASEW;
+  rnd=mode==='daily'?mulberry(seedOf(dayKey())):Math.random;hue0=rnd()*360;const w=W*BASEW;
   stack=[{x:(W-w)/2,w,i:0,t0:-1e9}];debris=[];parts=[];floats=[];rings=[];cam=0;camT=0;score=0;combo=0;perfects=0;maxCombo=0;speed=SPEED0*.62;shake=0;flash=0;skyF=0;
-  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{},taps:[],errs:[],play:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(Math.random()*4|0);
+  run={blocks:0,perf:0,chest:0,gems:0,powers:0,chests:0,vid:{},taps:[],errs:[],play:0};P={slow:0,magnet:0,x2:0,calm:0};nextPower=6+(rnd()*4|0);
   videoUsed=false;gemRevives=0;renderPw();spawn();
 }
 function spawn(){
   const top=stack[stack.length-1];const dir=stack.length%2?1:-1;
-  moving={w:top.w,x:dir>0?-top.w:W,dir,i:stack.length,v:.75+Math.random()*.6,pw:null};
-  if(state==='play'&&score>=nextPower){moving.pw=pickBonus();nextPower=score+8+(Math.random()*6|0);tip('bonus',t('tipBonus'),'mid')}
-  windDir=Math.random()<.5?-1:1;
+  moving={w:top.w,x:dir>0?-top.w:W,dir,i:stack.length,v:.75+rnd()*.6,pw:null};
+  if(state==='play'&&score>=nextPower){moving.pw=pickBonus();nextPower=score+8+(rnd()*6|0);tip('bonus',t('tipBonus'),'mid')}
+  windDir=rnd()<.5?-1:1;
 }
 function yOf(i){return H-190-i*BH+cam}
 function addFloat(x,y,txt,col,size=18){const near=floats.filter(f=>f.l>.75&&Math.abs(f.y-y)<22).length;floats.push({x,y:y-near*24,txt,col,l:1,size})}
@@ -649,10 +690,10 @@ function drop(){
   addFloat(nx+nw/2,yOf(m.i)-6,'+'+gain,gain>1?'#ffc23d':'#fff7e8');
   stack.push({x:nx,w:nw,i:m.i,t0:tNow});landT=tNow;
   if(m.grew){addFloat(nx+nw/2,yOf(m.i)-54,t('grew'),'#4fe39a',17);rings.push({x:nx,y:yOf(m.i),w:nw,t0:tNow+90,i:m.i});tip('grow',t('tipGrow'),'mid')}
-  score++;setScore();
+  score++;setScore();rivalStep();
   const wd=worldOf(score);
   speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
-  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(Math.random()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
+  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(rnd()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
   if([25,50,100].includes(score))setTimeout(()=>tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar'),2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
@@ -700,7 +741,7 @@ $('pauseSet').onclick=()=>openSettings('pause');
 const gemCost=()=>10*(gemRevives+1);
 function lose(){
   state='revive';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;const canVideo=!videoUsed,canGem=gemRevives<2;
-  if(score<3||(!canVideo&&!canGem)){setTimeout(finish,700);return}
+  if(score<3||(!canVideo&&!canGem)||mode==='daily'){setTimeout(finish,700);return}
   setTimeout(()=>{
     $('revTxt').textContent=t('revTxt',score);$('revVideo').hidden=!canVideo;$('revGem').hidden=!canGem;$('revGemCost').textContent=gemCost();
     $('revive').hidden=false;const st=performance.now();$('revCount').textContent=5;$('ringArc').style.strokeDashoffset=0;
@@ -782,9 +823,10 @@ function finish(){
   if(state==='over')return;
   state='over';P={slow:0,magnet:0,x2:0,calm:0};renderPw();$('pauseBtn').hidden=true;$('hud').hidden=true;$('abar').hidden=true;
   const endBonus=Math.floor(score/2);const total=run.blocks+run.perf+run.chest+endBonus;
-  const isNew=score>S.best&&score>0;if(isNew)S.best=score;
+  const isNew=mode!=='daily'&&score>S.best&&score>0;if(isNew)S.best=score;
   const mult=isNew?2:1,final=total*mult;
   const before=S.coins;S.coins+=final;S.gems+=run.gems;
+  trackStats();
   const xp=score+perfects*2;const lvBefore=S.lvl;const ups=addXP(xp);const doneM=trackMissions(final);save();
   $('fScore').textContent=score;$('fBest').textContent=S.best;$('newRec').hidden=!isNew;
   const rows=[[t('e_blocks'),'+'+run.blocks],[t('e_perf'),'+'+run.perf]];if(run.chest)rows.push([t('e_chest'),'+'+run.chest]);rows.push([t('e_end'),'+'+endBonus]);
@@ -792,14 +834,14 @@ function finish(){
   $('oXpGain').textContent=`+${xp} XP`;$('oLvl').textContent=lvBefore;$('oBar').style.width='0%';setTimeout(()=>lvlUI('oLvl','oXp','oBar'),350);
   $('oUp').hidden=!ups.length;if(ups.length){const u=ups[ups.length-1];$('oUp').innerHTML=t('lvlUp',u.lvl,ups.reduce((a,r)=>a+r.coins,0))+(ups.some(r=>r.gems)?t('andGems'):'')+ups.filter(r=>r.skin).map(r=>'<br>'+t('newSkin',r.skin)).join('');setTimeout(()=>sfx.fanfare(),700)}
   $('oMis').hidden=!doneM.length;if(doneM.length)$('oMis').innerHTML=t('misDone')+doneM.join(' · ')+'<br>'+t('claimIn');
-  $('over').hidden=false;$('gear').hidden=false;rankAfterRun(score);cloudAuto();
+  $('over').hidden=false;$('gear').hidden=false;if(mode==='daily')dailyAfterRun(score);else rankAfterRun(score);overExtras();cloudAuto();checkAch();
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
-function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help'].forEach(p=>$(p).hidden=true)}
-function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=false;renderAbar();$('hint').hidden=S.best>=5;lastT=performance.now();sfx.whoosh()}
-function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot()}
-function showMenu(){hideAll();state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
+function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt'].forEach(p=>$(p).hidden=true)}
+function startGame(){setTimeout(()=>{if(state==='play')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
+function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
+function showMenu(){hideAll();mode='normal';$('dlyTag').hidden=true;state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
 function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let i=0;
   el.classList.remove('idle');el.innerHTML=['BIG','STACK'].map(w=>`<span class="ln">${[...w].map(ch=>`<i style="--i:${i};background:${cols[(i++)%cols.length]}">${ch}</i>`).join('')}</span>`).join('');
   clearTimeout(buildLogo.t);buildLogo.t=setTimeout(()=>el.classList.add('idle'),1200)}
@@ -880,6 +922,7 @@ function drawPreviews(){
 }
 
 //@@SECURE@@
+//@@COMPETE@@
 //@@RANK@@
 //@@HELP@@
 //@@CLOUD@@
@@ -907,6 +950,7 @@ function frame(tt){
   const first=Math.max(0,stack.length-Math.ceil(H/BH)-2);
   const top=stack[stack.length-1];
   drawStack(first,(k,b)=>yOf(b.i)+bounce*(k/stack.length));
+  drawRival();
   if(moving&&(state==='play'||state==='menu'||state==='pause'||state==='ad')){
     const y=yOf(moving.i);
     // sombra do bloco sobre a torre
@@ -932,7 +976,7 @@ const tap=e=>{if(state!=='play')return;e.preventDefault();if(e.isPrimary===false
   if(run&&run.taps&&run.taps.length<3000)run.taps.push({t:n,x:Math.round(e.clientX),y:Math.round(e.clientY),tr:e.isTrusted!==false});drop()};
 cv.addEventListener('pointerdown',tap);
 addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(state==='play')drop();else if(state==='menu')startGame()}if(e.code==='Escape'){state==='play'?pauseGame():state==='pause'&&resumeGame()}});
-$('play').onclick=startGame;$('again').onclick=startGame;
+$('play').onclick=()=>{mode='normal';startGame()};$('again').onclick=()=>{if(mode==='daily')startDaily();else startGame()};
 
 /* ================= INTRO ================= */
 function runIntro(done){
@@ -955,6 +999,8 @@ if(N){
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
   N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();A.ctx&&A.ctx.suspend();cloudAuto()});
   N.onBack(()=>{
+    if(!$('ovt').hidden){$('ovtNo').click();return}
+    if(!$('pp').hidden){showMenu();return}
     if(!$('clAsk').hidden){$('clNo').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}

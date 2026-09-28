@@ -2,6 +2,8 @@
 // É empacotado pelo esbuild em www/native.js (npm run build).
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
 import { AdMob, RewardAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
@@ -105,6 +107,17 @@ window.Native = {
     save: (data, description) => PlayGamesSave.save({ data, description: description || '' }),
     load: () => PlayGamesSave.load({}),
   } : null,
+  // conquistas do Google Play Games
+  games: isNative ? {
+    unlock: (id) => PlayGamesSave.unlock({ id }).catch(() => {}),
+    showAchievements: () => PlayGamesSave.showAchievements({}),
+  } : null,
+  // compartilhar a imagem do recorde (WhatsApp etc.)
+  async share(dataUrl, text) {
+    if (!isNative) throw new Error('web');
+    const f = await Filesystem.writeFile({ path: 'bigstack-recorde.png', data: dataUrl.split(',')[1], directory: Directory.Cache });
+    await Share.share({ text, files: [f.uri], dialogTitle: 'Big Stack' });
+  },
   async prefGet(k) { if (!isNative) return null; try { const r = await Preferences.get({ key: k }); return r.value; } catch (e) { return null; } },
 };
 window.dispatchEvent(new Event('native-ready'));

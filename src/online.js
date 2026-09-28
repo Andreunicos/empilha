@@ -71,6 +71,18 @@ window.Online = {
     const t = Date.parse(r.issuedAtTime);
     return Number.isFinite(t) ? t : null;
   },
+  // próximos jogadores acima de uma pontuação (pra linha do rival)
+  async above(board, s, n = 10) {
+    await ensureUser();
+    const snap = await withTimeout(getDocs(query(collection(db, board), where('s', '>', s), orderBy('s', 'asc'), limit(n))));
+    return snap.docs.map(rowOf);
+  },
+  // jogadores logo abaixo (ou empatados) — pra avisar quando alguém te passar
+  async below(board, s, n = 6) {
+    await ensureUser();
+    const snap = await withTimeout(getDocs(query(collection(db, board), where('s', '<=', s), orderBy('s', 'desc'), limit(n))));
+    return snap.docs.map(rowOf);
+  },
   async mine(board) {
     const u = await ensureUser();
     const d = await withTimeout(getDoc(doc(db, board, u.uid)));

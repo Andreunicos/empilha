@@ -48,34 +48,39 @@ function rankAfterRun(sc){
   if(sc>(S.lb.rb||0))S.lb.rb=sc;trackMonth(sc);
   const on=OL();if(!on||sc<=0)return;
   syncScores().then(async()=>{
+    if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}RV.t=0;
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
     try{const [rm,ra]=await Promise.all([on.rank(k,ms),S.lb.all?on.rank('all',S.lb.all):Promise.resolve(0)]);if($('over').hidden)return;
-      el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
+      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
   });
 }
 
 /* ---- prêmio do mês passado ---- */
+const MPRIZE=[50,30,20,10,10,10,10,10,10,10];
 async function checkPrize(){
   const on=OL();if(!on)return;const pk=prevMonthKey();if(S.lb.chk===pk)return;
-  try{const top=await on.top(pk,1);S.lb.chk=pk;
-    if(top[0]&&top[0].id===on.uid()&&top[0].s>0&&!S.lb.won[pk]){S.lb.won[pk]=true;S.gems+=50;save();wallet();showPrizeWin(pk)}
+  try{let top=await on.top(pk,15);S.lb.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
+    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();showPrizeWin(pk,idx+1,g)}
     save()}catch(e){}
 }
 function monthLabel(k){const m=/m_(\d{4})_(\d{2})/.exec(k);if(!m)return '';return new Date(Date.UTC(+m[1],+m[2]-1,15)).toLocaleDateString({pt:'pt-BR',en:'en-US',es:'es-ES'}[LANG],{month:'long',year:'numeric',timeZone:'UTC'})}
-function showPrizeWin(pk){$('rkWinP').textContent=t('rkWinP',monthLabel(pk));$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
+function showPrizeWin(pk,pos=1,g=50){$('rkWin').querySelector('h2').textContent=t(pos===1?'rkWinT':pos<=3?'rkWinT3':'rkWinT10');$('rkWinP').innerHTML=esc(pos===1?t('rkWinP',monthLabel(pk)):t('rkWinPn',pos,monthLabel(pk)))+`<br><b style="font-size:24px"><i class="gem"></i>+${g}</b>`;$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
 $('rkWinOk').onclick=()=>{$('rkWin').hidden=true;sfx.coin()};
 
 /* ---- tela do ranking ---- */
 let rkTab='month',rkBack='menu',rkCache={};
-function fmtLeft(){const ms=monthEndMs()-Date.now();const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);return d>0?t('dLeft',d,h):t('hLeft',h,mi)}
+function fmtLeft(){return fmtLeftTo(monthEndMs())}
+function fmtLeftTo(end){const ms=end-Date.now();const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);return d>0?t('dLeft',d,h):t('hLeft',h,mi)}
 function renderRankHead(){
   $('rkFlag').textContent=flag(S.lb.cc);$('rkName').textContent=S.lb.name;
   document.querySelectorAll('.rtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.rt===rkTab));
-  $('rkPrize').hidden=rkTab!=='month';
-  $('rkPrize').innerHTML=`<svg viewBox="0 0 24 24" class="tro"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="#ffc23d"/></svg><span>${t('rkPrize')} <b><i class="gem"></i>50</b></span><small>${t('rkEnds',fmtLeft())}</small>`;
+  $('rkPrize').hidden=rkTab==='all';const tro=`<svg viewBox="0 0 24 24" class="tro"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="#ffc23d"/></svg>`;
+  $('rkPrize').innerHTML=rkTab==='day'
+    ?`${tro}<span>${t('rkDayPrize')} <b>🥇<i class="gem"></i>10 · 🥈6 · 🥉4</b></span><small>${t('rkEnds',fmtLeftTo(dayEndMs()))} · ${t('dlyRule')}</small>`
+    :`${tro}<span>${t('rkPrize2')} <b>🥇<i class="gem"></i>50 · 🥈30 · 🥉20</b></span><small>${t('rkTop10')} · ${t('rkEnds',fmtLeft())}</small>`;
 }
 function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidden=false;renderRankHead();loadRank();if(!S.lb.edited)setTimeout(()=>{if(!$('rank').hidden&&!S.lb.edited)openProf()},500)}
-function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span><span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
+function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span>${tierSVG(tierOf(r.s),17)}<span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
 // mesmo jogador com 2 entradas (ex.: reinstalou o app e ganhou outro ID): mostra só a melhor.
 // As suas entradas antigas somem e fica só a atual.
 function dedupeRows(rows,uid){const key=r=>String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
@@ -85,7 +90,7 @@ async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
   if(!on){L.innerHTML=`<div class="rempty">${t(window.Online&&!window.Online.configured?'rkSoon':'rkOff')}</div>`;return}
-  const board=rkTab==='month'?monthKey():'all',tabAt=rkTab;
+  const board=rkTab==='month'?monthKey():rkTab==='day'?dayKey():'all',tabAt=rkTab;
   const c=rkCache[board];
   if(!c||Date.now()-c.t>60000)L.innerHTML=`<div class="rempty"><span class="spin"></span>${t('rkLoading')}</div>`;
   try{
@@ -93,7 +98,7 @@ async function loadRank(){
     let rows=c&&Date.now()-c.t<60000?c.rows:null;
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
-    const uid=on.uid();const myS=board==='all'?S.lb.all:(S.lb.mk===board?S.lb.ms:0);
+    const uid=on.uid();const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
     rows=dedupeRows(rows,uid);
     L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,r.id===uid)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
     const idx=rows.findIndex(r=>r.id===uid);
@@ -101,10 +106,12 @@ async function loadRank(){
       if(myS>0){const pos=await on.rank(board,myS);if(rkTab!==tabAt)return;mine.innerHTML=rowHTML({n:S.lb.name,c:S.lb.cc,s:myS},pos,true);mine.hidden=false}
       else{mine.innerHTML=`<div class="rempty sm">${t('rkNoScore')}</div>`;mine.hidden=false}
     }else if(idx===0&&board!=='all'){note.textContent=t('rkTop1Now')}
+    if(rkTab==='month'&&idx>=0){S.st.lastPos=idx+1;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,idx+1):idx+1}
     else{const me=L.querySelector('.me');me&&me.scrollIntoView({block:'center'})}
   }catch(e){if(rkTab===tabAt)L.innerHTML=`<div class="rempty">${t('rkOff')}</div>`}
 }
-document.querySelectorAll('.rtab').forEach(b=>b.onclick=()=>{rkTab=b.dataset.rt;renderRankHead();loadRank()});
+function setRankTab(k){rkTab=k;renderRankHead();loadRank()}
+document.querySelectorAll('.rtab').forEach(b=>b.onclick=()=>setRankTab(b.dataset.rt));
 $('openRank').onclick=openRank;$('oRank').onclick=openRank;
 $('closeRank').onclick=()=>{$('rank').hidden=true;rkBack==='over'?$('over').hidden=false:showMenu()};
 $('rkMe').onclick=()=>openProf();
@@ -138,5 +145,5 @@ async function onlineBoot(){const on=OL();if(!on)return;
   try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}
     const k=monthKey();if(S.lb.mk===k&&S.lb.ms>0&&!(await on.mine(k))){S.lb.ms=0;save()}
     if(S.lb.all===0||S.lb.ms===0)await syncScores()}catch(e){}
-  checkPrize()}
+  await checkPrize();await checkDailyPrize();await checkOvertakes();snapBelow();checkAch()}
 if(window.Online)onlineBoot();else addEventListener('online-ready',onlineBoot);
