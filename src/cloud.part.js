@@ -4,7 +4,7 @@ const CL=()=>window.Native&&window.Native.isNative&&window.Native.cloud?window.N
 let clPlayer=null,clLast=0,clBusy=false,clBootDone=false,clCloudProg=null;
 // "tamanho" do progresso (nível e XP só aumentam jogando) — usado pra nunca salvar por cima de um progresso maior
 const progOf=s=>(s.lvl||1)*1e6+(s.xp||0);
-function clPayload(){save();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
+function clPayload(){saveNow();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
 function clParse(txt){try{const o=JSON.parse(txt||'');if(!o||!o.d||!o.h||SEAL(o.d)!==o.h)return null;const s=JSON.parse(o.d);return {o,s}}catch(e){return null}}
 function clDesc(s){return t('clDesc',s.lvl||1,s.best||0)}
 function clRender(){const box=$('cloudBox');if(!box)return;const c=CL();box.hidden=!c;if(!c)return;

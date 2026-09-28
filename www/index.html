@@ -508,7 +508,10 @@ let S;try{S=Object.assign({},DEF,loadSave())}catch(e){S=JSON.parse(JSON.stringif
 const BOOT_CLK=S.clk||0;
 S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});for(const k in S.inv)S.inv[k]=fixNum(S.inv[k],0,999);if(!Array.isArray(S.owned))S.owned=['classic'];
 let restoring=false; // restaurando save da nuvem: não grava mais nada até recarregar
-const save=()=>{if(restoring)return;try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);localStorage.setItem('empilha_sealed','1');mirrorSave(d,h)}catch(e){}};
+// durante a partida o save espera um respiro (vários viram 1 só e não pesam no meio da jogada); fora dela grava na hora
+let saveT=0;const inPlay=()=>{try{return state==='play'}catch(e){return false}};const save=()=>{if(restoring)return;if(inPlay()){if(!saveT)saveT=setTimeout(saveNow,1200);return}saveNow()};
+function saveFlush(){if(saveT){clearTimeout(saveT);saveNow()}}
+const saveNow=()=>{clearTimeout(saveT);saveT=0;if(restoring)return;try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);localStorage.setItem('empilha_sealed','1');mirrorSave(d,h)}catch(e){}};
 // espelho no armazenamento nativo (backup automático do Google): gravado no máximo a cada 3 s
 let mirT=0,mirD=null,mirReady=false;function mirrorSave(d,h){const NN=window.Native;if(!NN||!NN.isNative||!NN.prefSet)return;mirD=[d,h];if(mirT||!mirReady)return;mirT=setTimeout(()=>{mirT=0;const [dd,hh]=mirD;NN.prefSet('bs_save',dd);NN.prefSet('bs_sig',hh)},3000)}
 // grava o espelho na hora (app indo pro fundo pode ser fechado pelo Android)
@@ -658,9 +661,10 @@ function playStep(s,t0,e){
 function unlockAudio(){audioInit();if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().then(()=>{if(S.settings.music)musicStart()});else if(S.settings.music)musicStart()}
 document.addEventListener('pointerdown',unlockAudio,{capture:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))sfx.ui()},{capture:true});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror()}else{if(A.ctx)A.ctx.resume();if(state==='revive'&&!$('revive').hidden)revCountdown(Math.max(2,revLeft));onResumeOnline()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){saveFlush();if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror()}else{if(A.ctx)A.ctx.resume();if(state==='revive'&&!$('revive').hidden)revCountdown(Math.max(2,revLeft));onResumeOnline()}});
 const buzz=ms=>{if(!S.settings.vib)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
-function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;void el.offsetWidth;el.textContent=s;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
+// (reinicia a animação no próximo quadro em vez de forçar o navegador a recalcular a página inteira na hora)
+function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;el.textContent=s;requestAnimationFrame(()=>{el.hidden=false});clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
 function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${sub}</small><span>${txt}</span></div>`}
 function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150)}
 
@@ -704,9 +708,12 @@ const SKINS=[
 let SKM=null,SKMn=0;const skinOf=id=>{if(!SKM||SKMn!==SKINS.length){SKM=new Map(SKINS.map(s=>[s.id,s]));SKMn=SKINS.length}return SKM.get(id)||SKINS[0]};
 function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
 
-/* ---- desempenho: cada bloco da torre vira uma imagem pronta (desenhar imagem é muito mais leve que redesenhar a skin).
-   Skins paradas: desenha 1 vez e reaproveita. Skins "divididas" (base + brilho): a base fica pronta e só o brilho é desenhado.
-   Skins animadas simples: desenhadas normalmente. Blocos fora da tela não são desenhados. ---- */
+/* ---- desempenho: a torre mora numa "folha" (uma imagem só, uma faixa por andar, em rodízio) ----
+   - Skins paradas: cada bloco é desenhado 1 vez na folha e depois só copiado.
+   - Skins "divididas" (base + brilho): a base fica pronta numa 2ª folha; o brilho é redesenhado em rodízio.
+   - Skins animadas: redesenhadas em rodízio (metade dos blocos por frame → animação a 30 fps, torre a 60).
+   Tudo sai da mesma imagem: o celular desenha a torre inteira quase de uma vez e nenhum "canvas" novo é criado
+   a cada bloco (criar canvas no meio da partida causava pequenos engasgos). Blocos fora da tela não são desenhados. ---- */
 const BC={id:null,dpr:0,w:0,mode:'live'};
 function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=document.createElement('canvas');cv.width=PW;cv.height=BH;const c=cv.getContext('2d',{willReadFrequently:true});const t0=tNow;
   const snap=t=>{tNow=t;c.clearRect(0,0,PW,BH);block(0,0,PW,3,1,c,sk);return c.getImageData(0,0,PW,BH).data};
@@ -714,44 +721,33 @@ function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=docume
   let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k++)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
   tNow=t0;return {anim}}
 function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR&&BC.w===W)return;const pr=sk.fx?{anim:true}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.w=W;
-  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;
-  for(const b of (typeof stack!=='undefined'?stack:[]))b.cv=null}
-function bcRender(b){const sk=BC.sk||skinOf(S.skin);const pw=Math.ceil(b.w*DPR)+2,ph=Math.ceil(BH*DPR)+1;let cv=b.cv;if(!cv||cv.width!==pw||cv.height!==ph){cv=document.createElement('canvas');cv.width=pw;cv.height=ph;b.cv=cv}
-  const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,ph);c.setTransform(DPR,0,0,DPR,-b.x*DPR,0);
-  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvX=b.x;b.cvW=b.w}
-// desenha a torre visível (first..fim) usando o cache
-function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live',split=BC.mode==='split';
-  if(live||split)drawStackAnim(first,yFor,sk,live);
-  else for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
-    if(age<260){squash(b,y,age);continue}
-    // bloco mudou de tamanho/lugar (poder Largo, reviver): refaz a imagem
-    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR)}
-  // libera memória dos blocos que já saíram da tela
-  for(let k=Math.max(0,first-6);k<first;k++)stack[k].cv=null}
+  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;TL.gen++}
 // bloco que acabou de cair (efeito de amassar): desenhado na hora
 function squash(b,y,age){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}
-/* ---- skins animadas: "folha da torre" ----
-   Os blocos visíveis ficam numa imagem só (uma faixa por andar, em rodízio). A cada frame só METADE dos blocos tem a
-   animação redesenhada (alternando), e a torre inteira é copiada dessa folha. Cada bloco continua animando (30 fps),
-   a torre anda a 60 e o celular faz metade do trabalho. Em aparelho fraco (qualidade baixa), 1/3 por frame. ---- */
-const TL={cv:null,c:null,sh:0,ns:0,pw:0,own:[],dpr:0,id:null,f:0};
-function drawStackAnim(first,yFor,sk,live){
-  const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Math.ceil(W*DPR)+4,r=sk.r??5;
+const TL={cv:null,c:null,bcv:null,bc:null,sh:0,ns:0,pw:0,own:[],key:'',gen:1,f:0,N:0};
+function tlEnsure(split){const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Math.ceil(W*DPR)+4,k=pw+'x'+sh*ns+'_'+DPR+'_'+TL.gen;
   if(!TL.cv){TL.cv=document.createElement('canvas');TL.c=TL.cv.getContext('2d')}
-  if(TL.cv.width!==pw||TL.cv.height!==sh*ns||TL.id!==BC.id||TL.dpr!==DPR){TL.cv.width=pw;TL.cv.height=sh*ns;TL.sh=sh;TL.ns=ns;TL.pw=pw;TL.own=new Array(ns);TL.id=BC.id;TL.dpr=DPR}
-  const c=TL.c,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
-  // 1º passo: redesenha na folha os blocos da vez (todos de uma vez; se misturar desenhar e copiar, o navegador
-  // precisa duplicar a folha inteira a cada bloco)
-  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260)continue;
-    const s=k%ns,sy=s*sh,o=TL.own[s];
-    if(!o||o.b!==b||o.x!==b.x||o.w!==b.w||(k+f)%N===0){
-      c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,pw,sh);c.setTransform(DPR,0,0,DPR,2,sy+1);
-      if(live)block(b.x,0,b.w,b.i,1,c,sk);
-      else{if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);c.drawImage(b.cv,b.x,0,b.cv.width/DPR,b.cv.height/DPR);if(b.w>.5){c.save();rr(c,b.x,0,b.w,BH,r);c.clip();sk.fx(c,b.x,0,b.w,b.i);c.restore()}}
-      if(o){o.b=b;o.x=b.x;o.w=b.w}else TL.own[s]={b,x:b.x,w:b.w}}}
-  // 2º passo: copia a torre da folha pra tela
+  if(split&&!TL.bcv){TL.bcv=document.createElement('canvas');TL.bc=TL.bcv.getContext('2d');TL.key=''}
+  if(TL.key!==k){TL.key=k;TL.sh=sh;TL.ns=ns;TL.pw=pw;TL.own=new Array(ns);TL.cv.width=pw;TL.cv.height=sh*ns;if(TL.bcv){TL.bcv.width=pw;TL.bcv.height=sh*ns}}
+  if(!split&&TL.bcv){TL.bcv.width=TL.bcv.height=1;TL.bcv=TL.bc=null}}
+// desenha um bloco inteiro (ou só a base/o brilho) na faixa sy de uma folha
+function tlPaint(c,sy,b,fn,sk){c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,TL.pw,TL.sh);c.setTransform(DPR,0,0,DPR,2,sy+1);c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();fn.call(sk,c,b.x,0,b.w,b.i);c.restore()}
+// desenha a torre visível (first..fim)
+function drawStack(first,yFor){bcSync();const sk=BC.sk,mode=BC.mode,split=mode==='split',anim=mode!=='cache';tlEnsure(split);
+  const c=TL.c,ns=TL.ns,sh=TL.sh,pw=TL.pw,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
+  // 1º passo: descobre o que precisa redesenhar (e refaz as bases das skins divididas)
+  // (tudo antes de copiar: misturar desenhar e copiar obriga o navegador a duplicar a folha)
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260||b.w<=.5)continue;
+    const s=k%ns,o=TL.own[s],stale=!o||o.b!==b||o.x!==b.x||o.w!==b.w;
+    if(stale){if(o){o.b=b;o.x=b.x;o.w=b.w}else TL.own[s]={b,x:b.x,w:b.w};if(split)tlPaint(TL.bc,s*sh,b,sk.base,sk)}
+    b.rf=stale||(anim&&(k+f)%N===0)?f:0}
+  // 2º passo: redesenha na folha os blocos da vez
+  for(let k=first;k<n;k++){const b=stack[k];if(b.rf!==f)continue;const sy=(k%ns)*sh;
+    if(split){c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,pw,sh);c.drawImage(TL.bcv,0,sy,pw,sh,0,sy,pw,sh);c.setTransform(DPR,0,0,DPR,2,sy+1);c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();sk.fx(c,b.x,0,b.w,b.i);c.restore()}
+    else tlPaint(c,sy,b,sk.draw,sk)}
+  // 3º passo: copia a torre da folha pra tela
   for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
-    if(age<260){squash(b,y,age);continue}
+    if(age<260){squash(b,y,age);continue}if(b.w<=.5)continue;
     const sy=(k%ns)*sh,sx=Math.max(0,Math.floor(b.x*DPR)),sw=Math.min(pw,Math.ceil((b.x+b.w)*DPR)+4)-sx;
     if(sw>0)ctx.drawImage(TL.cv,sx,sy,sw,sh,(sx-2)/DPR,y-1/DPR,sw/DPR,sh/DPR)}}
 
@@ -1421,8 +1417,10 @@ let NS=null;function nebSprite(){const sc=Math.max(.35,(BG.s||1)*.5),k=W+'_'+H+'
   for(const b of bl){const g=c.createRadialGradient(b.cx,b.cy,0,b.cx,b.cy,b.R);g.addColorStop(0,`rgba(${b.c},.32)`);g.addColorStop(1,`rgba(${b.c},0)`);c.fillStyle=g;c.fillRect(b.cx-b.R,b.cy-b.R,b.R*2,b.R*2)}
   return NS={cv,k,x0,y0,w:x1-x0,h:y1-y0}}
 const GAL=(()=>{const pts=[];for(let k=0;k<1100;k++){const arm=k%3,t=Math.random(),r=Math.pow(t,.8);const a=arm*TAU2/3+r*5.2+(Math.random()-.5)*.55*(1-r*.5);pts.push({r:r+(Math.random()-.5)*.04,a,s:Math.random()*1.6+.5,h:r<.25?45:Math.random()<.5?290:200,l:r<.25?85:65+Math.random()*25})}return pts})();
-const GSP={};function galSprite(R){const k=Math.round(R)+'_'+DPR;if(GSP.k===k)return GSP.cv;const d=DPR||1,S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
-  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.k=k;GSP.cv=cv;return cv}
+// galáxia pronta, guardada por tamanho (2 galáxias de tamanhos diferentes na tela não ficam refazendo a imagem todo frame)
+// e na resolução do fundo (onde ela é desenhada)
+const GSP=new Map();function galSprite(R){const d=BG.s||DPR||1,k=Math.round(R)*100+d;let cv0=GSP.get(k);if(cv0)return cv0;if(GSP.size>4)GSP.clear();const S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
+  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.set(k,cv);return cv}
 const ROCKS=Array.from({length:14},(_,k)=>({x:Math.random(),y:(Math.random()-.5)*2,r:5+Math.random()*13,v:(Math.random()-.5)*.0002,sp:(Math.random()-.5)*.002,sides:6+(k%3)}));
 const SCN=[
  {f:112,p:.7,k:'station',x:.78},
@@ -1481,6 +1479,10 @@ const DRAW={
    for(let k=0;k<9;k++){const a=k/9*TAU2+tNow*.0003,h=r*(.45+hash(k)*.5);const bx=x+Math.cos(a)*r*.92,by=y+Math.sin(a)*r*.92;ctx.save();ctx.translate(bx,by);ctx.rotate(a+Math.PI/2);ctx.fillStyle=k%2?'rgba(170,240,255,.9)':'rgba(255,170,240,.9)';ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(0,-h);ctx.lineTo(6,0);ctx.fill();ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.moveTo(-2,0);ctx.lineTo(0,-h*.9);ctx.lineTo(1,0);ctx.fill();ctx.restore()}},
  wormhole(x,y){for(let k=10;k>=0;k--){const ph=((tNow*.0006)+k/10)%1;const r=20+ph*W*.55;ctx.strokeStyle=hsl(k*36+tNow*.05,90,65,(1-ph)*.8);ctx.lineWidth=3+ph*6;ctx.beginPath();ctx.ellipse(x,y,r,r*.55,0,0,TAU2);ctx.stroke()}ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y,18,10,0,0,TAU2);ctx.fill()},
 };
+
+// prepara com calma (quando o celular está livre, no menu) as imagens pesadas do cenário, pra não engasgar na hora que aparecem
+function warmScenery(){const idle=window.requestIdleCallback||(f=>setTimeout(f,200));const jobs=[()=>{bgEnsure();cloudSprite()},()=>citySprite(),()=>nebSprite(),()=>galSprite(W*.62)];
+  const next=()=>{const j=jobs.shift();if(!j)return;idle(()=>{try{j()}catch(e){}next()},{timeout:3000})};next()}
 
 /* ================= GAME ================= */
 const BASEW=0.62;
@@ -2247,7 +2249,7 @@ const CL=()=>window.Native&&window.Native.isNative&&window.Native.cloud?window.N
 let clPlayer=null,clLast=0,clBusy=false,clBootDone=false,clCloudProg=null;
 // "tamanho" do progresso (nível e XP só aumentam jogando) — usado pra nunca salvar por cima de um progresso maior
 const progOf=s=>(s.lvl||1)*1e6+(s.xp||0);
-function clPayload(){save();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
+function clPayload(){saveNow();let d,h;try{d=localStorage.getItem('empilha_save');h=localStorage.getItem('empilha_sig')}catch(e){}return JSON.stringify({v:1,d,h})}
 function clParse(txt){try{const o=JSON.parse(txt||'');if(!o||!o.d||!o.h||SEAL(o.d)!==o.h)return null;const s=JSON.parse(o.d);return {o,s}}catch(e){return null}}
 function clDesc(s){return t('clDesc',s.lvl||1,s.best||0)}
 function clRender(){const box=$('cloudBox');if(!box)return;const c=CL();box.hidden=!c;if(!c)return;
@@ -2307,8 +2309,13 @@ let wasPlaying=false,qN=0,qSlow=0,qBad=0,qGood=0,qUpDone=false,rawLast=0,vsync=1
 function qualityWatch(ms){if(state!=='play'||document.hidden||!run||run.play<2500||ms>250)return;
   const target=vsync<10.5?vsync*2:vsync;if(ms>target*1.45)qSlow++;if(++qN<90)return;const f=qSlow/qN;qN=0;qSlow=0;
   if(f>.12){qGood=0;if((++qBad>=2||f>.3)&&QCAP>1&&(devicePixelRatio||1)>1){qBad=0;setQ(Math.min(QCAP,devicePixelRatio||1)-.25)}return}
-  qBad=0;if(f<.015&&++qGood>=10&&!qUpDone&&QCAP<QDEF&&Math.min(devicePixelRatio||1,QDEF)>QCAP){qUpDone=true;qGood=0;setQ(QCAP+.25)}}
-function setQ(v){QCAP=Math.max(1,Math.min(2,+v.toFixed(2)));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}
+  qBad=0;if(f<.015&&++qGood>=10&&!qUpDone&&QCAP+.25<=qCeil()){qUpDone=true;qGood=0;setQ(QCAP+.25)}}
+// celular que roda liso sobe a nitidez aos poucos (1 degrau por sessão) até a resolução real da tela (máx. 3);
+// onde já engasgou, não tenta de novo por 3 dias
+const QMAX=Math.min(3,Math.max(1,devicePixelRatio||1));
+function qCeil(){let f=null;try{f=JSON.parse(localStorage.getItem('bs_qfail')||'null')}catch(e){}return f&&Date.now()-f.t<3*864e5?Math.min(QMAX,f.q-.25):QMAX}
+function setQ(v){const down=v<QCAP;if(down)try{localStorage.setItem('bs_qfail',JSON.stringify({q:QCAP,t:Date.now()}))}catch(e){}
+  QCAP=Math.max(1,Math.min(QMAX,+v.toFixed(2)));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}
 // telas paradas (loja, fim de partida, pausa...): o fundo anda a ~30 fps, sobra bateria e o celular esquenta menos
 const idleScreen=()=>state==='over'||state==='pause'||(state==='menu'&&$('menu').hidden);
 function frame(tt){
@@ -2318,9 +2325,10 @@ function frame(tt){
   const gap=idleScreen()?25:vsync<10.5?vsync*1.5:0;
   if(gap&&tt-tNow<gap&&tt>=tNow){if(!$('shop').hidden||!$('coll').hidden)drawPreviews();return}
   qualityWatch(tt-tNow);tNow=tt;
-  if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
+  if((state==='play')!==wasPlaying){wasPlaying=state==='play';if(!wasPlaying)saveFlush();N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
-  cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
+  // suavizações pelo tempo real (iguais em 60, 72, 90 ou 120 Hz e sem tranco quando um frame atrasa)
+  cam+=(camT-cam)*(1-Math.pow(.88,dt));skyF+=(score-skyF)*(1-Math.pow(.97,dt));
   const wd=worldOf(score);
   if(state==='play'&&run)run.play+=dt*16.667;
   if(state==='play'&&moving){
@@ -2332,7 +2340,7 @@ function frame(tt){
   if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
   drawWorld();
   ctx.save();
-  if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.88;if(shake<.3)shake=0}
+  if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=Math.pow(.88,dt);if(shake<.3)shake=0}
   // torre balança de leve quando um bloco cai
   const la=tNow-landT,bounce=la<500?3.5*Math.exp(-la/110)*Math.sin(la/28):0;
   const first=Math.max(0,stack.length-Math.ceil(H/BH)-2);
@@ -2381,7 +2389,7 @@ applyLang();wallet();ensureMissions();showMenu();
 requestAnimationFrame(frame);
 // aquece o desenho da skin durante a abertura (a 1ª partida não engasga)
 setTimeout(()=>{const t0=tNow;try{bcSync();const wc=document.createElement('canvas');wc.width=400;wc.height=BH*2;const c=wc.getContext('2d');for(let k=0;k<40;k++){tNow+=16;block(0,0,300,k,1,c)}}catch(e){}tNow=t0},300);
-runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
+runIntro(()=>{buildLogo();warmScenery();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
 if(N){
   N.initAds();
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});

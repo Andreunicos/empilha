@@ -38,9 +38,12 @@ const SKINS=[
 let SKM=null,SKMn=0;const skinOf=id=>{if(!SKM||SKMn!==SKINS.length){SKM=new Map(SKINS.map(s=>[s.id,s]));SKMn=SKINS.length}return SKM.get(id)||SKINS[0]};
 function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
 
-/* ---- desempenho: cada bloco da torre vira uma imagem pronta (desenhar imagem é muito mais leve que redesenhar a skin).
-   Skins paradas: desenha 1 vez e reaproveita. Skins "divididas" (base + brilho): a base fica pronta e só o brilho é desenhado.
-   Skins animadas simples: desenhadas normalmente. Blocos fora da tela não são desenhados. ---- */
+/* ---- desempenho: a torre mora numa "folha" (uma imagem só, uma faixa por andar, em rodízio) ----
+   - Skins paradas: cada bloco é desenhado 1 vez na folha e depois só copiado.
+   - Skins "divididas" (base + brilho): a base fica pronta numa 2ª folha; o brilho é redesenhado em rodízio.
+   - Skins animadas: redesenhadas em rodízio (metade dos blocos por frame → animação a 30 fps, torre a 60).
+   Tudo sai da mesma imagem: o celular desenha a torre inteira quase de uma vez e nenhum "canvas" novo é criado
+   a cada bloco (criar canvas no meio da partida causava pequenos engasgos). Blocos fora da tela não são desenhados. ---- */
 const BC={id:null,dpr:0,w:0,mode:'live'};
 function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=document.createElement('canvas');cv.width=PW;cv.height=BH;const c=cv.getContext('2d',{willReadFrequently:true});const t0=tNow;
   const snap=t=>{tNow=t;c.clearRect(0,0,PW,BH);block(0,0,PW,3,1,c,sk);return c.getImageData(0,0,PW,BH).data};
@@ -48,44 +51,33 @@ function skinProbe(sk){const PW=Math.max(240,Math.round(W||360));const cv=docume
   let anim=false;try{const a=snap(1000);for(const t of [1777,3100,4700,6300,8200,9900]){const b=snap(t);for(let k=0;k<a.length;k++)if(a[k]!==b[k]){anim=true;break}if(anim)break}}catch(e){anim=true}
   tNow=t0;return {anim}}
 function bcSync(){const sk=skinOf(S.skin);if(BC.id===sk.id&&BC.dpr===DPR&&BC.w===W)return;const pr=sk.fx?{anim:true}:skinProbe(sk);BC.id=sk.id;BC.dpr=DPR;BC.w=W;
-  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;
-  for(const b of (typeof stack!=='undefined'?stack:[]))b.cv=null}
-function bcRender(b){const sk=BC.sk||skinOf(S.skin);const pw=Math.ceil(b.w*DPR)+2,ph=Math.ceil(BH*DPR)+1;let cv=b.cv;if(!cv||cv.width!==pw||cv.height!==ph){cv=document.createElement('canvas');cv.width=pw;cv.height=ph;b.cv=cv}
-  const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,ph);c.setTransform(DPR,0,0,DPR,-b.x*DPR,0);
-  c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvX=b.x;b.cvW=b.w}
-// desenha a torre visível (first..fim) usando o cache
-function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live',split=BC.mode==='split';
-  if(live||split)drawStackAnim(first,yFor,sk,live);
-  else for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
-    if(age<260){squash(b,y,age);continue}
-    // bloco mudou de tamanho/lugar (poder Largo, reviver): refaz a imagem
-    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR)}
-  // libera memória dos blocos que já saíram da tela
-  for(let k=Math.max(0,first-6);k<first;k++)stack[k].cv=null}
+  BC.mode=sk.fx?'split':pr.anim?'live':'cache';BC.sk=sk;TL.gen++}
 // bloco que acabou de cair (efeito de amassar): desenhado na hora
 function squash(b,y,age){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}
-/* ---- skins animadas: "folha da torre" ----
-   Os blocos visíveis ficam numa imagem só (uma faixa por andar, em rodízio). A cada frame só METADE dos blocos tem a
-   animação redesenhada (alternando), e a torre inteira é copiada dessa folha. Cada bloco continua animando (30 fps),
-   a torre anda a 60 e o celular faz metade do trabalho. Em aparelho fraco (qualidade baixa), 1/3 por frame. ---- */
-const TL={cv:null,c:null,sh:0,ns:0,pw:0,own:[],dpr:0,id:null,f:0};
-function drawStackAnim(first,yFor,sk,live){
-  const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Math.ceil(W*DPR)+4,r=sk.r??5;
+const TL={cv:null,c:null,bcv:null,bc:null,sh:0,ns:0,pw:0,own:[],key:'',gen:1,f:0,N:0};
+function tlEnsure(split){const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Math.ceil(W*DPR)+4,k=pw+'x'+sh*ns+'_'+DPR+'_'+TL.gen;
   if(!TL.cv){TL.cv=document.createElement('canvas');TL.c=TL.cv.getContext('2d')}
-  if(TL.cv.width!==pw||TL.cv.height!==sh*ns||TL.id!==BC.id||TL.dpr!==DPR){TL.cv.width=pw;TL.cv.height=sh*ns;TL.sh=sh;TL.ns=ns;TL.pw=pw;TL.own=new Array(ns);TL.id=BC.id;TL.dpr=DPR}
-  const c=TL.c,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
-  // 1º passo: redesenha na folha os blocos da vez (todos de uma vez; se misturar desenhar e copiar, o navegador
-  // precisa duplicar a folha inteira a cada bloco)
-  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260)continue;
-    const s=k%ns,sy=s*sh,o=TL.own[s];
-    if(!o||o.b!==b||o.x!==b.x||o.w!==b.w||(k+f)%N===0){
-      c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,pw,sh);c.setTransform(DPR,0,0,DPR,2,sy+1);
-      if(live)block(b.x,0,b.w,b.i,1,c,sk);
-      else{if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);c.drawImage(b.cv,b.x,0,b.cv.width/DPR,b.cv.height/DPR);if(b.w>.5){c.save();rr(c,b.x,0,b.w,BH,r);c.clip();sk.fx(c,b.x,0,b.w,b.i);c.restore()}}
-      if(o){o.b=b;o.x=b.x;o.w=b.w}else TL.own[s]={b,x:b.x,w:b.w}}}
-  // 2º passo: copia a torre da folha pra tela
+  if(split&&!TL.bcv){TL.bcv=document.createElement('canvas');TL.bc=TL.bcv.getContext('2d');TL.key=''}
+  if(TL.key!==k){TL.key=k;TL.sh=sh;TL.ns=ns;TL.pw=pw;TL.own=new Array(ns);TL.cv.width=pw;TL.cv.height=sh*ns;if(TL.bcv){TL.bcv.width=pw;TL.bcv.height=sh*ns}}
+  if(!split&&TL.bcv){TL.bcv.width=TL.bcv.height=1;TL.bcv=TL.bc=null}}
+// desenha um bloco inteiro (ou só a base/o brilho) na faixa sy de uma folha
+function tlPaint(c,sy,b,fn,sk){c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,TL.pw,TL.sh);c.setTransform(DPR,0,0,DPR,2,sy+1);c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();fn.call(sk,c,b.x,0,b.w,b.i);c.restore()}
+// desenha a torre visível (first..fim)
+function drawStack(first,yFor){bcSync();const sk=BC.sk,mode=BC.mode,split=mode==='split',anim=mode!=='cache';tlEnsure(split);
+  const c=TL.c,ns=TL.ns,sh=TL.sh,pw=TL.pw,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
+  // 1º passo: descobre o que precisa redesenhar (e refaz as bases das skins divididas)
+  // (tudo antes de copiar: misturar desenhar e copiar obriga o navegador a duplicar a folha)
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260||b.w<=.5)continue;
+    const s=k%ns,o=TL.own[s],stale=!o||o.b!==b||o.x!==b.x||o.w!==b.w;
+    if(stale){if(o){o.b=b;o.x=b.x;o.w=b.w}else TL.own[s]={b,x:b.x,w:b.w};if(split)tlPaint(TL.bc,s*sh,b,sk.base,sk)}
+    b.rf=stale||(anim&&(k+f)%N===0)?f:0}
+  // 2º passo: redesenha na folha os blocos da vez
+  for(let k=first;k<n;k++){const b=stack[k];if(b.rf!==f)continue;const sy=(k%ns)*sh;
+    if(split){c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,pw,sh);c.drawImage(TL.bcv,0,sy,pw,sh,0,sy,pw,sh);c.setTransform(DPR,0,0,DPR,2,sy+1);c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();sk.fx(c,b.x,0,b.w,b.i);c.restore()}
+    else tlPaint(c,sy,b,sk.draw,sk)}
+  // 3º passo: copia a torre da folha pra tela
   for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
-    if(age<260){squash(b,y,age);continue}
+    if(age<260){squash(b,y,age);continue}if(b.w<=.5)continue;
     const sy=(k%ns)*sh,sx=Math.max(0,Math.floor(b.x*DPR)),sw=Math.min(pw,Math.ceil((b.x+b.w)*DPR)+4)-sx;
     if(sw>0)ctx.drawImage(TL.cv,sx,sy,sw,sh,(sx-2)/DPR,y-1/DPR,sw/DPR,sh/DPR)}}
 

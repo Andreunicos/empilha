@@ -85,8 +85,10 @@ let NS=null;function nebSprite(){const sc=Math.max(.35,(BG.s||1)*.5),k=W+'_'+H+'
   for(const b of bl){const g=c.createRadialGradient(b.cx,b.cy,0,b.cx,b.cy,b.R);g.addColorStop(0,`rgba(${b.c},.32)`);g.addColorStop(1,`rgba(${b.c},0)`);c.fillStyle=g;c.fillRect(b.cx-b.R,b.cy-b.R,b.R*2,b.R*2)}
   return NS={cv,k,x0,y0,w:x1-x0,h:y1-y0}}
 const GAL=(()=>{const pts=[];for(let k=0;k<1100;k++){const arm=k%3,t=Math.random(),r=Math.pow(t,.8);const a=arm*TAU2/3+r*5.2+(Math.random()-.5)*.55*(1-r*.5);pts.push({r:r+(Math.random()-.5)*.04,a,s:Math.random()*1.6+.5,h:r<.25?45:Math.random()<.5?290:200,l:r<.25?85:65+Math.random()*25})}return pts})();
-const GSP={};function galSprite(R){const k=Math.round(R)+'_'+DPR;if(GSP.k===k)return GSP.cv;const d=DPR||1,S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
-  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.k=k;GSP.cv=cv;return cv}
+// galáxia pronta, guardada por tamanho (2 galáxias de tamanhos diferentes na tela não ficam refazendo a imagem todo frame)
+// e na resolução do fundo (onde ela é desenhada)
+const GSP=new Map();function galSprite(R){const d=BG.s||DPR||1,k=Math.round(R)*100+d;let cv0=GSP.get(k);if(cv0)return cv0;if(GSP.size>4)GSP.clear();const S2=Math.ceil((2*R+8)*d);const cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');c.scale(d,d);c.translate(R+4,R+4);
+  for(const p of GAL){c.fillStyle=p.col||(p.col=hsl(p.h,90,p.l,.85));c.fillRect(Math.cos(p.a)*p.r*R,Math.sin(p.a)*p.r*R,p.s,p.s/.58)}GSP.set(k,cv);return cv}
 const ROCKS=Array.from({length:14},(_,k)=>({x:Math.random(),y:(Math.random()-.5)*2,r:5+Math.random()*13,v:(Math.random()-.5)*.0002,sp:(Math.random()-.5)*.002,sides:6+(k%3)}));
 const SCN=[
  {f:112,p:.7,k:'station',x:.78},
@@ -145,3 +147,7 @@ const DRAW={
    for(let k=0;k<9;k++){const a=k/9*TAU2+tNow*.0003,h=r*(.45+hash(k)*.5);const bx=x+Math.cos(a)*r*.92,by=y+Math.sin(a)*r*.92;ctx.save();ctx.translate(bx,by);ctx.rotate(a+Math.PI/2);ctx.fillStyle=k%2?'rgba(170,240,255,.9)':'rgba(255,170,240,.9)';ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(0,-h);ctx.lineTo(6,0);ctx.fill();ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.moveTo(-2,0);ctx.lineTo(0,-h*.9);ctx.lineTo(1,0);ctx.fill();ctx.restore()}},
  wormhole(x,y){for(let k=10;k>=0;k--){const ph=((tNow*.0006)+k/10)%1;const r=20+ph*W*.55;ctx.strokeStyle=hsl(k*36+tNow*.05,90,65,(1-ph)*.8);ctx.lineWidth=3+ph*6;ctx.beginPath();ctx.ellipse(x,y,r,r*.55,0,0,TAU2);ctx.stroke()}ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y,18,10,0,0,TAU2);ctx.fill()},
 };
+
+// prepara com calma (quando o celular está livre, no menu) as imagens pesadas do cenário, pra não engasgar na hora que aparecem
+function warmScenery(){const idle=window.requestIdleCallback||(f=>setTimeout(f,200));const jobs=[()=>{bgEnsure();cloudSprite()},()=>citySprite(),()=>nebSprite(),()=>galSprite(W*.62)];
+  const next=()=>{const j=jobs.shift();if(!j)return;idle(()=>{try{j()}catch(e){}next()},{timeout:3000})};next()}

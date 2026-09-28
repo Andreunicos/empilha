@@ -508,7 +508,10 @@ let S;try{S=Object.assign({},DEF,loadSave())}catch(e){S=JSON.parse(JSON.stringif
 const BOOT_CLK=S.clk||0;
 S.settings=Object.assign({},DEF_SET,S.settings||{});S.inv=Object.assign({magnet:0,slow:0,wide:0,calm:0},S.inv||{magnet:1,slow:1,wide:1,calm:1});for(const k in S.inv)S.inv[k]=fixNum(S.inv[k],0,999);if(!Array.isArray(S.owned))S.owned=['classic'];
 let restoring=false; // restaurando save da nuvem: não grava mais nada até recarregar
-const save=()=>{if(restoring)return;try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);localStorage.setItem('empilha_sealed','1');mirrorSave(d,h)}catch(e){}};
+// durante a partida o save espera um respiro (vários viram 1 só e não pesam no meio da jogada); fora dela grava na hora
+let saveT=0;const inPlay=()=>{try{return state==='play'}catch(e){return false}};const save=()=>{if(restoring)return;if(inPlay()){if(!saveT)saveT=setTimeout(saveNow,1200);return}saveNow()};
+function saveFlush(){if(saveT){clearTimeout(saveT);saveNow()}}
+const saveNow=()=>{clearTimeout(saveT);saveT=0;if(restoring)return;try{S.clk=Math.max(S.clk||0,Date.now());const d=JSON.stringify(S),h=SEAL(d);localStorage.setItem('empilha_save',d);localStorage.setItem('empilha_sig',h);localStorage.setItem('empilha_bak',d);localStorage.setItem('empilha_bak_sig',h);localStorage.setItem('empilha_sealed','1');mirrorSave(d,h)}catch(e){}};
 // espelho no armazenamento nativo (backup automático do Google): gravado no máximo a cada 3 s
 let mirT=0,mirD=null,mirReady=false;function mirrorSave(d,h){const NN=window.Native;if(!NN||!NN.isNative||!NN.prefSet)return;mirD=[d,h];if(mirT||!mirReady)return;mirT=setTimeout(()=>{mirT=0;const [dd,hh]=mirD;NN.prefSet('bs_save',dd);NN.prefSet('bs_sig',hh)},3000)}
 // grava o espelho na hora (app indo pro fundo pode ser fechado pelo Android)
@@ -652,9 +655,10 @@ function playStep(s,t0,e){
 function unlockAudio(){audioInit();if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().then(()=>{if(S.settings.music)musicStart()});else if(S.settings.music)musicStart()}
 document.addEventListener('pointerdown',unlockAudio,{capture:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))sfx.ui()},{capture:true});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror()}else{if(A.ctx)A.ctx.resume();if(state==='revive'&&!$('revive').hidden)revCountdown(Math.max(2,revLeft));onResumeOnline()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){saveFlush();if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror()}else{if(A.ctx)A.ctx.resume();if(state==='revive'&&!$('revive').hidden)revCountdown(Math.max(2,revLeft));onResumeOnline()}});
 const buzz=ms=>{if(!S.settings.vib)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
-function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;void el.offsetWidth;el.textContent=s;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
+// (reinicia a animação no próximo quadro em vez de forçar o navegador a recalcular a página inteira na hora)
+function toast(s){const tb=$('tipB');if(tb)tb.hidden=true;const el=$('toast');el.hidden=true;el.textContent=s;requestAnimationFrame(()=>{el.hidden=false});clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
 function banner(sub,txt){$('bannerHost').innerHTML=`<div id="banner"><small>${sub}</small><span>${txt}</span></div>`}
 function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150)}
 
@@ -1045,8 +1049,13 @@ let wasPlaying=false,qN=0,qSlow=0,qBad=0,qGood=0,qUpDone=false,rawLast=0,vsync=1
 function qualityWatch(ms){if(state!=='play'||document.hidden||!run||run.play<2500||ms>250)return;
   const target=vsync<10.5?vsync*2:vsync;if(ms>target*1.45)qSlow++;if(++qN<90)return;const f=qSlow/qN;qN=0;qSlow=0;
   if(f>.12){qGood=0;if((++qBad>=2||f>.3)&&QCAP>1&&(devicePixelRatio||1)>1){qBad=0;setQ(Math.min(QCAP,devicePixelRatio||1)-.25)}return}
-  qBad=0;if(f<.015&&++qGood>=10&&!qUpDone&&QCAP<QDEF&&Math.min(devicePixelRatio||1,QDEF)>QCAP){qUpDone=true;qGood=0;setQ(QCAP+.25)}}
-function setQ(v){QCAP=Math.max(1,Math.min(2,+v.toFixed(2)));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}
+  qBad=0;if(f<.015&&++qGood>=10&&!qUpDone&&QCAP+.25<=qCeil()){qUpDone=true;qGood=0;setQ(QCAP+.25)}}
+// celular que roda liso sobe a nitidez aos poucos (1 degrau por sessão) até a resolução real da tela (máx. 3);
+// onde já engasgou, não tenta de novo por 3 dias
+const QMAX=Math.min(3,Math.max(1,devicePixelRatio||1));
+function qCeil(){let f=null;try{f=JSON.parse(localStorage.getItem('bs_qfail')||'null')}catch(e){}return f&&Date.now()-f.t<3*864e5?Math.min(QMAX,f.q-.25):QMAX}
+function setQ(v){const down=v<QCAP;if(down)try{localStorage.setItem('bs_qfail',JSON.stringify({q:QCAP,t:Date.now()}))}catch(e){}
+  QCAP=Math.max(1,Math.min(QMAX,+v.toFixed(2)));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}
 // telas paradas (loja, fim de partida, pausa...): o fundo anda a ~30 fps, sobra bateria e o celular esquenta menos
 const idleScreen=()=>state==='over'||state==='pause'||(state==='menu'&&$('menu').hidden);
 function frame(tt){
@@ -1056,9 +1065,10 @@ function frame(tt){
   const gap=idleScreen()?25:vsync<10.5?vsync*1.5:0;
   if(gap&&tt-tNow<gap&&tt>=tNow){if(!$('shop').hidden||!$('coll').hidden)drawPreviews();return}
   qualityWatch(tt-tNow);tNow=tt;
-  if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
+  if((state==='play')!==wasPlaying){wasPlaying=state==='play';if(!wasPlaying)saveFlush();N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
-  cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
+  // suavizações pelo tempo real (iguais em 60, 72, 90 ou 120 Hz e sem tranco quando um frame atrasa)
+  cam+=(camT-cam)*(1-Math.pow(.88,dt));skyF+=(score-skyF)*(1-Math.pow(.97,dt));
   const wd=worldOf(score);
   if(state==='play'&&run)run.play+=dt*16.667;
   if(state==='play'&&moving){
@@ -1070,7 +1080,7 @@ function frame(tt){
   if(state==='menu'&&moving){moving.x+=moving.dir*2*dt*scale;if(moving.x>W-moving.w)moving.dir=-1;if(moving.x<0)moving.dir=1}
   drawWorld();
   ctx.save();
-  if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.88;if(shake<.3)shake=0}
+  if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=Math.pow(.88,dt);if(shake<.3)shake=0}
   // torre balança de leve quando um bloco cai
   const la=tNow-landT,bounce=la<500?3.5*Math.exp(-la/110)*Math.sin(la/28):0;
   const first=Math.max(0,stack.length-Math.ceil(H/BH)-2);
@@ -1119,7 +1129,7 @@ applyLang();wallet();ensureMissions();showMenu();
 requestAnimationFrame(frame);
 // aquece o desenho da skin durante a abertura (a 1ª partida não engasga)
 setTimeout(()=>{const t0=tNow;try{bcSync();const wc=document.createElement('canvas');wc.width=400;wc.height=BH*2;const c=wc.getContext('2d');for(let k=0;k<40;k++){tNow+=16;block(0,0,300,k,1,c)}}catch(e){}tNow=t0},300);
-runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
+runIntro(()=>{buildLogo();warmScenery();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
 if(N){
   N.initAds();
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
