@@ -5,6 +5,7 @@ let html=fs.readFileSync(path.join(d,'game.template.html'),'utf8');
 html=html.replace('//@@SKINS@@',()=>fs.readFileSync(path.join(d,'skins.part.js'),'utf8'))
          .replace('//@@WORLDS@@',()=>fs.readFileSync(path.join(d,'worlds.part.js'),'utf8'))
          .replace('//@@SKINS2@@',()=>fs.readFileSync(path.join(d,'skins2.part.js'),'utf8'))
+         .replace('//@@SKINS3@@',()=>fs.readFileSync(path.join(d,'skins3.part.js'),'utf8'))
          .replace('//@@SECURE@@',()=>fs.readFileSync(path.join(d,'secure.part.js'),'utf8'))
          .replace('//@@RANK@@',()=>fs.readFileSync(path.join(d,'rank.part.js'),'utf8'))
          .replace('//@@HELP@@',()=>fs.readFileSync(path.join(d,'help.part.js'),'utf8'))
