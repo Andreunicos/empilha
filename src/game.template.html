@@ -381,6 +381,12 @@
     <button class="link" id="pfCancel" data-t="cancel"></button>
   </div></div>
 
+  <div class="panel" id="upd" hidden style="z-index:9;background:rgba(15,16,36,.96)"><div class="inner">
+    <div class="ovtic">🚀</div>
+    <h2 class="gold" data-t="updT"></h2><p data-t="updP"></p>
+    <button class="btn play" id="updGo" data-t="updGo"></button><button class="link" id="updNo" data-t="later"></button>
+  </div></div>
+
   <div class="panel full" id="coll" hidden><div class="inner">
     <div class="top"><h2 data-t="collT"></h2><button class="btn alt sm" id="closeColl" data-t="back"></button></div>
     <div class="collhero"><canvas id="collCv"></canvas><div class="ci"><b id="collName"></b><span id="collCat"></span></div></div>
@@ -882,8 +888,16 @@ function finish(){
 function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt','coll'].forEach(p=>$(p).hidden=true)}
 function startGame(){setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
+// atualização disponível na Play Store: avisa ao abrir e atualiza com 1 toque
+let updInfo=null;
+async function checkUpdate(){const U=N&&N.update;if(!U)return;let skip=0;try{skip=+localStorage.getItem('upd_skip')||0}catch(e){}if(Date.now()<skip)return;
+  updInfo=await U.check();if(updInfo)whenMenu(()=>{$('upd').hidden=false;sfx.whoosh()})}
+$('updGo').onclick=async()=>{const b=$('updGo');if(b.disabled)return;b.disabled=true;save();flushMirror();try{cloudAuto()}catch(e){}
+  await (N.update&&N.update.run(updInfo));b.disabled=false;$('upd').hidden=true};
+$('updNo').onclick=()=>{$('upd').hidden=true;try{localStorage.setItem('upd_skip',String(Date.now()+12*3600e3))}catch(e){}};
+setTimeout(checkUpdate,2500);
 // mostra um aviso só quando o jogador estiver no menu (nunca por cima de uma partida)
-function whenMenu(fn,tries=0){if(state==='menu'&&!$('menu').hidden&&$('mis').hidden&&$('clAsk').hidden&&$('rkWin').hidden&&$('ovt').hidden)fn();else if(tries<60)setTimeout(()=>whenMenu(fn,tries+1),2500)}
+function whenMenu(fn,tries=0){if(state==='menu'&&!$('menu').hidden&&$('mis').hidden&&$('clAsk').hidden&&$('rkWin').hidden&&$('ovt').hidden&&$('upd').hidden)fn();else if(tries<60)setTimeout(()=>whenMenu(fn,tries+1),2500)}
 function showMenu(){hideAll();$('hint').hidden=true;mode='normal';$('dlyTag').hidden=true;state='menu';$('hud').hidden=true;$('pauseBtn').hidden=true;$('abar').hidden=true;$('gear').hidden=false;$('menu').hidden=false;showMenuTexts();buildLogo();reset();$('score').textContent='0'}
 function buildLogo(){const el=$('logo');const cols=['#ff5d8f','#ffc23d','#5ee0ff','#4fe39a','#8b7bff','#ff9a3d','#ff5d8f','#5ee0ff'];let i=0;
   el.classList.remove('idle');el.innerHTML=['BIG','STACK'].map(w=>`<span class="ln">${[...w].map(ch=>`<i style="--i:${i};background:${cols[(i++)%cols.length]}">${ch}</i>`).join('')}</span>`).join('');
@@ -1074,6 +1088,7 @@ if(N){
   N.initBilling(PRODUCT_IDS,(id,tok)=>{if(grantPack(id,tok))toast(t('buyDelivered'))}).then(prices=>{PACKS.forEach(p=>{if(prices[p.id])p.price=prices[p.id]});if(!$('shop').hidden)renderShop()});
   N.onPause&&N.onPause(()=>{if(state==='play')pauseGame();if(state==='revive'&&!$('revive').hidden)clearInterval(revTimer);A.ctx&&A.ctx.suspend();flushMirror();cloudAuto()});
   N.onBack(()=>{
+    if(!$('upd').hidden){$('updNo').click();return}
     if(!$('clAsk').hidden){$('clNo').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('ovt').hidden){$('ovtNo').click();return}

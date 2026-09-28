@@ -4,6 +4,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update';
 import { Preferences } from '@capacitor/preferences';
 import { AdMob, RewardAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
@@ -106,6 +107,21 @@ window.Native = {
     signIn: (interactive) => PlayGamesSave.signIn({ interactive: !!interactive }),
     save: (data, description, progress) => PlayGamesSave.save({ data, description: description || '', progress: Math.max(0, Math.floor(progress || 0)) }),
     load: () => PlayGamesSave.load({}),
+  } : null,
+  // atualização dentro do app (Google Play In-App Updates) — só funciona quando o jogo veio da Play Store
+  update: isNative ? {
+    async check() {
+      try {
+        const i = await AppUpdate.getAppUpdateInfo();
+        if (i.updateAvailability !== AppUpdateAvailability.UPDATE_AVAILABLE) return null;
+        return { immediate: !!i.immediateUpdateAllowed, flexible: !!i.flexibleUpdateAllowed, version: i.availableVersionName || String(i.availableVersionCode || '') };
+      } catch (e) { return null; }
+    },
+    async run(info) {
+      try { if (info && info.immediate) { const r = await AppUpdate.performImmediateUpdate(); return !!r && r.code === 0; } } catch (e) { /* cai pra loja */ }
+      try { await AppUpdate.openAppStore(); } catch (e) { /* nada */ }
+      return false;
+    },
   } : null,
   // conquistas do Google Play Games
   games: isNative ? {
