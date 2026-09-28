@@ -166,7 +166,7 @@
   .cats button.on{background:linear-gradient(160deg,var(--vio),#5a3fd6);box-shadow:0 3px 0 var(--vioD)}.cats button small{font-size:11px;opacity:.75;background:rgba(0,0,0,.25);border-radius:99px;padding:1px 6px}
   .cats button.full small{background:var(--ok);color:#06301c;opacity:1}
   .chead{width:100%;display:flex;align-items:center;gap:10px;font-weight:900;font-size:14px;text-align:left}.chead .bar{flex:1;height:8px}.chead span{color:var(--muted);font-size:12px}
-  .item .tag.season{color:#ffc23d}.item.off canvas{filter:saturate(.35) brightness(.7)}
+  .item .tag.season{color:#ffc23d}.item .tag.snd{color:#7fe3ff}.item.off canvas{filter:saturate(.35) brightness(.7)}
   .collhero{width:100%;display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,#2a2356,#1b1640);border-radius:18px;padding:10px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
   .collhero canvas{width:52%;height:120px;border-radius:12px;background:#15142f;flex:none}.collhero .ci{display:flex;flex-direction:column;gap:4px;text-align:left}.collhero b{font-family:"Bungee",Impact,sans-serif;font-size:18px}.collhero span{color:var(--muted);font-weight:800;font-size:13px}
   .collprog{width:100%;display:flex;align-items:center;gap:10px;font-weight:900}.collprog .bar{flex:1;height:10px}
@@ -612,11 +612,13 @@ function osc(type,f,t0,dur,peak,dest,{a=.005,glide=0,rev=0}={}){const ac=A.ctx,o
 function noise(t0,dur,peak,dest,type='bandpass',f=1800,q=1,f2){const ac=A.ctx,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=A.noise;fl.type=type;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+dur);fl.Q.value=q;env(g,t0,.003,peak,dur);s.connect(fl);fl.connect(g);g.connect(dest);s.start(t0);s.stop(t0+dur+.05)}
 function bell(f,t0,peak=.22,dur=1.1,rev=.5){osc('sine',f,t0,dur,peak,A.sfx,{a:.004,rev});osc('sine',f*2,t0,dur*.6,peak*.35,A.sfx,{a:.004,rev});osc('triangle',f*3.01,t0,dur*.25,peak*.12,A.sfx,{a:.002})}
 const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760,2093];
+// skin de som equipada (muda o som dos blocos)
+const sndPack=()=>{const s=skinOf(S.skin);return s&&s.snd&&typeof SND!=='undefined'?SND[s.snd]:null};
 const sfx={
   ok:()=>S.settings.sfx&&A.ctx&&A.ctx.state==='running',
-  place(h){if(!sfx.ok())return;const t0=now(),b=120+Math.min(h,60)*1.2;osc('sine',b*1.6,t0,.16,.5,A.sfx,{glide:b*.6});noise(t0,.05,.18,A.sfx,'bandpass',2400,1.2);osc('triangle',b*3,t0,.05,.06,A.sfx)},
+  place(h){if(!sfx.ok())return;const pk=sndPack();if(pk){pk.place(h);return}const t0=now(),b=120+Math.min(h,60)*1.2;osc('sine',b*1.6,t0,.16,.5,A.sfx,{glide:b*.6});noise(t0,.05,.18,A.sfx,'bandpass',2400,1.2);osc('triangle',b*3,t0,.05,.06,A.sfx)},
   chop(){if(!sfx.ok())return;const t0=now();noise(t0,.22,.22,A.sfx,'lowpass',4200,.8,500);osc('sine',180,t0,.14,.35,A.sfx,{glide:70})},
-  perfect(c){if(!sfx.ok())return;const t0=now(),i=Math.min(c-1,PENTA.length-1);bell(PENTA[i],t0,.2);if(c>=3)bell(PENTA[Math.min(i+2,PENTA.length-1)]*1,t0+.07,.1,.8);osc('sine',150,t0,.12,.35,A.sfx,{glide:70})},
+  perfect(c){if(!sfx.ok())return;const pk=sndPack();if(pk){pk.perfect(c);return}const t0=now(),i=Math.min(c-1,PENTA.length-1);bell(PENTA[i],t0,.2);if(c>=3)bell(PENTA[Math.min(i+2,PENTA.length-1)]*1,t0+.07,.1,.8);osc('sine',150,t0,.12,.35,A.sfx,{glide:70})},
   coin(){if(!sfx.ok())return;const t0=now();bell(1568,t0,.09,.35,.2);bell(2093,t0+.07,.08,.45,.2)},
   tick(){if(!sfx.ok())return;bell(1760+Math.random()*200,now(),.035,.12,0)},
   fall(){if(!sfx.ok())return;const t0=now();osc('triangle',420,t0,.6,.22,A.sfx,{glide:70,rev:.3});noise(t0,.5,.14,A.sfx,'lowpass',1800,.7,200)},
@@ -655,6 +657,7 @@ function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.clas
 //@@SKINS2@@
 //@@SKINS3@@
 //@@SKINS4@@
+//@@SKINS5@@
 //@@WORLDS@@
 /* ================= GAME ================= */
 const BASEW=0.62;
@@ -921,8 +924,8 @@ $('verNum').textContent=VERSION;
 const PACKS=[{id:'cristais_50',k:'g1',gems:50,price:'R$ 4,90'},{id:'cristais_150',k:'g2',gems:150,price:'R$ 12,90',tag:'popular'},{id:'cristais_400',k:'g3',gems:400,price:'R$ 29,90'},{id:'cristais_1000',k:'g4',gems:1000,price:'R$ 64,90',tag:'bestValue'}];
 let tab='skins',backTo='menu',buyBusy=false;
 /* ---- categorias de skins ---- */
-const SKIN_CATS=[{k:'dogs',ic:'🐶'},{k:'cats',ic:'🐱'},{k:'party',ic:'🎉'},{k:'food',ic:'🍩'},{k:'elements',ic:'⚡'},{k:'ocean',ic:'🌊'},{k:'space',ic:'🚀'},{k:'arcade',ic:'🕹️'},{k:'special',ic:'✨'},{k:'prints',ic:'🐆'},{k:'basic',ic:'🧱'}];
-let shopCat='dogs';
+const SKIN_CATS=[{k:'sound',ic:'🎵'},{k:'dogs',ic:'🐶'},{k:'cats',ic:'🐱'},{k:'party',ic:'🎉'},{k:'food',ic:'🍩'},{k:'elements',ic:'⚡'},{k:'ocean',ic:'🌊'},{k:'space',ic:'🚀'},{k:'arcade',ic:'🕹️'},{k:'special',ic:'✨'},{k:'prints',ic:'🐆'},{k:'basic',ic:'🧱'}];
+let shopCat='sound';
 const catOf=k=>SKINS.filter(s=>s.cat===k);
 const mmdd=d=>String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 // skins de festa só podem ser compradas na época (depois de comprada é sua pra sempre)
@@ -939,7 +942,7 @@ function renderColl(){previews.length=0;const sk=skinOf(S.skin);$('collName').te
   SKIN_CATS.forEach(cg=>{const all=catOf(cg.k);const mine=all.filter(s=>S.owned.includes(s.id));if(!all.length)return;const sec=document.createElement('div');sec.className='csec';
     sec.innerHTML=`<div class="chead"><b>${cg.ic} ${t('cat_'+cg.k)}</b><div class="bar g"><i style="width:${mine.length/all.length*100}%"></i></div><span>${mine.length}/${all.length}</span></div>`;
     const g=document.createElement('div');g.className='cgrid';
-    mine.forEach(s=>{const d=document.createElement('button');d.className='citem'+(S.skin===s.id?' on':'');d.innerHTML=`<canvas></canvas><span>${t('s_'+s.id)}</span>`;d.onclick=()=>{S.skin=s.id;save();sfx.coin();renderColl()};g.appendChild(d);previews.push({cv:d.querySelector('canvas'),skin:s})});
+    mine.forEach(s=>{const d=document.createElement('button');d.className='citem'+(S.skin===s.id?' on':'');d.innerHTML=`<canvas></canvas><span>${t('s_'+s.id)}</span>`;d.onclick=()=>{S.skin=s.id;save();if(s.snd)sndDemo(s.snd);else sfx.coin();renderColl()};g.appendChild(d);previews.push({cv:d.querySelector('canvas'),skin:s})});
     if(mine.length<all.length){const m=document.createElement('button');m.className='citem more';m.textContent=t('inShop',all.length-mine.length);m.onclick=()=>{shopCat=cg.k;$('coll').hidden=true;openShop('skins');backTo='coll'};g.appendChild(m)}
     sec.appendChild(g);L.appendChild(sec)})}
 $('openColl').onclick=openColl;$('closeColl').onclick=showMenu;$('collShop').onclick=()=>{$('coll').hidden=true;shopCat=skinOf(S.skin).cat||shopCat;openShop('skins');backTo='coll'};
@@ -964,14 +967,15 @@ function renderShop(){
       const d=document.createElement('div');d.className='item'+(on?' on':'');d.style.animationDelay=(k*35)+'ms';
       const avail=inSeason(s);const tag=s.season?(avail?t('seasonUntil',fmtMD(s.season[1])):t('seasonFrom',fmtMD(s.season[0]))):{coin:t('common'),gem:t('exclusive'),lvl:t('lvlN',s.price)}[s.cur];
       if(!own&&!avail)d.classList.add('off');
-      d.innerHTML=`<canvas></canvas><div class="nm">${t('s_'+s.id)}</div><div class="tag${s.season?' season':''}">${tag}</div>`;
+      d.innerHTML=`<canvas></canvas><div class="nm">${t('s_'+s.id)}</div><div class="tag${s.season?' season':''}${s.snd?' snd':''}">${s.snd?'🔊 '+t('sndTag'):tag}</div>`;
+      if(s.snd){const cv=d.querySelector('canvas');cv.style.cursor='pointer';cv.onclick=()=>{try{audioInit();A.ctx&&A.ctx.resume()}catch(e){}sndDemo(s.snd)}}
       const b=document.createElement('button');
       if(own){b.className='btn '+(on?'used':'alt');b.textContent=on?t('equipped'):t('use')}
       else if(!avail){b.className='btn alt';b.disabled=true;b.textContent='📅 '+fmtMD(s.season[0])}
       else if(s.cur==='lvl'){b.className='btn alt';b.disabled=true;b.textContent=t('lvlBtn',s.price)}
       else{b.className='btn '+(s.cur==='gem'?'gemb':'');b.innerHTML=`${s.cur==='coin'?'<i class="coin"></i>':'<i class="gem"></i>'} ${s.price}`}
       b.onclick=()=>{
-        if(own){S.skin=s.id;save();renderShop();return}
+        if(own){S.skin=s.id;save();if(s.snd)sndDemo(s.snd);renderShop();return}
         if(!inSeason(s))return;
         const bal=s.cur==='coin'?S.coins:S.gems;
         if(bal<s.price){toast(s.cur==='coin'?t('needCoins',s.price-bal):t('noGems'));if(s.cur==='gem'){tab='gems';renderShop()}return}
