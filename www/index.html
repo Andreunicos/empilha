@@ -1026,7 +1026,8 @@ const BASEW=0.62;
 let stack=[],moving=null,debris=[],parts=[],floats=[],rings=[],cam=0,camT=0,score=0,combo=0,perfects=0,maxCombo=0,state='menu',speed=4.2,shake=0,flash=0,lastT=0,landT=-1e9;
 // começo mais fácil: até o andar 20 o bloco é mais lento e o perfeito é mais generoso
 const ease=()=>Math.min(1,score/20);
-const perfTol=()=>Math.max(6,speed*1.1)*(W/360)*(1.8-.8*ease());
+// nas nuvens (andar 25 a 49) o "perfeito" tem 40% mais margem
+const perfTol=()=>Math.max(6,speed*1.1)*(W/360)*(1.8-.8*ease())*(worldOf(score)===1?1.4:1);
 const SPEED0=4.2,SPEED_STEP=.06,SPEED_MAX=9,SPEED_MAX_SPACE=10;
 const WAVE_W=Math.PI*2/2400; // ondas gravitacionais: 1 ciclo a cada 2,4 s
 const waveAmp=wd=>Math.min(.45,.28+(wd-3)*.04);
@@ -1096,7 +1097,7 @@ function drop(){
   if(m.grew){addFloat(nx+nw/2,yOf(m.i)-54,t('grew'),'#4fe39a',17);rings.push({x:nx,y:yOf(m.i),w:nw,t0:tNow+90,i:m.i});tip('grow',t('tipGrow'),'mid')}
   score++;setScore();rivalStep();
   const wd=worldOf(score);
-  speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
+  speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease())*(wd===1?.9:1); // nas nuvens 10% mais devagar
   if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
   if([25,50,100].includes(score)&&mode!=='daily')setTimeout(()=>{if(state==='play')tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar')},2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
@@ -1793,7 +1794,7 @@ function frame(tt){
   if(state==='play'&&run)run.play+=dt*16.667;
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1);
-    if(P.calm<=0){if(wd===1)sp*=1+.55*Math.sin(tNow*.0028);if(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
+    if(P.calm<=0){if(wd===1)sp*=1+.33*Math.sin(tNow*.0028); // vento das nuvens 40% mais fracoif(wd===2)sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
     if(!moving.entered){const tp=stack[stack.length-1];if(tp&&Math.min(moving.x+moving.w,tp.x+tp.w)-Math.max(moving.x,tp.x)>0)moving.entered=true}
     if(moving.x>W-moving.w*.2&&moving.dir>0)moving.dir=-1;if(moving.x<-moving.w*.8&&moving.dir<0)moving.dir=1;
