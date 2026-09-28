@@ -160,6 +160,20 @@
   .ovtic{font-size:56px;animation:pop .7s ease-in-out infinite alternate}
   .ovtlist{display:flex;flex-direction:column;gap:6px;width:min(100%,320px)}.ovtlist div{background:rgba(255,255,255,.07);border-radius:12px;padding:8px 12px;font-weight:900;display:flex;gap:8px;align-items:center}
   .ovtlist b{margin-left:auto;font-family:"Bungee",Impact,sans-serif}
+  .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(100%,320px)}.mgrid .btn{width:100%}
+  .cats{display:flex;gap:8px;overflow-x:auto;width:100%;padding:2px 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cats::-webkit-scrollbar{display:none}
+  .cats button{flex:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);font:900 13px "Nunito",sans-serif;padding:8px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.06)}
+  .cats button.on{background:linear-gradient(160deg,var(--vio),#5a3fd6);box-shadow:0 3px 0 var(--vioD)}.cats button small{font-size:11px;opacity:.75;background:rgba(0,0,0,.25);border-radius:99px;padding:1px 6px}
+  .cats button.full small{background:var(--ok);color:#06301c;opacity:1}
+  .chead{width:100%;display:flex;align-items:center;gap:10px;font-weight:900;font-size:14px;text-align:left}.chead .bar{flex:1;height:8px}.chead span{color:var(--muted);font-size:12px}
+  .item .tag.season{color:#ffc23d}.item.off canvas{filter:saturate(.35) brightness(.7)}
+  .collhero{width:100%;display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,#2a2356,#1b1640);border-radius:18px;padding:10px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
+  .collhero canvas{width:52%;height:120px;border-radius:12px;background:#15142f;flex:none}.collhero .ci{display:flex;flex-direction:column;gap:4px;text-align:left}.collhero b{font-family:"Bungee",Impact,sans-serif;font-size:18px}.collhero span{color:var(--muted);font-weight:800;font-size:13px}
+  .collprog{width:100%;display:flex;align-items:center;gap:10px;font-weight:900}.collprog .bar{flex:1;height:10px}
+  .colllist{width:100%;display:flex;flex-direction:column;gap:14px}.csec{display:flex;flex-direction:column;gap:8px}
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+  .citem{background:var(--card);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:4px;border:2px solid transparent;cursor:pointer;font:900 12px "Nunito",sans-serif;color:var(--ink);text-align:center}
+  .citem canvas{width:100%;height:46px;border-radius:8px;background:#15142f}.citem.on{border-color:var(--ok)}.citem.more{justify-content:center;align-items:center;color:var(--muted);border:2px dashed rgba(255,255,255,.14);background:none;min-height:70px}
   .sec{width:100%;text-align:left;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
   .days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:100%}
   .day{background:var(--card);border-radius:10px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:900;color:var(--muted);border:2px solid transparent}
@@ -290,7 +304,7 @@
     <div class="lvl"><div class="badge" id="mLvl">1</div><div class="info"><div class="t"><span data-t="level" style="color:var(--ink)"></span><span id="mXp">0/90 XP</span></div><div class="bar"><i id="mBar" style="width:0"></i></div></div></div>
     <button class="btn play" id="play" data-t="play"></button>
     <button class="btn dlyb sm" id="openDaily"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M12 12.3l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="currentColor"/></svg><span data-t="dlyB"></span><small id="dlyLeft"></small></button>
-    <div class="row"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button><button class="btn alt sm" id="openPP" data-t="ppB"></button></div>
+    <div class="mgrid"><button class="btn alt sm" id="openShop" data-t="shop"></button><button class="btn alt sm" id="openColl" data-t="skinsB"></button><button class="btn alt sm" id="openMis"><span data-t="missions"></span><span class="dot" id="misDot" hidden></span></button><button class="btn alt sm" id="openPP" data-t="ppB"></button></div>
     <button class="btn rankb sm" id="openRank"><svg viewBox="0 0 24 24"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="currentColor"/></svg><span data-t="rankBtn"></span></button>
     <button class="link help-link" id="openHelp"><span class="q">?</span><span data-t="howTo"></span></button>
     <p id="bestMenu"></p>
@@ -330,6 +344,7 @@
   <div class="panel full" id="shop" hidden><div class="inner">
     <div class="top"><h2 data-t="shop"></h2><button class="btn alt sm" id="closeShop" data-t="back"></button></div>
     <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" data-tab="skins" data-t="skins"></button><button class="tab" role="tab" aria-selected="false" data-tab="powers" data-t="powers"></button><button class="tab" role="tab" aria-selected="false" data-tab="gems" data-t="gems"></button></div>
+    <div class="cats" id="skCats" hidden></div><div class="chead" id="skHead" hidden></div>
     <div class="grid" id="grid"></div><p class="note" id="shopNote"></p>
   </div></div>
 
@@ -364,6 +379,14 @@
     <div class="cclist" id="pfList" hidden></div>
     <button class="btn okb" id="pfSave" data-t="save"></button>
     <button class="link" id="pfCancel" data-t="cancel"></button>
+  </div></div>
+
+  <div class="panel full" id="coll" hidden><div class="inner">
+    <div class="top"><h2 data-t="collT"></h2><button class="btn alt sm" id="closeColl" data-t="back"></button></div>
+    <div class="collhero"><canvas id="collCv"></canvas><div class="ci"><b id="collName"></b><span id="collCat"></span></div></div>
+    <div class="collprog"><div class="bar g"><i id="collBar"></i></div><span id="collCnt"></span></div>
+    <div id="collList" class="colllist"></div>
+    <button class="btn sm" id="collShop" data-t="collShop"></button>
   </div></div>
 
   <div class="panel full" id="pp" hidden><div class="inner">
@@ -625,6 +648,7 @@ function bump(id){const el=$(id);el.classList.add('bump');setTimeout(()=>el.clas
 //@@SKINS@@
 //@@SKINS2@@
 //@@SKINS3@@
+//@@SKINS4@@
 //@@WORLDS@@
 /* ================= GAME ================= */
 const BASEW=0.62;
@@ -855,7 +879,7 @@ function finish(){
   $('wCoins').textContent=before;$('wGems').textContent=S.gems;
   if(final>0)setTimeout(()=>{flyCoins(final,$('totRow'));let shown=before;const step=Math.max(1,Math.ceil(final/30));const iv=setInterval(()=>{shown=Math.min(S.coins,shown+step);$('wCoins').textContent=shown;if(shown>=S.coins){clearInterval(iv);wallet()}},40)},450);
 }
-function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt'].forEach(p=>$(p).hidden=true)}
+function hideAll(){['menu','over','shop','mis','revive','pause','settings','rank','prof','help','pp','ovt','coll'].forEach(p=>$(p).hidden=true)}
 function startGame(){setTimeout(()=>{if(state==='play'&&mode!=='daily')tip('bar',t('tipBar'),'bar')},1400);hideAll();reset();state='play';$('hud').hidden=false;$('score').textContent='0';setCombo('');$('gear').hidden=true;$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';renderAbar();$('hint').hidden=S.best>=5;$('dlyTag').hidden=mode!=='daily';rivalStart();lastT=performance.now();sfx.whoosh()}
 function showMenuTexts(){$('bestMenu').textContent=S.best?t('bestMenu',S.best):'';lvlUI('mLvl','mXp','mBar');menuDot();dailyBtn()}
 // mostra um aviso só quando o jogador estiver no menu (nunca por cima de uma partida)
@@ -882,9 +906,32 @@ $('verNum').textContent=VERSION;
 /* ================= SHOP ================= */
 const PACKS=[{id:'cristais_50',k:'g1',gems:50,price:'R$ 4,90'},{id:'cristais_150',k:'g2',gems:150,price:'R$ 12,90',tag:'popular'},{id:'cristais_400',k:'g3',gems:400,price:'R$ 29,90'},{id:'cristais_1000',k:'g4',gems:1000,price:'R$ 64,90',tag:'bestValue'}];
 let tab='skins',backTo='menu',buyBusy=false;
+/* ---- categorias de skins ---- */
+const SKIN_CATS=[{k:'dogs',ic:'🐶'},{k:'cats',ic:'🐱'},{k:'party',ic:'🎉'},{k:'food',ic:'🍩'},{k:'elements',ic:'⚡'},{k:'ocean',ic:'🌊'},{k:'space',ic:'🚀'},{k:'arcade',ic:'🕹️'},{k:'special',ic:'✨'},{k:'prints',ic:'🐆'},{k:'basic',ic:'🧱'}];
+let shopCat='dogs';
+const catOf=k=>SKINS.filter(s=>s.cat===k);
+const mmdd=d=>String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+// skins de festa só podem ser compradas na época (depois de comprada é sua pra sempre)
+function inSeason(s){if(!s.season)return true;const [a,b]=s.season,m=mmdd(new Date(typeof nowSrv==='function'?nowSrv():Date.now()));return a<=b?(m>=a&&m<=b):(m>=a||m<=b)}
+const fmtMD=v=>v.split('-').reverse().join('/');
+function catChips(el,active,onPick,ownedOnly){el.innerHTML='';SKIN_CATS.forEach(cg=>{const L=catOf(cg.k);if(!L.length)return;const own=L.filter(s=>S.owned.includes(s.id)).length;if(ownedOnly&&!own)return;
+  const b=document.createElement('button');b.className=(cg.k===active?'on':'')+(own===L.length?' full':'');b.innerHTML=`<span>${cg.ic}</span>${t('cat_'+cg.k)}<small>${own}/${L.length}</small>`;b.onclick=()=>onPick(cg.k);el.appendChild(b)});
+  const on=el.querySelector('.on');if(on)on.scrollIntoView({inline:'center',block:'nearest'})}
+/* ---- minhas skins (coleção): equipar e ver o que falta ---- */
+function openColl(){hideAll();$('coll').hidden=false;renderColl()}
+function renderColl(){previews.length=0;const sk=skinOf(S.skin);$('collName').textContent=t('s_'+sk.id);const cg=SKIN_CATS.find(c=>c.k===sk.cat);$('collCat').textContent=cg?cg.ic+' '+t('cat_'+cg.k):'';
+  previews.push({cv:$('collCv'),skin:sk,hero:true});const tot=SKINS.length,own=SKINS.filter(s=>S.owned.includes(s.id)).length;$('collBar').style.width=(own/tot*100)+'%';$('collCnt').textContent=t('collCnt',own,tot);
+  const L=$('collList');L.innerHTML='';
+  SKIN_CATS.forEach(cg=>{const all=catOf(cg.k);const mine=all.filter(s=>S.owned.includes(s.id));if(!all.length)return;const sec=document.createElement('div');sec.className='csec';
+    sec.innerHTML=`<div class="chead"><b>${cg.ic} ${t('cat_'+cg.k)}</b><div class="bar g"><i style="width:${mine.length/all.length*100}%"></i></div><span>${mine.length}/${all.length}</span></div>`;
+    const g=document.createElement('div');g.className='cgrid';
+    mine.forEach(s=>{const d=document.createElement('button');d.className='citem'+(S.skin===s.id?' on':'');d.innerHTML=`<canvas></canvas><span>${t('s_'+s.id)}</span>`;d.onclick=()=>{S.skin=s.id;save();sfx.coin();renderColl()};g.appendChild(d);previews.push({cv:d.querySelector('canvas'),skin:s})});
+    if(mine.length<all.length){const m=document.createElement('button');m.className='citem more';m.textContent=t('inShop',all.length-mine.length);m.onclick=()=>{shopCat=cg.k;$('coll').hidden=true;openShop('skins');backTo='coll'};g.appendChild(m)}
+    sec.appendChild(g);L.appendChild(sec)})}
+$('openColl').onclick=openColl;$('closeColl').onclick=showMenu;$('collShop').onclick=()=>{$('coll').hidden=true;shopCat=skinOf(S.skin).cat||shopCat;openShop('skins');backTo='coll'};
 function openShop(tb){backTo=state==='over'?'over':'menu';tab=tb||'skins';$('menu').hidden=true;$('over').hidden=true;$('shop').hidden=false;renderShop()}
 $('openShop').onclick=()=>openShop();$('overShop').onclick=()=>openShop();
-$('closeShop').onclick=()=>{$('shop').hidden=true;backTo==='over'?$('over').hidden=false:showMenu()};
+$('closeShop').onclick=()=>{$('shop').hidden=true;backTo==='over'?$('over').hidden=false:backTo==='coll'?openColl():showMenu()};
 $('openMis').onclick=()=>{$('menu').hidden=true;$('mis').hidden=false;renderMis()};
 $('closeMis').onclick=()=>showMenu();
 $('overMenu').onclick=()=>showMenu();
@@ -893,19 +940,25 @@ const previews=[];
 function renderShop(){
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
   const g=$('grid');g.innerHTML='';g.classList.remove('list');previews.length=0;
+  $('skCats').hidden=$('skHead').hidden=tab!=='skins';
   if(tab==='skins'){
     $('shopNote').textContent=t('skinsNote');
-    SKINS.forEach((s,k)=>{
+    catChips($('skCats'),shopCat,k=>{shopCat=k;renderShop()});
+    {const L=catOf(shopCat),own=L.filter(s=>S.owned.includes(s.id)).length;$('skHead').innerHTML=`<b>${(SKIN_CATS.find(c=>c.k===shopCat)||{}).ic||''} ${t('cat_'+shopCat)}</b><div class="bar g"><i style="width:${own/L.length*100}%"></i></div><span>${own}/${L.length}</span>`}
+    catOf(shopCat).forEach((s,k)=>{
       const own=S.owned.includes(s.id),on=S.skin===s.id;
       const d=document.createElement('div');d.className='item'+(on?' on':'');d.style.animationDelay=(k*35)+'ms';
-      const tag={coin:t('common'),gem:t('exclusive'),lvl:t('lvlN',s.price)}[s.cur];
-      d.innerHTML=`<canvas></canvas><div class="nm">${t('s_'+s.id)}</div><div class="tag">${tag}</div>`;
+      const avail=inSeason(s);const tag=s.season?(avail?t('seasonUntil',fmtMD(s.season[1])):t('seasonFrom',fmtMD(s.season[0]))):{coin:t('common'),gem:t('exclusive'),lvl:t('lvlN',s.price)}[s.cur];
+      if(!own&&!avail)d.classList.add('off');
+      d.innerHTML=`<canvas></canvas><div class="nm">${t('s_'+s.id)}</div><div class="tag${s.season?' season':''}">${tag}</div>`;
       const b=document.createElement('button');
       if(own){b.className='btn '+(on?'used':'alt');b.textContent=on?t('equipped'):t('use')}
+      else if(!avail){b.className='btn alt';b.disabled=true;b.textContent='📅 '+fmtMD(s.season[0])}
       else if(s.cur==='lvl'){b.className='btn alt';b.disabled=true;b.textContent=t('lvlBtn',s.price)}
       else{b.className='btn '+(s.cur==='gem'?'gemb':'');b.innerHTML=`${s.cur==='coin'?'<i class="coin"></i>':'<i class="gem"></i>'} ${s.price}`}
       b.onclick=()=>{
         if(own){S.skin=s.id;save();renderShop();return}
+        if(!inSeason(s))return;
         const bal=s.cur==='coin'?S.coins:S.gems;
         if(bal<s.price){toast(s.cur==='coin'?t('needCoins',s.price-bal):t('noGems'));if(s.cur==='gem'){tab='gems';renderShop()}return}
         if(s.cur==='coin')S.coins-=s.price;else S.gems-=s.price;
@@ -937,7 +990,8 @@ function drawPreviews(){if((pvF++)&1)return; // 30 fps nas prévias da loja
     const pw=Math.round(r.width*DPR),ph=Math.round(r.height*DPR);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
     const x=c.getContext('2d');x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,r.width,r.height);
     const ww=r.width*.66,cx=(r.width-ww)/2,y0=(r.height-BH*2)/2;
-    block(cx+5,y0+BH,ww,4,1,x,p.skin);block(cx-3,y0,ww-6,5,1,x,p.skin);
+    if(p.hero){const n=3,sc=Math.min(1,r.height/(BH*n+16));x.save();x.translate(r.width/2,r.height-6);x.scale(sc,sc);for(let k=0;k<n;k++){const w2=r.width/sc*.7-k*8;block(-w2/2+(k%2?5:-3),-BH*(k+1),w2,k+2,1,x,p.skin)}x.restore()}
+    else{block(cx+5,y0+BH,ww,4,1,x,p.skin);block(cx-3,y0,ww-6,5,1,x,p.skin)}
   }
 }
 
@@ -989,7 +1043,7 @@ function frame(tt){
   for(let k=floats.length-1;k>=0;k--){const f=floats[k];f.y-=1.1*dt;f.l-=.018*dt;ctx.globalAlpha=Math.max(0,f.l);const sc=f.l>.85?1+(f.l-.85)*2:1;ctx.font=`900 ${f.size*sc}px Nunito, sans-serif`;ctx.lineWidth=4;ctx.strokeStyle='rgba(0,0,0,.45)';ctx.strokeText(f.txt,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.txt,f.x,f.y);if(f.l<=0)floats.splice(k,1)}
   ctx.globalAlpha=1;ctx.restore();
   if(flash>0){ctx.fillStyle=`rgba(255,255,255,${flash*.1})`;ctx.fillRect(0,0,W,H);flash-=.08*dt}
-  if(!$('shop').hidden)drawPreviews();
+  if(!$('shop').hidden||!$('coll').hidden)drawPreviews();
 }
 
 let lastTap=0;
@@ -1024,6 +1078,7 @@ if(N){
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('ovt').hidden){$('ovtNo').click();return}
     if(!$('pp').hidden){showMenu();return}
+    if(!$('coll').hidden){showMenu();return}
     if(state==='revive'&&!$('revive').hidden){$('revSkip').click();return}
     if(!$('rkWin').hidden){$('rkWinOk').click();return}
     if(!$('buy').hidden){$('buy').hidden=true;return}
