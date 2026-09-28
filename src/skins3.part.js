@@ -10,22 +10,23 @@ function face(c,cx,cy,r,o){const ear=r*.95;c.fillStyle=o.fur;
   if(o.mask){c.fillStyle=o.mask;c.beginPath();c.ellipse(cx,cy+r*.28,r*.62,r*.45,0,0,TAU);c.fill()}
   const ex=r*.42,ey=cy-r*.08;
   if(o.closed||o.blink){c.strokeStyle=o.line||'#2a1a14';c.lineWidth=Math.max(1.2,r*.13);c.lineCap='round';
-    for(const s of [-1,1]){c.beginPath();c.arc(cx+s*ex,ey-r*.05,r*.2,.15*Math.PI,.85*Math.PI);c.stroke()}}
-  else{c.fillStyle=o.eye||'#2a1a14';for(const s of [-1,1]){c.beginPath();c.ellipse(cx+s*ex,ey,r*.17,r*.22,0,0,TAU);c.fill()}
-    if(o.pupil){c.fillStyle=o.pupil;for(const s of [-1,1]){c.beginPath();c.ellipse(cx+s*ex,ey,r*.05,r*.18,0,0,TAU);c.fill()}}
-    c.fillStyle='rgba(255,255,255,.9)';for(const s of [-1,1]){c.beginPath();c.arc(cx+s*ex+r*.06,ey-r*.08,r*.06,0,TAU);c.fill()}}
+    for(const s of SGN){c.beginPath();c.arc(cx+s*ex,ey-r*.05,r*.2,.15*Math.PI,.85*Math.PI);c.stroke()}}
+  else{c.fillStyle=o.eye||'#2a1a14';for(const s of SGN){c.beginPath();c.ellipse(cx+s*ex,ey,r*.17,r*.22,0,0,TAU);c.fill()}
+    if(o.pupil){c.fillStyle=o.pupil;for(const s of SGN){c.beginPath();c.ellipse(cx+s*ex,ey,r*.05,r*.18,0,0,TAU);c.fill()}}
+    c.fillStyle='rgba(255,255,255,.9)';for(const s of SGN){c.beginPath();c.arc(cx+s*ex+r*.06,ey-r*.08,r*.06,0,TAU);c.fill()}}
   c.fillStyle=o.nose||'#ff8fab';c.beginPath();c.moveTo(cx-r*.1,cy+r*.18);c.lineTo(cx+r*.1,cy+r*.18);c.lineTo(cx,cy+r*.3);c.closePath();c.fill();
   c.strokeStyle=o.line||'#2a1a14';c.lineWidth=Math.max(1,r*.08);c.beginPath();c.moveTo(cx,cy+r*.3);c.quadraticCurveTo(cx-r*.12,cy+r*.45,cx-r*.24,cy+r*.36);c.moveTo(cx,cy+r*.3);c.quadraticCurveTo(cx+r*.12,cy+r*.45,cx+r*.24,cy+r*.36);c.stroke();
-  if(o.whisk!==false){c.strokeStyle=o.whisk||'rgba(255,255,255,.8)';c.lineWidth=.9;for(const s of [-1,1])for(const k of [-1,1]){c.beginPath();c.moveTo(cx+s*r*.45,cy+r*.28+k*r*.08);c.lineTo(cx+s*r*1.15,cy+r*.22+k*r*.2);c.stroke()}}
-  if(o.blush){c.fillStyle=o.blush;for(const s of [-1,1]){c.beginPath();c.ellipse(cx+s*r*.62,cy+r*.25,r*.16,r*.1,0,0,TAU);c.fill()}}}
+  if(o.whisk!==false){c.strokeStyle=o.whisk||'rgba(255,255,255,.8)';c.lineWidth=.9;for(const s of SGN)for(const k of SGN){c.beginPath();c.moveTo(cx+s*r*.45,cy+r*.28+k*r*.08);c.lineTo(cx+s*r*1.15,cy+r*.22+k*r*.2);c.stroke()}}
+  if(o.blush){c.fillStyle=o.blush;for(const s of SGN){c.beginPath();c.ellipse(cx+s*r*.62,cy+r*.25,r*.16,r*.1,0,0,TAU);c.fill()}}}
 // pata (almofadinhas)
+const PAWP=[[-.42,-.28],[-.15,-.5],[.15,-.5],[.42,-.28]];
 function paw(c,x,y,s,col){c.fillStyle=col;c.beginPath();c.ellipse(x,y+s*.25,s*.42,s*.34,0,0,TAU);c.fill();
-  for(const [dx,dy] of [[-.42,-.28],[-.15,-.5],[.15,-.5],[.42,-.28]]){c.beginPath();c.ellipse(x+dx*s,y+dy*s,s*.15,s*.18,0,0,TAU);c.fill()}}
+  for(const [dx,dy] of PAWP){c.beginPath();c.ellipse(x+dx*s,y+dy*s,s*.15,s*.18,0,0,TAU);c.fill()}}
 // pálpebra por cima do olho aberto (desenhada só quando pisca — a carinha fica pronta na imagem guardada)
-function blinkOver(c,cx,cy,r,fur,line){const ex=r*.42,ey=cy-r*.08;c.fillStyle=fur;for(const s of [-1,1]){c.beginPath();c.ellipse(cx+s*ex,ey,r*.24,r*.29,0,0,TAU);c.fill()}
-  c.strokeStyle=line||'#2a1a14';c.lineWidth=Math.max(1.2,r*.13);c.lineCap='round';for(const s of [-1,1]){c.beginPath();c.arc(cx+s*ex,ey-r*.05,r*.2,.15*Math.PI,.85*Math.PI);c.stroke()}}
+function blinkOver(c,cx,cy,r,fur,line){const ex=r*.42,ey=cy-r*.08;c.fillStyle=fur;for(const s of SGN){c.beginPath();c.ellipse(cx+s*ex,ey,r*.24,r*.29,0,0,TAU);c.fill()}
+  c.strokeStyle=line||'#2a1a14';c.lineWidth=Math.max(1.2,r*.13);c.lineCap='round';for(const s of SGN){c.beginPath();c.arc(cx+s*ex,ey-r*.05,r*.2,.15*Math.PI,.85*Math.PI);c.stroke()}}
 // posições das carinhas (iguais na base e no brilho), alternadas por andar
-function* spots(x,w,i,P,min){for(let o=(i*37)%P,X=Math.floor((x-o)/P)*P+o+P/2;X<x+w+22;X+=P){const a=hash(X*.13+i*3.7);if(a>=min)yield [X,a]}}
+function spots(x,w,i,P,min){return posMemo(posKey(1,i,P,min,37),x,w,()=>{const out=[];for(let o=(i*37)%P,X=Math.floor((x-o)/P)*P+o+P/2;X<x+w+22;X+=P){const a=hash(X*.13+i*3.7);if(a>=min)out.push([X,a])}return out})}
 const blinkAt=(seed,per=3200)=>((tNow+seed*997)%per)<140;
 function sk(id,cur,price,base,fx){return {id,cur,price,base,fx,draw(c,x,y,w,i){base(c,x,y,w,i);fx(c,x,y,w,i)}}}
 const O_OR={fur:'#ffc27a',inner:'#ff9fb0',mask:'#fff1dc',nose:'#ff7d95'},O_TUX={fur:'#2b2b33',inner:'#ff9fb0',mask:'#f4f4f8',eye:'#ffe066',pupil:'#1c1c1c',whisk:'rgba(255,255,255,.85)'},
@@ -49,7 +50,7 @@ return [
  sk('cat_black','gem',60,(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#241a3a','#120c1f','#0a0712']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(180,140,255,.12)';c.fillRect(x,y,w,3)},
   (c,x,y,w,i)=>{const G=eyeGlow();for(let X=Math.floor(x/34)*34;X<x+w;X+=34){const a=hash(X*.29+i*5.1),b=hash(X*.53+i);if(a<.45)continue;const cx=X+8+b*18,cy=y+10+a*14,per=2600+a*2400,ph=(tNow+a*9000)%per;
      const open=ph>per*.25?1:ph>per*.2?(ph-per*.2)/(per*.05):ph<per*.05?1-ph/(per*.05):0;if(open<=.02)continue;
-     c.drawImage(G,cx-12,cy-12,24,24);for(const s of [-1,1]){c.fillStyle='#ffd54a';c.beginPath();c.ellipse(cx+s*5,cy,2.8,3.4*open,0,0,TAU);c.fill();c.fillStyle='#1a1a1a';c.beginPath();c.ellipse(cx+s*5,cy,.9,3*open,0,0,TAU);c.fill()}}}),
+     c.drawImage(G,cx-12,cy-12,24,24);for(const s of SGN){c.fillStyle='#ffd54a';c.beginPath();c.ellipse(cx+s*5,cy,2.8,3.4*open,0,0,TAU);c.fill();c.fillStyle='#1a1a1a';c.beginPath();c.ellipse(cx+s*5,cy,.9,3*open,0,0,TAU);c.fill()}}}),
  // 4. SIAMÊS: creme com as pontas marrons e olhos azuis
  sk('cat_siam','coin',1500,(c,x,y,w,i)=>{const g=c.createLinearGradient(0,y,0,y+BH);g.addColorStop(0,'#6b4a36');g.addColorStop(.28,'#f3e3c7');g.addColorStop(.72,'#f3e3c7');g.addColorStop(1,'#6b4a36');c.fillStyle=g;c.fillRect(x,y,w,BH);
    for(const [X] of spots(x,w,i,100,0))face(c,X,y+BH*.6,11.5,O_SI);bevel(c,x,y,w,.3,.15)},
@@ -95,7 +96,7 @@ return [
    bevel(c,x,y,w,.16,.3)},
   (c,x,y,w,i)=>{for(let X=Math.floor(x/7)*7;X<x+w;X+=7){const a=hash(X*.61+i*9);if(a>.55){const tw=.35+.65*Math.abs(Math.sin(tNow*.002+X*.3));c.fillStyle=WA[Math.round(tw*(a-.4)*20)];c.fillRect(X+hash(X+i)*5,y+3+hash(X*1.7+i)*(BH-6),1.4,1.4)}}
    for(const [X] of spots(x,w,i,120,0)){const cx=X,cy=y+BH*.58,r=10,pul=.55+.45*Math.sin(tNow*.003+X);c.fillStyle='#fff';for(const [dx,dy] of COSP){c.beginPath();c.arc(cx+dx*r,cy+dy*r,1.3+pul*.8,0,TAU);c.fill()}
-     c.fillStyle=`rgba(140,230,255,${(.6+.4*pul).toFixed(2)})`;c.beginPath();c.arc(cx-r*.4,cy-r*.15,1.8,0,TAU);c.arc(cx+r*.4,cy-r*.15,1.8,0,TAU);c.fill()}}),
+     c.fillStyle=CA('140,230,255',.6+.4*pul);c.beginPath();c.arc(cx-r*.4,cy-r*.15,1.8,0,TAU);c.arc(cx+r*.4,cy-r*.15,1.8,0,TAU);c.fill()}}),
 ];})();
 const YARN=[['#8fd3ff','#4aa8e6'],['#b8a3ff','#7a5cf0'],['#ffb3c7','#f06a95'],['#a6f0b8','#3fbf6a']];
 const COSP=[[-1,-.1],[-.75,-1.35],[-.2,-.8],[.2,-.8],[.75,-1.35],[1,-.1],[.55,.7],[-.55,.7]];

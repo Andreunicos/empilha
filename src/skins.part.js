@@ -2,8 +2,16 @@
 const BH=34;let hue0=200,tNow=0;
 const hsl=(h,s,l,a=1)=>`hsla(${((h%360)+360)%360},${s}%,${l}%,${a})`;
 const hash=n=>{n=Math.sin(n*127.1)*43758.5453;return n-Math.floor(n)};
+// mesma ideia pra qualquer cor: CA('255,190,90',.4) devolve 'rgba(255,190,90,0.4)' pronto (21 níveis de transparência)
+const CAM={};function CA(rgb,a){let t=CAM[rgb];if(!t){t=CAM[rgb]=[];for(let k=0;k<=20;k++)t.push(`rgba(${rgb},${k/20})`)}return t[Math.max(0,Math.min(20,Math.round(a*20)))]}
+// posições dos enfeites de cada bloco: são sempre as mesmas pro mesmo bloco, então ficam guardadas
+// (antes eram recalculadas e criavam lixo na memória todo frame, o que causava engasgos do coletor de lixo)
+// (chave numérica por bloco + confere x/largura: nada de texto criado por frame)
+const POSM=new Map(),SGN=[-1,1];function posMemo(k,x,w,mk){let v=POSM.get(k);if(!v||v.x!==x||v.w!==w){if(POSM.size>4000)POSM.clear();v={x,w,o:mk()};POSM.set(k,v)}return v.o}
+const posKey=(tag,i,P,min,sh)=>((((i|0)*512+(P|0))*128+((min*100)|0))*64+((sh|0)&63))*4+tag;
 function vgrad(c,y,stops){const g=c.createLinearGradient(0,y,0,y+BH);stops.forEach((s,k)=>g.addColorStop(k/(stops.length-1),s));return g}
-function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+// retângulo arredondado: usa o roundRect nativo quando existe (o Android reconhece a forma e recorta/pinta bem mais rápido)
+function rr(c,x,y,w,h,r){r=Math.max(0,Math.min(r,w/2,h/2));c.beginPath();if(c.roundRect&&w>=0&&h>=0){c.roundRect(x,y,w,h,r);return}c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
 function bevel(c,x,y,w,top=.3,bot=.25){c.fillStyle=`rgba(255,255,255,${top})`;c.fillRect(x,y,w,4);c.fillStyle=`rgba(0,0,0,${bot})`;c.fillRect(x,y+BH-5,w,5);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(x,y,3,BH);c.fillStyle='rgba(0,0,0,.12)';c.fillRect(x+w-3,y,3,BH)}
 // every pattern uses world x (not block x), so cut pieces keep matching the block below
 const SKINS=[
@@ -22,11 +30,12 @@ const SKINS=[
  {id:'sunset',name:'Pôr do Sol',cur:'lvl',price:10,draw(c,x,y,w,i){const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#ff5d8f');g.addColorStop(.5,'#ff9a3d');g.addColorStop(1,'#8b5cf6');c.fillStyle=g;c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,240,200,.35)';c.fillRect(x,y+12,w,3);c.fillRect(x,y+20,w,2);bevel(c,x,y,w)}},
  {id:'diamond',name:'Diamante',cur:'lvl',price:20,draw(c,x,y,w,i){c.fillStyle='#bdf3ff';c.fillRect(x,y,w,BH);const s=17;for(let X=Math.floor(x/s)*s;X<x+w;X+=s){const a=hash(X*.37+i),b=hash(X*.91+i);c.fillStyle=`rgba(255,255,255,${.25+a*.6})`;c.beginPath();c.moveTo(X,y);c.lineTo(X+s,y);c.lineTo(X+s/2,y+BH/2);c.fill();c.fillStyle=`rgba(60,160,220,${.2+b*.45})`;c.beginPath();c.moveTo(X,y+BH);c.lineTo(X+s,y+BH);c.lineTo(X+s/2,y+BH/2);c.fill()}const sp=((tNow*.25+i*60)%(W+160))-80;if(sp>x-10&&sp<x+w+10){c.fillStyle='#fff';c.beginPath();c.moveTo(sp,y+BH/2-7);c.lineTo(sp+2,y+BH/2);c.lineTo(sp,y+BH/2+7);c.lineTo(sp-2,y+BH/2);c.fill()}bevel(c,x,y,w,.5,.18)}},
  {id:'gold',name:'Ouro',cur:'gem',price:40,draw(c,x,y,w,i){c.fillStyle=vgrad(c,y,['#fff4c2','#f5c542','#d99a16','#9c6a05']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(120,80,0,.3)';c.fillRect(x,y+BH/2,w,1.5);const sx=((tNow*.3+i*47)%(W+220))-110;c.fillStyle='rgba(255,255,255,.6)';c.beginPath();c.moveTo(sx,y+BH);c.lineTo(sx+10,y+BH);c.lineTo(sx+10+BH*.7,y);c.lineTo(sx+BH*.7,y);c.fill();bevel(c,x,y,w,.5,.2)}},
- {id:'lava',name:'Lava',cur:'gem',price:60,draw(c,x,y,w,i){const p=.6+.4*Math.sin(tNow*.004+i*.7);c.fillStyle=vgrad(c,y,['#3a1610','#24100c','#ff5a1f']);c.fillRect(x,y,w,BH);c.fillStyle=`rgba(255,120,30,${.35+.35*p})`;c.fillRect(x,y+BH-8,w,8);c.lineCap='round';const x0=Math.floor(x/16)*16;const pts=[];for(let X=x0;X<=x+w+16;X+=16)pts.push([X,y+9+hash(X*.13+i)*14]);[[8,`rgba(255,110,20,${.3*p})`],[2.5,`rgb(255,${170+60*p|0},60)`]].forEach(([lw,col])=>{c.strokeStyle=col;c.lineWidth=lw;c.beginPath();pts.forEach(([a,b],k)=>k?c.lineTo(a,b):c.moveTo(a,b));c.stroke()});c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x,y,w,3)}},
+ {id:'lava',name:'Lava',cur:'gem',price:60,draw(c,x,y,w,i){const p=.6+.4*Math.sin(tNow*.004+i*.7);c.fillStyle=vgrad(c,y,['#3a1610','#24100c','#ff5a1f']);c.fillRect(x,y,w,BH);c.fillStyle=CA('255,120,30',.35+.35*p);c.fillRect(x,y+BH-8,w,8);c.lineCap='round';const x0=Math.floor(x/16)*16;c.beginPath();for(let X=x0;X<=x+w+16;X+=16){const v=y+9+hash(X*.13+i)*14;X===x0?c.moveTo(X,v):c.lineTo(X,v)}c.strokeStyle=CA('255,110,20',.3*p);c.lineWidth=8;c.stroke();c.strokeStyle=CA('255,'+(170+Math.round(p*6)*10)+',60',1);c.lineWidth=2.5;c.stroke();c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x,y,w,3)}},
  {id:'galaxy',name:'Galáxia',cur:'gem',price:90,draw(c,x,y,w,i){const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#1b0b45');g.addColorStop(.5,'#5a1d8f');g.addColorStop(1,'#0e2a6b');c.fillStyle=g;c.fillRect(x,y,w,BH);const nx=hash(i*3.1)*W;const rg=c.createRadialGradient(nx,y+BH/2,0,nx,y+BH/2,70);rg.addColorStop(0,'rgba(255,120,200,.45)');rg.addColorStop(1,'rgba(255,120,200,0)');c.fillStyle=rg;c.fillRect(x,y,w,BH);for(let X=Math.floor(x/9)*9;X<x+w;X+=9){const a=hash(X*.7+i*13);if(a>.45){const tw=.4+.6*Math.abs(Math.sin(tNow*.003+X));c.fillStyle=`rgba(255,255,255,${tw})`;const s=a>.9?2.2:1.3;c.fillRect(X+hash(X+i)*6,y+4+hash(X*1.3+i)*(BH-8),s,s)}}bevel(c,x,y,w,.18,.3)}},
  {id:'holo',name:'Holográfico',cur:'gem',price:120,draw(c,x,y,w,i){const off=(tNow*.06+i*25)%(W+300);const g=c.createLinearGradient(-off,0,W+300-off,0);['#ff9ae6','#9ad8ff','#b8ffcf','#fff3a3','#ffb3c9','#c3a9ff','#ff9ae6'].forEach((col,k,a)=>g.addColorStop(k/(a.length-1),col));c.fillStyle=g;c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,255,255,.4)';for(let s=Math.floor(x/60)*60+((i*17)%60);s<x+w+BH;s+=60){c.beginPath();c.moveTo(s,y+BH);c.lineTo(s+6,y+BH);c.lineTo(s+6+BH*.8,y);c.lineTo(s+BH*.8,y);c.fill()}bevel(c,x,y,w,.5,.18)}},
 ];
-const skinOf=id=>SKINS.find(s=>s.id===id)||SKINS[0];
+// busca da skin pelo id (guardada num mapa; refeito se a lista crescer)
+let SKM=null,SKMn=0;const skinOf=id=>{if(!SKM||SKMn!==SKINS.length){SKM=new Map(SKINS.map(s=>[s.id,s]));SKMn=SKINS.length}return SKM.get(id)||SKINS[0]};
 function block(x,y,w,i,alpha=1,c=ctx,sk){if(w<=.5)return;sk=sk||skinOf(S.skin);c.save();c.globalAlpha=alpha;rr(c,x,y,w,BH,sk.r??5);c.clip();sk.draw(c,x,y,w,i);c.restore()}
 
 /* ---- desempenho: cada bloco da torre vira uma imagem pronta (desenhar imagem é muito mais leve que redesenhar a skin).
@@ -45,12 +54,38 @@ function bcRender(b){const sk=BC.sk||skinOf(S.skin);const pw=Math.ceil(b.w*DPR)+
   const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,ph);c.setTransform(DPR,0,0,DPR,-b.x*DPR,0);
   c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();(sk.base||sk.draw).call(sk,c,b.x,0,b.w,b.i);c.restore();b.cvX=b.x;b.cvW=b.w}
 // desenha a torre visível (first..fim) usando o cache
-function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live';
-  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
-    if(live||age<260){if(age<260){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}else block(b.x,y,b.w,b.i);continue}
+function drawStack(first,yFor){bcSync();const n=stack.length,sk=BC.sk,live=BC.mode==='live',split=BC.mode==='split';
+  if(live||split)drawStackAnim(first,yFor,sk,live);
+  else for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
+    if(age<260){squash(b,y,age);continue}
     // bloco mudou de tamanho/lugar (poder Largo, reviver): refaz a imagem
-    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR);
-    if(BC.mode==='split'&&b.w>.5){ctx.save();rr(ctx,b.x,y,b.w,BH,sk.r??5);ctx.clip();sk.fx(ctx,b.x,y,b.w,b.i);ctx.restore()}}
+    if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);ctx.drawImage(b.cv,0,0,b.cv.width,b.cv.height,b.x,y,b.cv.width/DPR,b.cv.height/DPR)}
   // libera memória dos blocos que já saíram da tela
   for(let k=Math.max(0,first-6);k<first;k++)stack[k].cv=null}
+// bloco que acabou de cair (efeito de amassar): desenhado na hora
+function squash(b,y,age){const sq=1-.2*Math.sin(age/260*Math.PI)*(1-age/260);ctx.save();ctx.translate(b.x+b.w/2,y+BH);ctx.scale(1+(1-sq)*.6,sq);ctx.translate(-(b.x+b.w/2),-(y+BH));block(b.x,y,b.w,b.i);ctx.restore()}
+/* ---- skins animadas: "folha da torre" ----
+   Os blocos visíveis ficam numa imagem só (uma faixa por andar, em rodízio). A cada frame só METADE dos blocos tem a
+   animação redesenhada (alternando), e a torre inteira é copiada dessa folha. Cada bloco continua animando (30 fps),
+   a torre anda a 60 e o celular faz metade do trabalho. Em aparelho fraco (qualidade baixa), 1/3 por frame. ---- */
+const TL={cv:null,c:null,sh:0,ns:0,pw:0,own:[],dpr:0,id:null,f:0};
+function drawStackAnim(first,yFor,sk,live){
+  const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Math.ceil(W*DPR)+4,r=sk.r??5;
+  if(!TL.cv){TL.cv=document.createElement('canvas');TL.c=TL.cv.getContext('2d')}
+  if(TL.cv.width!==pw||TL.cv.height!==sh*ns||TL.id!==BC.id||TL.dpr!==DPR){TL.cv.width=pw;TL.cv.height=sh*ns;TL.sh=sh;TL.ns=ns;TL.pw=pw;TL.own=new Array(ns);TL.id=BC.id;TL.dpr=DPR}
+  const c=TL.c,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
+  // 1º passo: redesenha na folha os blocos da vez (todos de uma vez; se misturar desenhar e copiar, o navegador
+  // precisa duplicar a folha inteira a cada bloco)
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260)continue;
+    const s=k%ns,sy=s*sh,o=TL.own[s];
+    if(!o||o.b!==b||o.x!==b.x||o.w!==b.w||(k+f)%N===0){
+      c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,pw,sh);c.setTransform(DPR,0,0,DPR,2,sy+1);
+      if(live)block(b.x,0,b.w,b.i,1,c,sk);
+      else{if(!b.cv||b.cvX!==b.x||b.cvW!==b.w)bcRender(b);c.drawImage(b.cv,b.x,0,b.cv.width/DPR,b.cv.height/DPR);if(b.w>.5){c.save();rr(c,b.x,0,b.w,BH,r);c.clip();sk.fx(c,b.x,0,b.w,b.i);c.restore()}}
+      if(o){o.b=b;o.x=b.x;o.w=b.w}else TL.own[s]={b,x:b.x,w:b.w}}}
+  // 2º passo: copia a torre da folha pra tela
+  for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
+    if(age<260){squash(b,y,age);continue}
+    const sy=(k%ns)*sh,sx=Math.max(0,Math.floor(b.x*DPR)),sw=Math.min(pw,Math.ceil((b.x+b.w)*DPR)+4)-sx;
+    if(sw>0)ctx.drawImage(TL.cv,sx,sy,sw,sh,(sx-2)/DPR,y-1/DPR,sw/DPR,sh/DPR)}}
 

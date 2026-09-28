@@ -49,13 +49,14 @@
   .ab .bd{position:absolute;top:-5px;right:-5px;min-width:24px;height:24px;border-radius:12px;display:grid;place-items:center;font:900 13px "Nunito",sans-serif;color:#fff;background:#e53950;border:2px solid #fff;padding:0 5px;pointer-events:none}
   .ab .bd.plus{background:#2fbf5b;font-size:19px;line-height:1}
   .ab .lbl{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font:900 10px "Nunito",sans-serif;letter-spacing:.05em;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;pointer-events:none}
-  .ab.on{animation:abpulse .7s ease-in-out infinite alternate}
+  .ab::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:6px solid rgba(255,255,255,.35);opacity:0;pointer-events:none}
+  .ab.on::after{animation:abpulse .7s ease-in-out infinite alternate;will-change:opacity}
   .ab.spent{filter:grayscale(.85) brightness(.75)}
   .ab.idle{filter:grayscale(.7) brightness(.7);opacity:.7}
   .ab .bd.spent{background:#5b5670;font-size:12px}
   .ab.nope{animation:abnope .35s}
   @keyframes abnope{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
-  @keyframes abpulse{to{box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.35),0 0 0 6px rgba(255,255,255,.35)}}
+  @keyframes abpulse{to{opacity:1}}
   .a-magnet{background:linear-gradient(160deg,#ff7a9c,#e0305a)}.a-slow{background:linear-gradient(160deg,#6fd0ff,#2a86d8)}.a-wide{background:linear-gradient(160deg,#6ff0a8,#1fa864)}.a-calm{background:linear-gradient(160deg,#c7b3ff,#7a5ae0)}
   .pwr{flex-direction:row!important;align-items:center!important;text-align:left;gap:12px!important}
   .pwr .ico{width:54px;height:54px;border-radius:50%;flex:none;display:grid;place-items:center;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.35)}
@@ -474,9 +475,12 @@
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const cv=$('c'),ctx=cv.getContext('2d');
+// tela opaca (alpha:false): o fundo sempre cobre tudo, e o Android não precisa misturar a tela com o que está atrás
+const cv=$('c');let ctx=cv.getContext('2d',{alpha:false});
 let W,H,DPR;
-let QCAP=(()=>{try{return +localStorage.getItem('bs_q')||2}catch(e){return 2}})();
+// resolução máxima da tela do jogo (ajustada sozinha pelo FPS). Celular fraco (≤4 núcleos ou ≤2 GB) já começa em 1.5
+const QDEF=((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory&&navigator.deviceMemory<=2))?1.5:2;
+let QCAP=(()=>{try{return +localStorage.getItem('bs_q')||QDEF}catch(e){return QDEF}})();
 function resize(){DPR=Math.min(devicePixelRatio||1,QCAP);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCity()}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const VERSION=(window.EMPILHA_CONFIG&&window.EMPILHA_CONFIG.version)||'1.1';
@@ -692,8 +696,20 @@ function spawn(){
   windDir=rnd()<.5?-1:1;
 }
 function yOf(i){return H-190-i*BH+cam}
+/* textos prontos: cada texto (+1, PERFEITO, placas do recorde/rival...) é desenhado 1 vez numa imagem e reaproveitado.
+   Escrever texto com contorno todo frame é das coisas mais pesadas pro celular. */
+const TXC=new Map();let TXM=null;
+function sprite(k,w,h,draw){k=k+'|'+DPR;let sp=TXC.get(k);if(sp)return sp;if(TXC.size>150)TXC.clear();const cv=document.createElement('canvas');cv.width=Math.max(1,Math.ceil(w*DPR));cv.height=Math.max(1,Math.ceil(h*DPR));
+  const c=cv.getContext('2d');c.scale(DPR,DPR);draw(c);sp={cv,w,h};TXC.set(k,sp);return sp}
+function measure(font,txt){const m=TXM||(TXM=document.createElement('canvas').getContext('2d'));m.font=font;return m.measureText(txt)}
+function txtSprite(txt,col,size){const font='900 '+size+'px Nunito, sans-serif',mt=measure(font,txt),pad=4,asc=Math.ceil(mt.actualBoundingBoxAscent||size*.8),des=Math.ceil(mt.actualBoundingBoxDescent||size*.25);
+  const w=Math.ceil(Math.max(mt.width,(mt.actualBoundingBoxLeft||0)+(mt.actualBoundingBoxRight||0)))+pad*2,h=asc+des+pad*2;
+  const sp=sprite('t|'+txt+'|'+col+'|'+size,w,h,c=>{c.font=font;c.textAlign='center';c.textBaseline='alphabetic';c.lineWidth=4;c.strokeStyle='rgba(0,0,0,.45)';c.strokeText(txt,w/2,pad+asc);c.fillStyle=col;c.fillText(txt,w/2,pad+asc)});
+  sp.ax=w/2;sp.ay=pad+asc;return sp}
+try{document.fonts&&document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',()=>TXC.clear())}catch(e){}
 function addFloat(x,y,txt,col,size=18){const near=floats.filter(f=>f.l>.75&&Math.abs(f.y-y)<22).length;floats.push({x,y:y-near*24,txt,col,l:1,size})}
 let pwHTML='';function renderPw(){const h=Object.entries(P).filter(([,v])=>v>0).map(([k,v])=>`<span class="chip" style="background:${POWERS[k].col}">${t('p_'+k)} ${v}</span>`).join('');if(h!==pwHTML){pwHTML=h;$('pw').innerHTML=h}}
+function pwLabel(lb,col){const font='900 13px Nunito, sans-serif',tw=Math.max(60,measure(font,lb).width+20);return sprite('p|'+lb+'|'+col,tw,20,c=>{c.fillStyle=col;rr(c,0,0,tw,20,10);c.fill();c.font=font;c.fillStyle='#1a1030';c.textAlign='center';c.textBaseline='middle';c.fillText(lb,tw/2,10.5)})}
 function popAnim(el){el.classList.remove('pop');requestAnimationFrame(()=>el.classList.add('pop'))}
 function setScore(){const el=$('score');el.textContent=score;popAnim(el)}
 function setCombo(txt){const el=$('combo');if(el.textContent!==txt)el.textContent=txt;if(txt)popAnim(el)}
@@ -703,7 +719,7 @@ function drop(){
   // bloco ainda nem chegou na torre (ex.: toque duplo no JOGAR/REVIVER): ignora em vez de perder a partida
   // logo depois de começar/reviver, um toque duplo não conta (evita perder na hora sem querer)
   if(performance.now()<tapGrace)return;
-  $('hint').hidden=true;
+  {const h=$('hint');if(!h.hidden)h.hidden=true}
   const top=stack[stack.length-1],m=moving;
   if(run.errs&&run.errs.length<3000)run.errs.push({e:Math.abs(m.x-top.x),tol:perfTol(),mag:P.magnet>0});
   // ímã: puxa o bloco para cima da torre (vale até se fosse errar)
@@ -748,7 +764,8 @@ function burst(x,y,h,n,col){for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2
 
 /* ================= HABILIDADES ================= */
 function abIcon(k){return document.querySelector('.ab[data-a="'+k+'"] svg').outerHTML}
-function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');const spent=n<=0&&run&&run.vid&&run.vid[k];bd.textContent=n>0?n:spent?'✕':'+';bd.classList.toggle('plus',n<=0&&!spent);bd.classList.toggle('spent',!!spent);b.classList.toggle('spent',!!spent);b.classList.toggle('idle',k==='calm'&&state==='play'&&!hazard());b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
+// barra de poderes: só mexe no botão se algo mudou (antes reescrevia os 4 botões a cada bloco, e o navegador refazia o layout)
+const ABS={};function renderAbar(){document.querySelectorAll('.ab').forEach(b=>{const k=b.dataset.a,n=S.inv[k]||0,bd=b.querySelector('.bd');const spent=n<=0&&run&&run.vid&&run.vid[k];const sig=n+'|'+!!spent+'|'+(k==='calm'&&state==='play'&&!hazard())+'|'+!!(P&&P[k]>0)+'|'+LANG;if(ABS[k]===sig&&b.isConnected)return;ABS[k]=sig;bd.textContent=n>0?n:spent?'✕':'+';bd.classList.toggle('plus',n<=0&&!spent);bd.classList.toggle('spent',!!spent);b.classList.toggle('spent',!!spent);b.classList.toggle('idle',k==='calm'&&state==='play'&&!hazard());b.classList.toggle('on',(P&&P[k]>0));b.setAttribute('aria-label',t('a_'+k)+' ('+n+')')})}
 function applyAbility(k){
   run.powers++;sfx.power();buzz(20);
   const top=stack[stack.length-1];
@@ -779,7 +796,7 @@ document.querySelectorAll('.ab').forEach(b=>{b.addEventListener('pointerdown',e=
 
 /* ================= PAUSE ================= */
 function pauseGame(){if(state!=='play')return;state='pause';$('pause').hidden=false;$('pauseBtn').hidden=true;$('abar').hidden=true}
-function resumeGame(){$('pause').hidden=true;$('settings').hidden=true;state='play';$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';lastT=performance.now()}
+function resumeGame(){$('pause').hidden=true;$('settings').hidden=true;$('help').hidden=true;state='play';$('pauseBtn').hidden=false;$('abar').hidden=mode==='daily';lastT=performance.now()}
 $('pauseBtn').onclick=pauseGame;$('resume').onclick=resumeGame;
 $('quit').onclick=()=>{$('pause').hidden=true;moving=null;finish()};
 $('pauseSet').onclick=()=>openSettings('pause');
@@ -1021,12 +1038,24 @@ function drawPreviews(){if((pvF++)&1)return; // 30 fps nas prévias da loja
 //@@HELP@@
 //@@CLOUD@@
 /* ================= LOOP ================= */
-let wasPlaying=false,qN=0,qSum=0;
-// mede o FPS durante a partida; se ficar abaixo de ~45 fps, reduz a resolução um degrau (2 -> 1.75 -> 1.5 -> 1.25 -> 1) e lembra
-function qualityWatch(ms){if(state!=='play'||document.hidden)return;if(ms>100)return;qSum+=ms;if(++qN<120)return;const avg=qSum/qN;qN=0;qSum=0;
-  if(avg>22&&QCAP>1&&(devicePixelRatio||1)>1){QCAP=Math.max(1,+(Math.min(QCAP,devicePixelRatio||1)-.25).toFixed(2));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}}
+let wasPlaying=false,qN=0,qSlow=0,qBad=0,qGood=0,qUpDone=false,rawLast=0,vsync=16.7;
+// qualidade automática: olha os frames atrasados durante a partida (não a média, que esconde os engasgos).
+// Se mais de 12% dos frames atrasarem em 2 janelas seguidas (ou 30% numa só), baixa a resolução um degrau (2 → 1.75 → 1.5 → 1.25 → 1) e lembra.
+// Se depois ficar tudo liso por um bom tempo, tenta subir um degrau de volta (1 vez por sessão).
+function qualityWatch(ms){if(state!=='play'||document.hidden||!run||run.play<2500||ms>250)return;
+  const target=vsync<10.5?vsync*2:vsync;if(ms>target*1.45)qSlow++;if(++qN<90)return;const f=qSlow/qN;qN=0;qSlow=0;
+  if(f>.12){qGood=0;if((++qBad>=2||f>.3)&&QCAP>1&&(devicePixelRatio||1)>1){qBad=0;setQ(Math.min(QCAP,devicePixelRatio||1)-.25)}return}
+  qBad=0;if(f<.015&&++qGood>=10&&!qUpDone&&QCAP<QDEF&&Math.min(devicePixelRatio||1,QDEF)>QCAP){qUpDone=true;qGood=0;setQ(QCAP+.25)}}
+function setQ(v){QCAP=Math.max(1,Math.min(2,+v.toFixed(2)));try{localStorage.setItem('bs_q',String(QCAP))}catch(e){}resize()}
+// telas paradas (loja, fim de partida, pausa...): o fundo anda a ~30 fps, sobra bateria e o celular esquenta menos
+const idleScreen=()=>state==='over'||state==='pause'||(state==='menu'&&$('menu').hidden);
 function frame(tt){
-  requestAnimationFrame(frame);qualityWatch((tt||0)-tNow);tNow=tt||0;
+  requestAnimationFrame(frame);tt=tt||0;
+  const raw=tt-rawLast;rawLast=tt;if(raw>2&&raw<50)vsync+=(raw-vsync)*.05;
+  // tela de 120/144 Hz: desenha 1 a cada 2 atualizações (60/72 fps cravados, com metade do trabalho e do calor)
+  const gap=idleScreen()?25:vsync<10.5?vsync*1.5:0;
+  if(gap&&tt-tNow<gap&&tt>=tNow){if(!$('shop').hidden||!$('coll').hidden)drawPreviews();return}
+  qualityWatch(tt-tNow);tNow=tt;
   if((state==='play')!==wasPlaying){wasPlaying=state==='play';N&&N.setPlaying&&N.setPlaying(wasPlaying)}
   const dt=Math.min(3,Math.max(.2,(tNow-lastT)/16.667||1));lastT=tNow;const scale=W/360;
   cam+=(camT-cam)*Math.min(1,.12*dt);skyF+=(score-skyF)*.03;
@@ -1053,16 +1082,16 @@ function frame(tt){
     // sombra do bloco sobre a torre
     if(top){const l=Math.max(moving.x,top.x),r=Math.min(moving.x+moving.w,top.x+top.w);if(r>l){ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(l,yOf(top.i),r-l,4)}}
     block(moving.x,y,moving.w,moving.i);
-    if(moving.pw){const pw=POWERS[moving.pw];const p=.5+.5*Math.sin(tNow*.01);ctx.save();ctx.strokeStyle=pw.col;ctx.globalAlpha=.6+.4*p;ctx.lineWidth=3;rr(ctx,moving.x-2,y-2,moving.w+4,BH+4,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=pw.col;const lb='★ '+t('p_'+moving.pw);for(let k=0;k<4;k++){const a=tNow*.004+k*Math.PI/2,sx=moving.x+moving.w/2+Math.cos(a)*(moving.w/2+8),sy=y+BH/2+Math.sin(a)*(BH/2+8),r=2.5+1.5*Math.sin(tNow*.01+k);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(sx,sy-r*2);ctx.lineTo(sx+r*.6,sy);ctx.lineTo(sx,sy+r*2);ctx.lineTo(sx-r*.6,sy);ctx.fill()}ctx.fillStyle=pw.col;ctx.font='900 13px Nunito, sans-serif';const tw=Math.max(60,ctx.measureText(lb).width+20);rr(ctx,moving.x+moving.w/2-tw/2,y+7,tw,20,10);ctx.fill();ctx.fillStyle='#1a1030';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lb,moving.x+moving.w/2,y+17.5);ctx.restore()}
+    if(moving.pw){const pw=POWERS[moving.pw];const p=.5+.5*Math.sin(tNow*.01);ctx.save();ctx.strokeStyle=pw.col;ctx.globalAlpha=.6+.4*p;ctx.lineWidth=3;rr(ctx,moving.x-2,y-2,moving.w+4,BH+4,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=pw.col;const lb='★ '+t('p_'+moving.pw);for(let k=0;k<4;k++){const a=tNow*.004+k*Math.PI/2,sx=moving.x+moving.w/2+Math.cos(a)*(moving.w/2+8),sy=y+BH/2+Math.sin(a)*(BH/2+8),r=2.5+1.5*Math.sin(tNow*.01+k);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(sx,sy-r*2);ctx.lineTo(sx+r*.6,sy);ctx.lineTo(sx,sy+r*2);ctx.lineTo(sx-r*.6,sy);ctx.fill()}const L=pwLabel(lb,pw.col);ctx.drawImage(L.cv,moving.x+moving.w/2-L.w/2,y+7,L.w,L.h);ctx.restore()}
     if(wd>=3&&state==='play'&&P.calm<=0)drawWaves(y,wd);
-    if(wd===1&&state==='play'&&P.calm<=0){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;for(let k=0;k<5;k++){const lx=((tNow*.4*windDir+k*137)%(W+120)+W+120)%(W+120)-60,ly=y-60+k*28;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+40,ly);ctx.stroke()}}
+    if(wd===1&&state==='play'&&P.calm<=0){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.beginPath();for(let k=0;k<5;k++){const lx=((tNow*.4*windDir+k*137)%(W+120)+W+120)%(W+120)-60,ly=y-60+k*28;ctx.moveTo(lx,ly);ctx.lineTo(lx+40,ly)}ctx.stroke()}
   }
   // anéis do perfeito
   for(let k=rings.length-1;k>=0;k--){const r=rings[k],a=tNow-r.t0;if(a>450){rings.splice(k,1);continue}const e=a*.09;ctx.save();ctx.globalAlpha=1-a/450;ctx.strokeStyle='#fff';ctx.lineWidth=3*(1-a/450)+1;rr(ctx,r.x-e,yOf(r.i)-e*.6,r.w+e*2,BH+e*1.2,8);ctx.stroke();ctx.restore()}
   for(let k=debris.length-1;k>=0;k--){const d=debris[k];d.vy+=.5*dt;d.y+=d.vy*dt;d.x+=d.vx*dt;d.r+=d.vr*dt;ctx.save();ctx.translate(d.x+d.w/2,d.y+BH/2);ctx.rotate(d.r);ctx.translate(-(d.x+d.w/2),-(d.y+BH/2));block(d.x,d.y,d.w,d.i,.9);ctx.restore();if(d.y>H+200)debris.splice(k,1)}
   for(let k=parts.length-1;k>=0;k--){const p=parts[k];p.vy+=.15*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=.025*dt;ctx.globalAlpha=Math.max(0,p.l);ctx.fillStyle=p.col;const s=6*p.l+2;ctx.fillRect(p.x-s/2,p.y-s/2,s,s);if(p.l<=0)parts.splice(k,1)}
   ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  for(let k=floats.length-1;k>=0;k--){const f=floats[k];f.y-=1.1*dt;f.l-=.018*dt;ctx.globalAlpha=Math.max(0,f.l);const sc=f.l>.85?1+(f.l-.85)*2:1;ctx.font=`900 ${f.size*sc}px Nunito, sans-serif`;ctx.lineWidth=4;ctx.strokeStyle='rgba(0,0,0,.45)';ctx.strokeText(f.txt,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.txt,f.x,f.y);if(f.l<=0)floats.splice(k,1)}
+  for(let k=floats.length-1;k>=0;k--){const f=floats[k];f.y-=1.1*dt;f.l-=.018*dt;ctx.globalAlpha=Math.max(0,f.l);const sc=f.l>.85?1+(f.l-.85)*2:1;const sp=f.sp&&f.sp.d===DPR?f.sp:(f.sp=txtSprite(f.txt,f.col,f.size),f.sp.d=DPR,f.sp);ctx.drawImage(sp.cv,f.x-sp.ax*sc,f.y-sp.ay*sc,sp.w*sc,sp.h*sc);if(f.l<=0)floats.splice(k,1)}
   ctx.globalAlpha=1;ctx.restore();
   if(flash>0){ctx.fillStyle=`rgba(255,255,255,${flash*.1})`;ctx.fillRect(0,0,W,H);flash-=.08*dt}
   if(!$('shop').hidden||!$('coll').hidden)drawPreviews();
@@ -1089,7 +1118,7 @@ SKINS.forEach(sk=>{if(sk.cur==='lvl'&&sk.price<=S.lvl&&!S.owned.includes(sk.id))
 applyLang();wallet();ensureMissions();showMenu();
 requestAnimationFrame(frame);
 // aquece o desenho da skin durante a abertura (a 1ª partida não engasga)
-setTimeout(()=>{try{bcSync();const wc=document.createElement('canvas');wc.width=400;wc.height=BH*2;const c=wc.getContext('2d');for(let k=0;k<40;k++){tNow+=16;block(0,0,300,k,1,c)}}catch(e){}},300);
+setTimeout(()=>{const t0=tNow;try{bcSync();const wc=document.createElement('canvas');wc.width=400;wc.height=BH*2;const c=wc.getContext('2d');for(let k=0;k<40;k++){tNow+=16;block(0,0,300,k,1,c)}}catch(e){}tNow=t0},300);
 runIntro(()=>{buildLogo();if(dailyReady()){$('menu').hidden=true;$('mis').hidden=false;renderMis()}});
 if(N){
   N.initAds();

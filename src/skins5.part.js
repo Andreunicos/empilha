@@ -34,7 +34,7 @@ sk5('snd_eq','eq','coin',1600,(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#171a2e','#1
 sk5('snd_speaker','speaker','coin',1700,(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#3a3a44','#2a2a33','#1d1d24']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(0,0,0,.35)';for(let X=Math.floor(x/4)*4;X<x+w;X+=4)for(let Y=2;Y<BH;Y+=4)c.fillRect(X,y+Y,2,2);
    for(const [X] of at(x,w,i,70)){circ(c,X,y+BH/2,14,'#15151a');circ(c,X,y+BH/2,12,'#2e2e38')}bevel(c,x,y,w,.15,.3)},
  (c,x,y,w,i)=>{const beat=(tNow%500)/500,pump=Math.exp(-beat*6);for(const [X] of at(x,w,i,70)){const r=8+pump*2.5;const g=c.createRadialGradient(X,y+BH/2,1,X,y+BH/2,r);g.addColorStop(0,'#6b6b7a');g.addColorStop(1,'#1d1d24');c.fillStyle=g;c.beginPath();c.arc(X,y+BH/2,r,0,TAU);c.fill();circ(c,X,y+BH/2,3,'#9a9aa8');
-   c.strokeStyle=`rgba(255,93,143,${(pump*.8).toFixed(2)})`;c.lineWidth=1.5;for(const s of [-1,1]){c.beginPath();c.arc(X,y+BH/2,16+beat*10,s>0?-.5:Math.PI-.5,s>0?.5:Math.PI+.5);c.stroke()}}});
+   c.strokeStyle=`rgba(255,93,143,${(pump*.8).toFixed(2)})`;c.lineWidth=1.5;for(const s of SGN){c.beginPath();c.arc(X,y+BH/2,16+beat*10,s>0?-.5:Math.PI-.5,s>0?.5:Math.PI+.5);c.stroke()}}});
 /* 3. DJ (VINIL) */
 sk5('snd_vinyl','vinyl','gem',90,(c,x,y,w,i)=>{c.fillStyle=vgrad(c,y,['#2b1d4a','#1b1233','#120b22']);c.fillRect(x,y,w,BH);c.fillStyle='rgba(255,93,143,.6)';c.fillRect(x,y+BH-2,w,2);
    for(const [X] of at(x,w,i,90)){circ(c,X,y+BH/2,14,'#0b0b0f');c.strokeStyle='rgba(255,255,255,.08)';c.lineWidth=1;for(let r=6;r<14;r+=2){c.beginPath();c.arc(X,y+BH/2,r,0,TAU);c.stroke()}}},
@@ -54,9 +54,10 @@ sk5('snd_xylo','xylo','coin',1400,(c,x,y,w,i)=>{c.fillStyle='#5b3a1e';c.fillRect
  (c,x,y,w,i)=>{const P=W,mx=((tNow*.12+i*47)%P),hop=Math.abs(Math.sin(tNow*.02));const kx=Math.floor(mx/15)*15;if(kx>=x-15&&kx<x+w){c.fillStyle='rgba(255,255,255,.35)';c.fillRect(kx+1.5,y+2,12,BH-4)}
    if(mx>x-10&&mx<x+w+10){c.save();c.translate(mx,y+4-hop*6);c.rotate(-.5);c.fillStyle='#d9b38c';c.fillRect(-1,0,2,14);circ(c,0,0,3.2,'#ff5d8f');c.restore()}});
 /* 7. 8-BIT */
+const NOTE8=['..xx','..x.','..x.','xxx.','xx..'],NOTEC=['#00e436','#ffec27','#29adff','#ff77a8'].map(x=>({x})),CHIPC=['#00e436','#ffec27','#29adff','#ff77a8'];
 sk5('snd_chip','chip','coin',1300,(c,x,y,w,i)=>{c.fillStyle='#1d2b53';c.fillRect(x,y,w,BH);c.fillStyle='#29366f';for(let X=Math.floor(x/6)*6;X<x+w;X+=6)for(let Y=0;Y<BH;Y+=6)if(((X/6)+(Y/6))%2===0)c.fillRect(X,y+Y,6,6);c.fillStyle='#ff004d';c.fillRect(x,y+BH-3,w,3)},
- (c,x,y,w,i)=>{const cols=['#00e436','#ffec27','#29adff','#ff77a8'];for(let k=0;k<Math.ceil(w/40);k++){const a=hash(k*2.7+i),ph=((tNow*.0005+a)%1),nx=Math.floor((x+a*w)/3)*3,ny=Math.floor((y+BH-ph*(BH+10))/3)*3;
-   pxs(c,nx,ny,3,['..xx','..x.','..x.','xxx.','xx..'],{x:cols[k%4]})}});
+ (c,x,y,w,i)=>{for(let k=0;k<Math.ceil(w/40);k++){const a=hash(k*2.7+i),ph=((tNow*.0005+a)%1),nx=Math.floor((x+a*w)/3)*3,ny=Math.floor((y+BH-ph*(BH+10))/3)*3;
+   pxs(c,nx,ny,3,NOTE8,NOTEC[k%4])}});
 /* 8. OSCILOSCÓPIO */
 sk5('snd_wave','wave','gem',80,(c,x,y,w,i)=>{c.fillStyle='#04140a';c.fillRect(x,y,w,BH);c.strokeStyle='rgba(60,255,120,.12)';c.lineWidth=1;for(let X=Math.floor(x/10)*10;X<x+w;X+=10){c.beginPath();c.moveTo(X,y);c.lineTo(X,y+BH);c.stroke()}c.beginPath();c.moveTo(x,y+BH/2);c.lineTo(x+w,y+BH/2);c.stroke()},
  (c,x,y,w,i)=>{c.lineWidth=1.8;c.strokeStyle='#5dff8c';c.beginPath();for(let X=x;X<=x+w;X+=3)c.lineTo(X,y+BH/2+Math.sin(X*.09-tNow*.01+i)*9*Math.sin(tNow*.002+i));c.stroke();
