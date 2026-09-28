@@ -53,7 +53,7 @@ $('ovtGo').onclick=()=>{$('ovt').hidden=true;mode='normal';startGame()};
 $('ovtNo').onclick=()=>{$('ovt').hidden=true};
 
 /* ---- desafio diário: mesma sequência de blocos pra todo mundo, 3 tentativas, ranking do dia ---- */
-const DAILY_TRIES=3,DPRIZE=[10,6,4];
+const DAILY_TRIES=3,DPRIZE=[500,300,200]; // prêmio do desafio em moedas
 function dailyInfo(){const k=dayKey();if(S.dly.k!==k){S.dly.k=k;S.dly.tries=0;S.dly.best=0;S.dly.sent=0}return S.dly}
 function dailyBtn(){const d=dailyInfo(),left=DAILY_TRIES-d.tries;$('dlyLeft').textContent=left>0?t('dlyLeft',left):t('dlyDone');$('openDaily').classList.toggle('done',left<=0)}
 function startDaily(){const d=dailyInfo();if(d.tries>=DAILY_TRIES){toast(t('dlyNoTries'));openRank();setRankTab('day');return}
@@ -74,7 +74,7 @@ async function showDayPos(){const on=OL(),d=dailyInfo();if(!on||!d.sent||$('over
   try{const pos=await on.rank(dayKey(),d.sent);if($('over').hidden)return;$('oRank').innerHTML=`<span>${flag(S.lb.cc)} <b>#${pos}</b> ${t('rkInDay')}</span>`;$('oRank').hidden=false}catch(e){}}
 async function checkDailyPrize(){const on=OL();if(!on)return;const keys=[];for(let k=1;k<=7;k++){const dk=dayKey(new Date(nowSrv()-k*864e5));if(dk===S.dwon.chk)break;keys.push(dk)}
   for(const pk of keys.reverse()){try{let top=await on.top(pk,5);top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.gems+=g;wallet();bump('pGems');sfx.fanfare();toast(t('dlyWon',idx+1,g))}
+    if(idx>=0&&idx<3&&top[idx].s>0&&!S.dwon[pk]){const g=DPRIZE[idx];S.dwon[pk]=idx+1;S.coins+=g;wallet();bump('pCoins');sfx.fanfare();toast(t('dlyWon',idx+1,g))}
     S.dwon.chk=pk;save()}catch(e){return}}}
 // voltou pro app (ex.: deixou aberto de um dia pro outro): confere prêmios e reenvia o que faltou
 let resumeAt=0;function onResumeOnline(){if(Date.now()-resumeAt<60000)return;resumeAt=Date.now();const on=OL();if(!on)return;

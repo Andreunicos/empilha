@@ -702,7 +702,7 @@ function drop(){
   score++;setScore();rivalStep();
   const wd=worldOf(score);
   speed=Math.min(wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+score*SPEED_STEP)*(.62+.38*ease());
-  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);if(rnd()<.4){run.gems+=2;s+=t('chestGems')}addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
+  if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare()}
   if([25,50,100].includes(score)&&mode!=='daily')setTimeout(()=>{if(state==='play')tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar')},2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
@@ -773,20 +773,21 @@ function musicDuck(on){if(!A.ctx)return;A.master.gain.setTargetAtTime(on?0:.9,A.
 
 /* ================= LEVEL ================= */
 const need=l=>60+l*30;
-function addXP(n){const ups=[];S.xp+=n;while(S.xp>=need(S.lvl)){S.xp-=need(S.lvl);S.lvl++;const r={lvl:S.lvl,coins:40*S.lvl,gems:S.lvl%5===0?5:0,skin:null};S.coins+=r.coins;S.gems+=r.gems;const sk=SKINS.find(s=>s.cur==='lvl'&&s.price===S.lvl);if(sk&&!S.owned.includes(sk.id)){S.owned.push(sk.id);r.skin=t('s_'+sk.id)}ups.push(r)}return ups}
+function addXP(n){const ups=[];S.xp+=n;while(S.xp>=need(S.lvl)){S.xp-=need(S.lvl);S.lvl++;const r={lvl:S.lvl,coins:40*S.lvl+(S.lvl%5===0?150:0),gems:0,skin:null};S.coins+=r.coins;S.gems+=r.gems;const sk=SKINS.find(s=>s.cur==='lvl'&&s.price===S.lvl);if(sk&&!S.owned.includes(sk.id)){S.owned.push(sk.id);r.skin=t('s_'+sk.id)}ups.push(r)}return ups}
 function lvlUI(b,x,bar){$(b).textContent=S.lvl;$(x).textContent=`${S.xp}/${need(S.lvl)}${x==='mXp'?' XP':''}`;$(bar).style.width=(S.xp/need(S.lvl)*100)+'%'}
 
 /* ================= DAILY + MISSIONS ================= */
 const dstr=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 const today=()=>dstr(new Date());const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return dstr(d)};
-const DAILY=[{c:50},{c:75},{c:100},{g:3},{c:200},{c:250},{g:10}];
+const DAILY=[{c:50},{c:75},{c:100},{c:150},{c:200},{c:250},{c:500}]; // cristais só comprando (ou Nº1 do mês)
 const MPOOL=[{t:'perf',v:[5,8,12]},{t:'floors',v:[20,30,45]},{t:'games',v:[3,5,8]},{t:'coins',v:[100,200,350]},{t:'power',v:[2,4,6]},{t:'combo',v:[3,5,7]},{t:'chest',v:[1,2,3]}];
 function ensureMissions(){
+  S.missions.forEach(m=>{if(m.rw&&m.rw.g)m.rw={c:60+m.rw.g*20}});
   if(S.mday===today()&&S.missions.length)return;
   if(S.missions.length&&!clockOk())return;
   let seed=[...today()].reduce((a,ch)=>a*31+ch.charCodeAt(0),7)%100000;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
   const pool=MPOOL.slice();S.missions=[];
-  for(let k=0;k<3;k++){const p=pool.splice(rnd()*pool.length|0,1)[0];const vi=rnd()*3|0;const rw=rnd()<.3?{g:2+vi*2}:{c:60+vi*45};S.missions.push({t:p.t,n:p.v[vi],prog:0,claimed:false,rw})}
+  for(let k=0;k<3;k++){const p=pool.splice(rnd()*pool.length|0,1)[0];const vi=rnd()*3|0;const rw={c:60+vi*45};S.missions.push({t:p.t,n:p.v[vi],prog:0,claimed:false,rw})}
   S.mday=today();save();
 }
 const mtxt=m=>t('m_'+m.t,m.n);

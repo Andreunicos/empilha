@@ -64,15 +64,16 @@ function rankAfterRun(sc){
 }
 
 /* ---- prêmio do mês passado ---- */
-const MPRIZE=[50,30,20,10,10,10,10,10,10,10];
+// só o Nº1 ganha cristais; do 2º ao 10º o prêmio é em moedas
+const MPRIZE=[{g:50},{c:1500},{c:1000},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500}];
 async function checkPrize(){
   const on=OL();if(!on)return;const pk=prevMonthKey();if(S.lb.chk===pk)return;
   try{let top=await on.top(pk,15);S.lb.chk=pk;top=dedupeRows(top,on.uid());const idx=top.findIndex(r=>r.id===on.uid());
-    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;S.gems+=g;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();whenMenu(()=>showPrizeWin(pk,idx+1,g))}
+    if(idx>=0&&idx<10&&top[idx].s>0&&!S.lb.won[pk]){const g=MPRIZE[idx];S.lb.won[pk]=true;if(g.g)S.gems+=g.g;else S.coins+=g.c;S.med.push({k:pk,p:idx+1,s:top[idx].s});if(!S.st.bestPos||idx+1<S.st.bestPos)S.st.bestPos=idx+1;save();wallet();whenMenu(()=>showPrizeWin(pk,idx+1,g))}
     save()}catch(e){}
 }
 function monthLabel(k){const m=/m_(\d{4})_(\d{2})/.exec(k);if(!m)return '';return new Date(Date.UTC(+m[1],+m[2]-1,15)).toLocaleDateString({pt:'pt-BR',en:'en-US',es:'es-ES'}[LANG],{month:'long',year:'numeric',timeZone:'UTC'})}
-function showPrizeWin(pk,pos=1,g=50){$('rkWin').querySelector('h2').textContent=t(pos===1?'rkWinT':pos<=3?'rkWinT3':'rkWinT10');$('rkWinP').innerHTML=esc(pos===1?t('rkWinP',monthLabel(pk)):t('rkWinPn',pos,monthLabel(pk)))+`<br><b style="font-size:24px"><i class="gem"></i>+${g}</b>`;$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
+function showPrizeWin(pk,pos=1,g={g:50}){$('rkWin').querySelector('h2').textContent=t(pos===1?'rkWinT':pos<=3?'rkWinT3':'rkWinT10');$('rkWinP').innerHTML=esc(pos===1?t('rkWinP',monthLabel(pk)):t('rkWinPn',pos,monthLabel(pk)))+`<br><b style="font-size:24px">${g.g?'<i class="gem"></i>+'+g.g:'<i class="coin"></i> +'+g.c}</b>`;$('rkWin').hidden=false;sfx.fanfare();setTimeout(()=>sfx.coin(),500);bump('pGems')}
 $('rkWinOk').onclick=()=>{$('rkWin').hidden=true;sfx.coin()};
 
 /* ---- tela do ranking ---- */
@@ -84,8 +85,8 @@ function renderRankHead(){
   document.querySelectorAll('.rtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.rt===rkTab));
   $('rkPrize').hidden=rkTab==='all';const tro=`<svg viewBox="0 0 24 24" class="tro"><path d="M7 3h10v3h3v2a4 4 0 0 1-4 4 5 5 0 0 1-3 2.7V17h3v3H8v-3h3v-2.3A5 5 0 0 1 8 12a4 4 0 0 1-4-4V6h3zM4 8a2 2 0 0 0 3 1.7V8zm16 0h-3v1.7A2 2 0 0 0 20 8z" fill="#ffc23d"/></svg>`;
   $('rkPrize').innerHTML=rkTab==='day'
-    ?`${tro}<span>${t('rkDayPrize')} <b>🥇<i class="gem"></i>10 · 🥈6 · 🥉4</b></span><small>${t('rkEnds',fmtLeftTo(dayEndMs()))} · ${t('dlyRule')}</small>`
-    :`${tro}<span>${t('rkPrize2')} <b>🥇<i class="gem"></i>50 · 🥈30 · 🥉20</b></span><small>${t('rkTop10')} · ${t('rkEnds',fmtLeft())}</small>`;
+    ?`${tro}<span>${t('rkDayPrize')} <b>🥇<i class="coin"></i>500 · 🥈300 · 🥉200</b></span><small>${t('rkEnds',fmtLeftTo(dayEndMs()))} · ${t('dlyRule')}</small>`
+    :`${tro}<span>${t('rkPrize2')} <b>🥇<i class="gem"></i>50 · 🥈<i class="coin"></i>1500 · 🥉1000</b></span><small>${t('rkTop10')} · ${t('rkEnds',fmtLeft())}</small>`;
 }
 function openRank(){rkBack=state==='over'?'over':'menu';hideAll();$('rank').hidden=false;renderRankHead();loadRank();if(!S.lb.edited)setTimeout(()=>{if(!$('rank').hidden&&!S.lb.edited)openProf()},500)}
 function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+pos:''}"><b class="pos">${pos<=3?`<i>${pos}</i>`:pos}</b><span class="fl">${flag(r.c)}</span>${tierSVG(tierOf(r.s),17)}<span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span></div>`}
