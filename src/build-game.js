@@ -13,7 +13,11 @@ html=html.replace('//@@SKINS@@',()=>fs.readFileSync(path.join(d,'skins.part.js')
          .replace('//@@HELP@@',()=>fs.readFileSync(path.join(d,'help.part.js'),'utf8'))
          .replace('//@@COMPETE@@',()=>fs.readFileSync(path.join(d,'compete.part.js'),'utf8'))
          .replace('//@@CLOUD@@',()=>fs.readFileSync(path.join(d,'cloud.part.js'),'utf8'))
-         .replace('//@@I18N@@',()=>fs.readFileSync(path.join(d,'i18n_more.js'),'utf8'));
+         .replace('//@@MODES@@',()=>fs.readFileSync(path.join(d,'modes.part.js'),'utf8'))
+         .replace('//@@META@@',()=>fs.readFileSync(path.join(d,'meta.part.js'),'utf8'))
+         .replace('//@@FEAT@@',()=>fs.readFileSync(path.join(d,'feat.part.js'),'utf8'))
+         .replace('//@@LOBBY@@',()=>fs.readFileSync(path.join(d,'lobby.part.js'),'utf8'))
+         .replace('//@@I18N@@',()=>['i18n_more.js','i18n_fr.js','i18n_de.js','i18n_tr.js','i18n_id.js','i18n_hi.js'].map(f=>fs.readFileSync(path.join(d,f),'utf8')).join('\n'));
 // trava de segurança: se o código do jogo tiver erro de sintaxe, a montagem FALHA (nunca sai um app quebrado)
 {const a=html.indexOf('<script>\n(()=>{'),b=html.indexOf('</script>',a);
   try{new Function(html.slice(a+'<script>'.length,b))}catch(e){console.error('ERRO DE SINTAXE no jogo:',e.message);process.exit(1)}}

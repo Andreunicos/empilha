@@ -64,7 +64,7 @@ function tlEnsure(split){const sh=Math.ceil(BH*DPR)+2,ns=Math.ceil(H/BH)+4,pw=Ma
 function tlPaint(c,sy,b,fn,sk){c.setTransform(1,0,0,1,0,0);c.clearRect(0,sy,TL.pw,TL.sh);c.setTransform(DPR,0,0,DPR,2,sy+1);c.save();rr(c,b.x,0,b.w,BH,sk.r??5);c.clip();fn.call(sk,c,b.x,0,b.w,b.i);c.restore()}
 // desenha a torre visível (first..fim)
 function drawStack(first,yFor){bcSync();const sk=BC.sk,mode=BC.mode,split=mode==='split',anim=mode!=='cache';tlEnsure(split);
-  const c=TL.c,ns=TL.ns,sh=TL.sh,pw=TL.pw,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;
+  const c=TL.c,ns=TL.ns,sh=TL.sh,pw=TL.pw,N=TL.N||(QCAP<=1.25?3:2),f=++TL.f,n=stack.length;const shiny=isShiny(BC.id);
   // 1º passo: descobre o que precisa redesenhar (e refaz as bases das skins divididas)
   // (tudo antes de copiar: misturar desenhar e copiar obriga o navegador a duplicar a folha)
   for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2||tNow-b.t0<260||b.w<=.5)continue;
@@ -79,5 +79,5 @@ function drawStack(first,yFor){bcSync();const sk=BC.sk,mode=BC.mode,split=mode==
   for(let k=first;k<n;k++){const b=stack[k];const y=yFor(k,b);if(y>H+2||y<-BH-2)continue;const age=tNow-b.t0;
     if(age<260){squash(b,y,age);continue}if(b.w<=.5)continue;
     const sy=(k%ns)*sh,sx=Math.max(0,Math.floor(b.x*DPR)),sw=Math.min(pw,Math.ceil((b.x+b.w)*DPR)+4)-sx;
-    if(sw>0)ctx.drawImage(TL.cv,sx,sy,sw,sh,(sx-2)/DPR,y-1/DPR,sw/DPR,sh/DPR)}}
+    if(sw>0)ctx.drawImage(TL.cv,sx,sy,sw,sh,(sx-2)/DPR,y-1/DPR,sw/DPR,sh/DPR);if(shiny)shinyFx(b.x,y,b.w,b.i)}}
 

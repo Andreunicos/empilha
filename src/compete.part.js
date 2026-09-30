@@ -23,11 +23,12 @@ const monthBest=()=>S.lb.mk===monthKey()?S.lb.ms:0;
 
 /* ---- linha do rival (durante a partida) ---- */
 const RV={rows:[],board:'',t:0,passed:{}};
-const curBoard=()=>mode==='daily'?dayKey():monthKey();
-const curBest=()=>mode==='daily'?(S.dly.k===dayKey()?S.dly.best:0):S.best;
+// placas de recorde/rival: só no Clássico e no Diário vêm rivais do ranking; nos outros modos, só o seu recorde do modo
+const curBoard=()=>mode==='daily'?dayKey():mode==='normal'?monthKey():'x_'+mode;
+const curBest=()=>mode==='zen'?0:modeBest(mode);
 async function loadRivals(board,myS){const on=OL();if(!on||!on.above)return;
   try{const rows=await on.above(board,myS,10);const uid=on.uid();RV.rows=dedupeRows(rows.filter(r=>r.id!==uid),uid).sort((a,b)=>a.s-b.s);RV.board=board;RV.t=Date.now()}catch(e){}}
-function rivalStart(){RV.passed={};const b=curBoard();const myS=mode==='daily'?(S.dly.k===dayKey()?S.dly.sent:0):monthBest();
+function rivalStart(){RV.passed={};if(mode!=='normal'&&mode!=='daily'){RV.board=null;RV.rows=[];return}const b=curBoard();const myS=mode==='daily'?(S.dly.k===dayKey()?S.dly.sent:0):monthBest();
   if(RV.board!==b)RV.rows=[];if(RV.board!==b||Date.now()-RV.t>180000||RV.myS!==myS){RV.myS=myS;loadRivals(b,myS)}}
 function rivalStep(){if(!RV.rows.length||RV.board!==curBoard())return;
   for(const r of RV.rows){if(!RV.passed[r.id]&&score>r.s){RV.passed[r.id]=1;run.passed=(run.passed||0)+1;addFloat(W/2,yOf(score)-78,t('passedX',r.n),'#ffc23d',19);sfx.coin();buzz(20)}}}
@@ -82,7 +83,7 @@ async function checkDailyPrize(){const on=OL();if(!on)return;const keys=[];for(l
 let resumeAt=0;function onResumeOnline(){if(Date.now()-resumeAt<60000)return;resumeAt=Date.now();const on=OL();if(!on)return;
   syncScores().then(()=>{checkPrize();checkDailyPrize()}).catch(()=>{})}
 /* ---- estatísticas ---- */
-function trackStats(){const st=S.st;st.runs++;st.floors+=score;st.perf+=perfects;st.combo=Math.max(st.combo,maxCombo);st.time+=Math.round((run.play||0)/1000)}
+function trackStats(){const st=S.st;st.runs++;st.floors+=score;st.perf+=perfects;st.combo=Math.max(st.combo,maxCombo);st.time+=Math.round((run.play||0)/1000);st.chests=(st.chests||0)+run.chests;st.boss=(st.boss||0)+(run.bossWins||0)}
 
 /* ---- conquistas (no jogo + Google Play Games) ---- */
 const ACH=[
