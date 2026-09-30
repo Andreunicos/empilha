@@ -1215,7 +1215,7 @@ function frame(tt){
   // suavizações pelo tempo real (iguais em 60, 72, 90 ou 120 Hz e sem tranco quando um frame atrasa)
   cam+=(camT-cam)*(1-Math.pow(.88,dt));skyF+=(score-skyF)*(1-Math.pow(.97,dt));
   const wd=worldOf(score);
-  if(state==='play'&&run){run.play+=dt*16.667;if(mode==='time'&&run.tl>0){run.tl-=Math.min(100,tNow-(frame.lt||tNow));tmrUI();if(run.tl<=0){moving=null;banner(t('timeUp'),'⏱');sfx.whoosh();setTimeout(finish,900);state='revive'}}}
+  if(state==='play'&&run){run.play+=dt*16.667;if(mode==='time'){if(run.tl>0)run.tl-=Math.min(100,tNow-(frame.lt||tNow));tmrUI();if(run.tl<=0){run.tl=0;moving=null;banner(t('timeUp'),'⏱');sfx.whoosh();setTimeout(finish,900);state='revive'}}}
   frame.lt=tNow;
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1)*bossMove(moving,dt)*slowK();
