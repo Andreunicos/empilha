@@ -287,9 +287,9 @@
   #wrap.lob #closeShop,#wrap.lob #closeMis,#wrap.lob #closeRank{display:none}
   #wrap.lob .wallet{left:auto;right:62px;top:13px;pointer-events:auto;gap:6px}
   .wallet .plus{display:none;border:0;width:20px;height:20px;border-radius:50%;background:var(--ok);color:#0b3a22;font:900 16px/1 "Nunito",sans-serif;padding:0;margin-left:2px;cursor:pointer;align-items:center;justify-content:center}
-  #wrap.lob .wallet .plus{display:inline-flex}
+  #wrap.lob .wallet .plus{display:inline-flex}#wrap.lob #plusCoins{display:none}
   #wrap.lob .pill{padding:5px 5px 5px 10px}
-  .me{position:absolute;top:10px;left:10px;z-index:7;display:flex;align-items:center;gap:8px;border:0;background:rgba(10,8,30,.5);padding:4px 12px 4px 4px;border-radius:999px;color:var(--ink);cursor:pointer;max-width:44%}
+  .me{position:absolute;top:10px;left:10px;z-index:7;display:flex;align-items:center;gap:8px;border:0;background:rgba(10,8,30,.5);padding:4px 12px 4px 4px;border-radius:999px;color:var(--ink);cursor:pointer;max-width:calc(100% - 252px);min-width:0;box-sizing:border-box}
   .me .av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--sun) var(--p,0%),rgba(255,255,255,.16) 0);position:relative}
   .me .av::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:linear-gradient(160deg,#c7b3ff,#6a4ad6)}
   .me .av span{position:relative;z-index:1;font:15px "Bungee",Impact,sans-serif;color:#fff}
@@ -304,18 +304,18 @@
   .hspace{flex:1;min-height:6px}
   .evt{width:100%;max-width:380px;overflow:hidden;position:relative;touch-action:pan-y;margin-top:6px}
   .evtrack{display:flex;will-change:transform}
-  .ec{flex:none;width:100%;display:flex;align-items:center;gap:12px;text-align:left;border:1px solid rgba(255,255,255,.1);background:rgba(15,16,36,.78);border-radius:18px;padding:11px 12px;color:var(--ink);cursor:pointer}
+  .ec{flex:none;width:100%;box-sizing:border-box;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;border:1px solid rgba(255,255,255,.1);background:rgba(15,16,36,.78);border-radius:18px;padding:11px 12px;color:var(--ink);cursor:pointer}
   .ec .ic{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:22px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
   .ec .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .ec b{font:900 14px "Nunito",sans-serif}.ec small{font:700 12px "Nunito",sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ec .go{font:900 22px "Nunito",sans-serif;color:var(--muted)}
   .pbar{display:block;height:6px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:4px}.pbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--sun),#ff9a3d)}
   .evt .dots{display:flex;justify-content:center;gap:5px;margin-top:8px}.evt .dots i{width:6px;height:6px;border-radius:9px;background:rgba(255,255,255,.3);transition:width .3s}.evt .dots i.on{width:16px;background:#fff}
-  .modesel{display:flex;align-items:center;gap:8px;background:rgba(15,16,36,.82);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px}
-  .modesel .ar{width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--ink);font:900 20px/1 "Nunito",sans-serif;cursor:pointer;display:grid;place-items:center}
-  .modesel .mt{border:0;background:none;color:var(--ink);min-width:170px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 4px}
-  .modesel .mt b{font:15px "Bungee",Impact,sans-serif;letter-spacing:.02em}.modesel .mt b.sw{animation:cpop .35s}
-  .modesel .mt small{font:800 11.5px "Nunito",sans-serif;color:var(--muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .modesel{display:flex;align-items:center;gap:8px;width:min(100%,340px);box-sizing:border-box;background:rgba(15,16,36,.82);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px}
+  .modesel .ar{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--ink);font:900 20px/1 "Nunito",sans-serif;cursor:pointer;display:grid;place-items:center}
+  .modesel .mt{border:0;background:none;color:var(--ink);flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 4px}
+  .modesel .mt b{font:15px "Bungee",Impact,sans-serif;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.modesel .mt b.sw{animation:cpop .35s}
+  .modesel .mt small{font:800 11.5px "Nunito",sans-serif;color:var(--muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .btn.play.lockd{filter:grayscale(.7) brightness(.8)}
   /* barra de abas */
   #nav{position:absolute;left:0;right:0;bottom:0;z-index:7;height:84px;background:#141430;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:flex-start;padding:9px 4px 0}
