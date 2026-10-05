@@ -89,6 +89,8 @@ async function initBilling(productIds, grant) {
 }
 
 async function buy(productId) {
+  // a loja pode não ter respondido ao abrir o jogo (sem internet, Play atrasado): tenta ligar de novo na hora da compra
+  if (!billingOk) { try { const r = await NativePurchases.isBillingSupported(); billingOk = !!(r && r.isBillingSupported); } catch (e) {} }
   if (!billingOk) throw new Error('indisponivel');
   const t = await NativePurchases.purchaseProduct({ productIdentifier: productId, productType: PURCHASE_TYPE.INAPP, quantity: 1, isConsumable: true });
   return t && t.purchaseToken ? t.purchaseToken : null;

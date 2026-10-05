@@ -721,7 +721,7 @@ const Ads={showRewarded(){
   return new Promise(res=>{$('ad').hidden=false;let s=5;$('adTxt').textContent=t('adIn',s);const iv=setInterval(()=>{s--;$('adTxt').textContent=s>0?t('adIn',s):t('adDone');if(s<=0){clearInterval(iv);setTimeout(()=>{$('ad').hidden=true;res(true)},300)}},1000)})}};
 function grantPack(id,token){const p=PACKS.find(x=>x.id===id);if(!p)return false;S.tokens=S.tokens||[];if(token&&S.tokens.includes(token))return false;if(token){S.tokens.push(token);if(S.tokens.length>200)S.tokens.shift()}S.gems+=p.gems;save();wallet();return true}
 const Billing={buy(p){
-  if(N)return N.buy(p.id).then(tok=>{if(!tok)return false;grantPack(p.id,tok);return 'granted'}).catch(e=>{toast(/pending/i.test(e&&e.message||'')?t('buyPending'):t('buyFail'));return false});
+  if(N)return N.buy(p.id).then(tok=>{if(!tok)return false;grantPack(p.id,tok);return 'granted'}).catch(e=>{const m=String(e&&(e.message||e.code)||'');toast(/pending/i.test(m)?t('buyPending'):/cancel/i.test(m)?t('buyFail'):t('buyFail')+' ('+m.slice(0,60)+')');return false});
   return new Promise(res=>{$('buyTitle').innerHTML=`${p.gems} <i class="gem"></i>`;$('buyTxt').textContent=t('packFor',t('pk_'+p.k),p.price);$('buy').hidden=false;$('buyYes').onclick=()=>{$('buy').hidden=true;res(true)};$('buyNo').onclick=()=>{$('buy').hidden=true;res(false)}})}};
 
 /* ================= AUDIO ================= */
