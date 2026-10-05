@@ -1,4 +1,7 @@
 L.fr={
+verT:"Version",
+verOk:"✓ À jour",
+verNew:"✨ Mis à jour ! Du nouveau dans le jeu",
 powers:"Pouvoirs",
 a_magnet:"AIMANT",
 a_slow:"LENT",

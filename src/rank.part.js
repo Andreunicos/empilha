@@ -58,11 +58,15 @@ function rankAfterRun(sc){
   syncScores().then(async()=>{
     if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
-    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await on.rank('all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([on.rank(k,ms),allPos()]);if($('over').hidden)return;
-      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
+    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await posOf(on,'all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([posOf(on,k,ms),allPos()]);if($('over').hidden)return;
+      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false}catch(e){}
   });
 }
 
+// posição igual à da lista do ranking (sem contar entradas repetidas do mesmo jogador)
+async function posOf(on,board,sc){const p=await on.rank(board,sc);if(!(p<=50))return p;
+  try{const c=rkCache[board];let rows=c&&Date.now()-c.t<60000?c.rows:null;if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
+    const uid=on.whoami?await on.whoami():on.uid();const i=dedupeRows(rows.map(r=>Object.assign({},r)),uid).findIndex(r=>r.me);return i>=0?i+1:p}catch(e){return p}}
 /* ---- prêmio do mês passado ---- */
 // só o Nº1 ganha cristais; do 2º ao 10º o prêmio é em moedas
 const MPRIZE=[{g:50},{c:1500},{c:1000},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500}];
@@ -114,7 +118,7 @@ async function loadRank(){
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
     const uid=(on.whoami?await on.whoami():on.uid());const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
-    rows=dedupeRows(rows,uid);
+    rows=dedupeRows(rows.map(r=>Object.assign({},r)),uid);
     L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,!!r.me)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
     const idx=rows.findIndex(r=>r.me);
     if(idx<0){

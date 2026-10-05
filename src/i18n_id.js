@@ -1,4 +1,7 @@
 L.id={
+verT:"Versi",
+verOk:"✓ Terbaru",
+verNew:"✨ Diperbarui! Ada yang baru",
 powers:"Kekuatan",
 a_magnet:"MAGNET",
 a_slow:"LAMBAT",

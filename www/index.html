@@ -289,11 +289,11 @@
   .wallet .plus{display:none;border:0;width:20px;height:20px;border-radius:50%;background:var(--ok);color:#0b3a22;font:900 16px/1 "Nunito",sans-serif;padding:0;margin-left:2px;cursor:pointer;align-items:center;justify-content:center}
   #wrap.lob .wallet .plus{display:inline-flex}#wrap.lob #plusCoins{display:none}
   #wrap.lob .pill{padding:5px 5px 5px 10px}
-  .me{position:absolute;top:10px;left:10px;z-index:7;display:flex;align-items:center;gap:8px;border:0;background:rgba(10,8,30,.5);padding:4px 12px 4px 4px;border-radius:999px;color:var(--ink);cursor:pointer;max-width:calc(100% - 252px);min-width:0;box-sizing:border-box}
-  .me .av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--sun) var(--p,0%),rgba(255,255,255,.16) 0);position:relative}
-  .me .av::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:linear-gradient(160deg,#c7b3ff,#6a4ad6)}
-  .me .av span{position:relative;z-index:1;font:15px "Bungee",Impact,sans-serif;color:#fff}
-  .me .mi{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+  .mechip{position:absolute;top:10px;left:10px;z-index:7;display:flex;align-items:center;gap:8px;border:0;background:rgba(10,8,30,.5);padding:4px 12px 4px 4px;border-radius:999px;color:var(--ink);cursor:pointer;max-width:calc(100% - 252px);min-width:0;box-sizing:border-box}
+  .mechip .av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--sun) var(--p,0%),rgba(255,255,255,.16) 0);position:relative}
+  .mechip .av::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:linear-gradient(160deg,#c7b3ff,#6a4ad6)}
+  .mechip .av span{position:relative;z-index:1;font:15px "Bungee",Impact,sans-serif;color:#fff}
+  .mechip .mi{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
   .me b{font:900 13px "Nunito",sans-serif;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .me small{font:800 11px "Nunito",sans-serif;color:var(--sun);display:flex;align-items:center;gap:4px;white-space:nowrap}
   /* início */
@@ -383,12 +383,38 @@
   body.cblind{--ok:#4aa8ff;--okD:#1d6fc0;--pink:#ff9f1c;--pinkD:#c26a00}
   body.rmotion *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+  /* abertura com a versão */
+  #splash{position:absolute;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#2a2060 0,#0f1024 70%);transition:opacity .45s ease,visibility .45s;cursor:pointer}
+  #splash.out{opacity:0;visibility:hidden}
+  #splash .spIn{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .spBlocks{display:flex;flex-direction:column-reverse;align-items:center;margin-bottom:6px}
+  .spBlocks i{display:block;height:16px;width:calc(96px - var(--k)*10px);border-radius:5px;margin-top:3px;box-shadow:inset 0 3px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.25);animation:spDrop .42s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--k)*110ms)}
+  @keyframes spDrop{from{transform:translateY(-140px);opacity:0}60%{opacity:1}}
+  .spLogo{display:flex;flex-direction:column;align-items:center;font-family:"Bungee",Impact,sans-serif;color:#fff;line-height:1;font-size:44px;text-shadow:0 4px 0 #b3285a;animation:spPop .5s .55s cubic-bezier(.3,1.6,.5,1) both}
+  .spLogo span+span{color:var(--sun);text-shadow:0 4px 0 var(--sunD)}
+  @keyframes spPop{from{transform:scale(.4);opacity:0}}
+  .spVer{margin-top:8px;font:900 14px "Nunito",sans-serif;color:var(--ink);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:5px 14px;border-radius:999px;letter-spacing:.5px;animation:spUp .4s .85s both}
+  .spNew{font:900 12px "Nunito",sans-serif;color:#0b3a22;background:var(--ok);padding:4px 12px;border-radius:999px;animation:spUp .4s 1s both}
+  .spBy{margin-top:18px;font:800 11px "Nunito",sans-serif;letter-spacing:4px;color:var(--muted);animation:spUp .4s 1.05s both}
+  @keyframes spUp{from{transform:translateY(10px);opacity:0}}
+  body.rmotion #splash *{animation:none!important}
+  /* versão nas configurações */
+  .verCard{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-top:6px}
+  .verCard .vi{flex:none;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(160deg,#c7b3ff,#6a4ad6);font:16px "Bungee",Impact,sans-serif;color:#fff}
+  .verCard .vt{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0}
+  .verCard b{font:900 15px "Nunito",sans-serif;color:var(--ink)}.verCard small{font:800 11px "Nunito",sans-serif;color:var(--muted)}
+  .verCard .vok{font:900 11px "Nunito",sans-serif;color:var(--ok)}
 </style>
 </head>
 <body>
 <div id="wrap">
+<div id="splash" aria-hidden="true"><div class="spIn">
+  <div class="spBlocks"><i style="--k:0;background:#8b7bff"></i><i style="--k:1;background:#5ee0ff"></i><i style="--k:2;background:#4fe39a"></i><i style="--k:3;background:#ffc23d"></i><i style="--k:4;background:#ff5d8f"></i></div>
+  <div class="spLogo"><span>BIG</span><span>STACK</span></div>
+  <div class="spVer" id="spVer"></div><div class="spNew" id="spNew" hidden></div>
+  <div class="spBy">BIGHOUSE</div></div></div>
   <canvas id="c"></canvas>
-  <button class="me" id="meChip" hidden><span class="av" id="meAv"><span id="meLvl">1</span></span><span class="mi"><b id="meName"></b><small id="meTier"></small></span></button>
+  <button class="mechip" id="meChip" hidden><span class="av" id="meAv"><span id="meLvl">1</span></span><span class="mi"><b id="meName"></b><small id="meTier"></small></span></button>
   <div class="wallet"><span class="pill" id="pCoins"><i class="coin"></i><span id="wCoins">0</span><button class="plus" id="plusCoins" aria-label="Loja">+</button></span><span class="pill" id="pGems"><i class="gem"></i><span id="wGems">0</span><button class="plus" id="plusGems" aria-label="Cristais">+</button></span></div>
   <button class="icon-btn" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="icon-btn" id="pauseBtn" aria-label="Pausa" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg></button>
@@ -563,7 +589,7 @@
       <p class="note" data-t="clNote"></p>
     </div>
     <a class="link" id="privLink" href="https://andreunicos.github.io/empilha/privacidade.html" target="_blank" rel="noopener" data-t="privacy"></a>
-    <span class="ver">Big Stack · Bighouse · v<span id="verNum">1.0</span></span>
+    <div class="verCard"><span class="vi">B</span><span class="vt"><b><span data-t="verT"></span> <span id="verNum">1.0</span></b><small>Big Stack · Bighouse</small></span><span class="vok" data-t="verOk"></span></div>
   </div></div>
 
   <div class="panel" id="ad" hidden><div class="inner">
@@ -658,7 +684,7 @@ const L={
 pt:{powers:'Poderes',a_magnet:'ÍMÃ',a_slow:'LENTO',a_wide:'LARGO',a_calm:'ANTI-VENTO',p_calm:'ANTI-VENTO',d_magnet:'Os próximos 3 blocos caem perfeitos',d_slow:'Blocos mais devagar por 8 andares',d_wide:'A torre volta à largura máxima',d_calm:'Sem vento e sem velocidade maluca por 15 andares',haveN:'Você tem: {0}',gotAbility:'+1 {0}!',boughtAb:'{0} comprado!',powersNote:'Use os poderes na barra durante a partida. Acabou? Toque no + verde e assista um vídeo para ganhar mais 1.',s_brick:'Tijolo',s_watermelon:'Melancia',s_marble:'Mármore',s_circuit:'Circuito',s_carbon:'Carbono',s_holo:'Holográfico',tagline:'Toque na hora certa. Empilhe até o espaço.',play:'JOGAR',shop:'LOJA',missions:'MISSÕES',settings:'AJUSTES',level:'Nível',bestMenu:'Recorde: {0} andares',hint:'Toque para soltar',perfect:'PERFEITO!',combo:'PERFEITO x{0}',
  p_slow:'LENTO',p_magnet:'ÍMÃ',p_wide:'LARGO',p_x2:'x2',magnetUse:'ÍMÃ!',paused:'PAUSA',resume:'CONTINUAR',quit:'SAIR',
  continueQ:'CONTINUAR?',revTxt:'Sua torre tem {0} andares. Volte de onde parou.',revVideo:'VER VÍDEO E REVIVER',reviveFor:'REVIVER POR',noThanks:'Não, obrigado',
- fell:'CAIU!',newBest:'NOVO RECORDE! MOEDAS x2',floors:'Andares',best:'Recorde',e_blocks:'Blocos',e_perf:'Perfeitos e combos',e_chest:'Baús',e_end:'Bônus final',e_rec:'Recorde quebrado',e_gems:'Cristais',total:'Total',again:'DE NOVO',menu:'MENU',
+ fell:'CAIU!',verT:'Versão',verOk:'✓ Atualizado',verNew:'✨ Atualizado! Novidades no jogo',newBest:'NOVO RECORDE! MOEDAS x2',floors:'Andares',best:'Recorde',e_blocks:'Blocos',e_perf:'Perfeitos e combos',e_chest:'Baús',e_end:'Bônus final',e_rec:'Recorde quebrado',e_gems:'Cristais',total:'Total',again:'DE NOVO',menu:'MENU',
  lvlUp:'SUBIU PARA O NÍVEL {0}! +{1} moedas',andGems:' e cristais',newSkin:'Skin nova: {0}',misDone:'MISSÃO COMPLETA: ',claimIn:'Pegue a recompensa em Missões',
  back:'VOLTAR',skins:'Skins',gems:'Cristais',common:'Comum',exclusive:'Exclusiva',lvlN:'Nível {0}',equipped:'EM USO',use:'USAR',lvlBtn:'NÍVEL {0}',
  skinsNote:'Moedas você ganha jogando. Skins de nível chegam sozinhas quando você sobe. Skins de cristal são exclusivas.',gemsNote:'Cristais compram skins exclusivas e revivem a partida.',paySafe:' Pagamento seguro pelo Google Play.',payTest:' Modo teste: nenhuma compra é cobrada aqui.',
@@ -673,7 +699,7 @@ pt:{powers:'Poderes',a_magnet:'ÍMÃ',a_slow:'LENTO',a_wide:'LARGO',a_calm:'ANTI
 en:{powers:'Powers',a_magnet:'MAGNET',a_slow:'SLOW',a_wide:'WIDE',a_calm:'NO WIND',p_calm:'NO WIND',d_magnet:'Your next 3 blocks land perfect',d_slow:'Slower blocks for 8 floors',d_wide:'Tower back to full width',d_calm:'No wind or crazy speeds for 15 floors',haveN:'You have: {0}',gotAbility:'+1 {0}!',boughtAb:'{0} bought!',powersNote:'Use powers from the bar during a run. Out of them? Tap the green + and watch a video to get 1 more.',s_brick:'Brick',s_watermelon:'Watermelon',s_marble:'Marble',s_circuit:'Circuit',s_carbon:'Carbon',s_holo:'Holographic',tagline:'Tap at the right time. Stack all the way to space.',play:'PLAY',shop:'SHOP',missions:'MISSIONS',settings:'SETTINGS',level:'Level',bestMenu:'Best: {0} floors',hint:'Tap to drop',perfect:'PERFECT!',combo:'PERFECT x{0}',
  p_slow:'SLOW',p_magnet:'MAGNET',p_wide:'WIDE',p_x2:'x2',magnetUse:'MAGNET!',paused:'PAUSED',resume:'RESUME',quit:'QUIT',
  continueQ:'CONTINUE?',revTxt:'Your tower is {0} floors tall. Pick up where you left off.',revVideo:'WATCH VIDEO TO REVIVE',reviveFor:'REVIVE FOR',noThanks:'No, thanks',
- fell:'IT FELL!',newBest:'NEW BEST! COINS x2',floors:'Floors',best:'Best',e_blocks:'Blocks',e_perf:'Perfects & combos',e_chest:'Chests',e_end:'End bonus',e_rec:'New best',e_gems:'Gems',total:'Total',again:'AGAIN',menu:'MENU',
+ fell:'IT FELL!',verT:'Version',verOk:'✓ Up to date',verNew:'✨ Updated! New stuff in the game',newBest:'NEW BEST! COINS x2',floors:'Floors',best:'Best',e_blocks:'Blocks',e_perf:'Perfects & combos',e_chest:'Chests',e_end:'End bonus',e_rec:'New best',e_gems:'Gems',total:'Total',again:'AGAIN',menu:'MENU',
  lvlUp:'LEVEL {0} REACHED! +{1} coins',andGems:' and gems',newSkin:'New skin: {0}',misDone:'MISSION COMPLETE: ',claimIn:'Claim it in Missions',
  back:'BACK',skins:'Skins',gems:'Gems',common:'Common',exclusive:'Exclusive',lvlN:'Level {0}',equipped:'EQUIPPED',use:'USE',lvlBtn:'LEVEL {0}',
  skinsNote:'Earn coins by playing. Level skins unlock as you level up. Gem skins are exclusive.',gemsNote:'Gems buy exclusive skins and revives.',paySafe:' Secure payment through Google Play.',payTest:' Test mode: nothing is charged here.',
@@ -688,7 +714,7 @@ en:{powers:'Powers',a_magnet:'MAGNET',a_slow:'SLOW',a_wide:'WIDE',a_calm:'NO WIN
 es:{powers:'Poderes',a_magnet:'IMÁN',a_slow:'LENTO',a_wide:'ANCHO',a_calm:'ANTI-VIENTO',p_calm:'ANTI-VIENTO',d_magnet:'Tus próximos 3 bloques caen perfectos',d_slow:'Bloques más lentos por 8 pisos',d_wide:'La torre vuelve al ancho máximo',d_calm:'Sin viento ni velocidades locas por 15 pisos',haveN:'Tienes: {0}',gotAbility:'¡+1 {0}!',boughtAb:'¡{0} comprado!',powersNote:'Usa los poderes en la barra durante la partida. ¿Se acabaron? Toca el + verde y mira un video para ganar 1 más.',s_brick:'Ladrillo',s_watermelon:'Sandía',s_marble:'Mármol',s_circuit:'Circuito',s_carbon:'Carbono',s_holo:'Holográfico',tagline:'Toca en el momento justo. Apila hasta el espacio.',play:'JUGAR',shop:'TIENDA',missions:'MISIONES',settings:'AJUSTES',level:'Nivel',bestMenu:'Récord: {0} pisos',hint:'Toca para soltar',perfect:'¡PERFECTO!',combo:'PERFECTO x{0}',
  p_slow:'LENTO',p_magnet:'IMÁN',p_wide:'ANCHO',p_x2:'x2',magnetUse:'¡IMÁN!',paused:'PAUSA',resume:'CONTINUAR',quit:'SALIR',
  continueQ:'¿CONTINUAR?',revTxt:'Tu torre tiene {0} pisos. Sigue donde lo dejaste.',revVideo:'VER VIDEO Y REVIVIR',reviveFor:'REVIVIR POR',noThanks:'No, gracias',
- fell:'¡SE CAYÓ!',newBest:'¡NUEVO RÉCORD! MONEDAS x2',floors:'Pisos',best:'Récord',e_blocks:'Bloques',e_perf:'Perfectos y combos',e_chest:'Cofres',e_end:'Bono final',e_rec:'Nuevo récord',e_gems:'Gemas',total:'Total',again:'OTRA VEZ',menu:'MENÚ',
+ fell:'¡SE CAYÓ!',verT:'Versión',verOk:'✓ Actualizado',verNew:'✨ ¡Actualizado! Novedades en el juego',newBest:'¡NUEVO RÉCORD! MONEDAS x2',floors:'Pisos',best:'Récord',e_blocks:'Bloques',e_perf:'Perfectos y combos',e_chest:'Cofres',e_end:'Bono final',e_rec:'Nuevo récord',e_gems:'Gemas',total:'Total',again:'OTRA VEZ',menu:'MENÚ',
  lvlUp:'¡NIVEL {0}! +{1} monedas',andGems:' y gemas',newSkin:'Skin nueva: {0}',misDone:'¡MISIÓN COMPLETA!: ',claimIn:'Recógela en Misiones',
  back:'VOLVER',skins:'Skins',gems:'Gemas',common:'Común',exclusive:'Exclusiva',lvlN:'Nivel {0}',equipped:'EN USO',use:'USAR',lvlBtn:'NIVEL {0}',
  skinsNote:'Ganas monedas jugando. Las skins de nivel se desbloquean al subir. Las de gemas son exclusivas.',gemsNote:'Las gemas compran skins exclusivas y revividas.',paySafe:' Pago seguro con Google Play.',payTest:' Modo de prueba: no se cobra nada.',
@@ -791,6 +817,9 @@ L3.pt.stkOver='📒 Figurinha nova! Veja em Coleção → Álbum';L3.en.stkOver=
 for(const k in L3)Object.assign(L[k],L3[k]);
 
 L.fr={
+verT:"Version",
+verOk:"✓ À jour",
+verNew:"✨ Mis à jour ! Du nouveau dans le jeu",
 powers:"Pouvoirs",
 a_magnet:"AIMANT",
 a_slow:"LENT",
@@ -1380,6 +1409,9 @@ stkOver:"📒 Nouvel autocollant ! Va dans Collection → Album"
 };
 
 L.de={
+verT:"Version",
+verOk:"✓ Aktuell",
+verNew:"✨ Aktualisiert! Neues im Spiel",
 powers:"Kräfte",
 a_magnet:"MAGNET",
 a_slow:"LANGSAM",
@@ -1969,6 +2001,9 @@ stkOver:"📒 Neuer Sticker! Schau in Sammlung → Album"
 };
 
 L.tr={
+verT:"Sürüm",
+verOk:"✓ Güncel",
+verNew:"✨ Güncellendi! Oyunda yenilikler",
 powers:"Güçler",
 a_magnet:"MIKNATIS",
 a_slow:"YAVAŞ",
@@ -2558,6 +2593,9 @@ stkOver:"📒 Yeni çıkartma! Koleksiyon → Albüm'e bak"
 };
 
 L.id={
+verT:"Versi",
+verOk:"✓ Terbaru",
+verNew:"✨ Diperbarui! Ada yang baru",
 powers:"Kekuatan",
 a_magnet:"MAGNET",
 a_slow:"LAMBAT",
@@ -3147,6 +3185,9 @@ stkOver:"📒 Stiker baru! Lihat di Koleksi → Album"
 };
 
 L.hi={
+verT:"संस्करण",
+verOk:"✓ अपडेटेड",
+verNew:"✨ अपडेट हुआ! गेम में नया",
 powers:"पावर",
 a_magnet:"मैग्नेट",
 a_slow:"स्लो",
@@ -4921,6 +4962,11 @@ $('volMusic').oninput=e=>{S.settings.musicVol=+e.target.value;applyVolumes()};$(
 $('volSfx').oninput=e=>{S.settings.sfxVol=+e.target.value;applyVolumes()};$('volSfx').onchange=()=>{save();sfx.coin()};
 document.querySelectorAll('#langSeg button').forEach(b=>b.onclick=()=>{LANG=b.dataset.lang;S.settings.lang=LANG;save();applyLang()});
 $('verNum').textContent=VERSION;
+// abertura: mostra a versão (e "Atualizado!" quando acabou de chegar versão nova)
+(function(){const sp=$('splash');if(!sp)return;$('spVer').textContent=t('verT')+' '+VERSION;
+  if(S.lastVer&&S.lastVer!==VERSION){$('spNew').hidden=false;$('spNew').textContent=t('verNew')}
+  S.lastVer=VERSION;save();let done=false;const go=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),500)};
+  sp.onclick=go;setTimeout(go,S.settings.rm?700:2000)})();
 
 /* ================= SHOP ================= */
 const PACKS=[{id:'cristais_50',k:'g1',gems:50,price:'R$ 4,90'},{id:'cristais_150',k:'g2',gems:150,price:'R$ 12,90',tag:'popular'},{id:'cristais_400',k:'g3',gems:400,price:'R$ 29,90'},{id:'cristais_1000',k:'g4',gems:1000,price:'R$ 64,90',tag:'bestValue'}];
@@ -5271,11 +5317,15 @@ function rankAfterRun(sc){
   syncScores().then(async()=>{
     if(Date.now()-(S.cp.t||0)>120000){S.cp.t=Date.now();snapBelow()}
     const k=monthKey();const ms=S.lb.mk===k?S.lb.ms:0;if(!ms||$('over').hidden)return;
-    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await on.rank('all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([on.rank(k,ms),allPos()]);if($('over').hidden)return;
-      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false;rkCache={}}catch(e){}
+    try{const allPos=async()=>{if(!S.lb.all)return 0;if(RA.s===S.lb.all&&Date.now()-RA.t<6e5)return RA.p;const p=await posOf(on,'all',S.lb.all);Object.assign(RA,{s:S.lb.all,p,t:Date.now()});return p};const [rm,ra]=await Promise.all([posOf(on,k,ms),allPos()]);if($('over').hidden)return;
+      S.st.lastPos=rm;S.st.bestPos=S.st.bestPos?Math.min(S.st.bestPos,rm):rm;save();checkAch();el.innerHTML=`<span>${flag(S.lb.cc)} <b>#${rm}</b> ${t('rkInMonth')}</span>`+(ra?`<span><b>#${ra}</b> ${t('rkInAll')}</span>`:'');el.hidden=false}catch(e){}
   });
 }
 
+// posição igual à da lista do ranking (sem contar entradas repetidas do mesmo jogador)
+async function posOf(on,board,sc){const p=await on.rank(board,sc);if(!(p<=50))return p;
+  try{const c=rkCache[board];let rows=c&&Date.now()-c.t<60000?c.rows:null;if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
+    const uid=on.whoami?await on.whoami():on.uid();const i=dedupeRows(rows.map(r=>Object.assign({},r)),uid).findIndex(r=>r.me);return i>=0?i+1:p}catch(e){return p}}
 /* ---- prêmio do mês passado ---- */
 // só o Nº1 ganha cristais; do 2º ao 10º o prêmio é em moedas
 const MPRIZE=[{g:50},{c:1500},{c:1000},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500},{c:500}];
@@ -5327,7 +5377,7 @@ async function loadRank(){
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
     const uid=(on.whoami?await on.whoami():on.uid());const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
-    rows=dedupeRows(rows,uid);
+    rows=dedupeRows(rows.map(r=>Object.assign({},r)),uid);
     L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,!!r.me)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
     const idx=rows.findIndex(r=>r.me);
     if(idx<0){

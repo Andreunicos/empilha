@@ -1,4 +1,7 @@
 L.tr={
+verT:"Sürüm",
+verOk:"✓ Güncel",
+verNew:"✨ Güncellendi! Oyunda yenilikler",
 powers:"Güçler",
 a_magnet:"MIKNATIS",
 a_slow:"YAVAŞ",

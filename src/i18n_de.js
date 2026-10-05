@@ -1,4 +1,7 @@
 L.de={
+verT:"Version",
+verOk:"✓ Aktuell",
+verNew:"✨ Aktualisiert! Neues im Spiel",
 powers:"Kräfte",
 a_magnet:"MAGNET",
 a_slow:"LANGSAM",
