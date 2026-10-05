@@ -583,5 +583,6 @@ a11yBig:"Teks lebih besar",
 a11yCb:"Warna ramah buta warna",
 s_alb_cosmos:"Pengelana Kosmik",
 s_alb_pets:"Tapak Pelangi",
-s_alb_sweets:"Toko Kue"
+s_alb_sweets:"Toko Kue",
+stkOver:"📒 Stiker baru! Lihat di Koleksi → Album"
 };

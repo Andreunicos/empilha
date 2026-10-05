@@ -583,5 +583,6 @@ a11yBig:"Größerer Text",
 a11yCb:"Farbenblind-freundliche Farben",
 s_alb_cosmos:"Kosmosreisender",
 s_alb_pets:"Regenbogenpfoten",
-s_alb_sweets:"Konditorei"
+s_alb_sweets:"Konditorei",
+stkOver:"📒 Neuer Sticker! Schau in Sammlung → Album"
 };

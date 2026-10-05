@@ -48,7 +48,7 @@ let evtDrag=false;{let x0=0,dx=0,down=false;const el=$('evt');
 // ---- seletor de modo (setas) e lista de modos ----
 function modeUI(){const m=MODES.find(x=>x.k===S.selMode)||MODES[0];$('modeName').textContent=t('mode_'+m.k).toUpperCase();$('modeSub').textContent=modeSub(m);$('play').classList.toggle('lockd',!!modeLocked(m))}
 function pickMode(k){S.selMode=k;save();modeUI();$('modes').hidden=true}
-function stepMode(d){let i=MODES.findIndex(x=>x.k===S.selMode);i=(i+d+MODES.length)%MODES.length;S.selMode=MODES[i].k;save();modeUI();sfx.ui();const el=$('modeName');el.classList.remove('sw');void el.offsetWidth;el.classList.add('sw')}
+function stepMode(d){let i=MODES.findIndex(x=>x.k===S.selMode);i=(i+d+MODES.length)%MODES.length;S.selMode=MODES[i].k;save();modeUI();sfx.ui()}
 $('modePrev').onclick=()=>stepMode(-1);$('modeNext').onclick=()=>stepMode(1);
 $('modeBtn').onclick=()=>{renderModes();$('modes').hidden=false};
 $('modes').onclick=e=>{if(e.target.id==='modes')$('modes').hidden=true};

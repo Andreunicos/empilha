@@ -314,7 +314,7 @@
   .modesel{display:flex;align-items:center;gap:8px;width:min(100%,340px);box-sizing:border-box;background:rgba(15,16,36,.82);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px}
   .modesel .ar{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--ink);font:900 20px/1 "Nunito",sans-serif;cursor:pointer;display:grid;place-items:center}
   .modesel .mt{border:0;background:none;color:var(--ink);flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 4px}
-  .modesel .mt b{font:15px "Bungee",Impact,sans-serif;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.modesel .mt b.sw{animation:cpop .35s}
+  .modesel .mt b{display:block;width:100%;text-align:center;font:15px "Bungee",Impact,sans-serif;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.modesel .mt b.sw{animation:cpop .35s}
   .modesel .mt small{font:800 11.5px "Nunito",sans-serif;color:var(--muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .btn.play.lockd{filter:grayscale(.7) brightness(.8)}
   /* barra de abas */
@@ -331,6 +331,7 @@
   .segt{display:flex;gap:4px;background:var(--card);border-radius:14px;padding:4px;width:100%}
   .segt button{flex:1;border:0;background:none;color:var(--muted);font:900 13px "Nunito",sans-serif;padding:9px 4px;border-radius:10px;cursor:pointer;text-transform:uppercase;letter-spacing:.03em}
   .segt button[aria-selected="true"]{background:var(--card2);color:var(--ink)}
+  .segt button.nd::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pink);margin-left:6px;vertical-align:2px}
   .ttl2{color:var(--muted);font-weight:900;font-size:13px;margin-left:auto;margin-right:8px}
   /* lista de modos */
   .sheet{background:rgba(8,8,22,.6);justify-content:flex-end;padding:0!important;z-index:8;-webkit-mask-image:none;mask-image:none}
@@ -786,6 +787,7 @@ es:{navShop:'Tienda',navColl:'Colección',navSeason:'Temporada',navSocial:'Socia
  e_stk:'Cromos',skinEvo:'✨ ¡{0} evolucionó y ahora brilla!',shiny:'Brillante',shinyProg:'✨ {0}/{1} pisos',
  a11yT:'Accesibilidad',a11yRm:'Menos temblor y destellos',a11yBig:'Texto más grande',a11yCb:'Colores para daltonismo',
  s_alb_cosmos:'Viajero Cósmico',s_alb_pets:'Patitas Arcoíris',s_alb_sweets:'Pastelería'}};
+L3.pt.stkOver='📒 Figurinha nova! Veja em Coleção → Álbum';L3.en.stkOver='📒 New sticker! Check Collection → Album';L3.es.stkOver='📒 ¡Cromo nuevo! Míralo en Colección → Álbum';
 for(const k in L3)Object.assign(L[k],L3[k]);
 
 L.fr={
@@ -1373,7 +1375,8 @@ a11yBig:"Texte plus grand",
 a11yCb:"Couleurs adaptées daltoniens",
 s_alb_cosmos:"Voyageur cosmique",
 s_alb_pets:"Pattes arc-en-ciel",
-s_alb_sweets:"Pâtisserie"
+s_alb_sweets:"Pâtisserie",
+stkOver:"📒 Nouvel autocollant ! Va dans Collection → Album"
 };
 
 L.de={
@@ -1961,7 +1964,8 @@ a11yBig:"Größerer Text",
 a11yCb:"Farbenblind-freundliche Farben",
 s_alb_cosmos:"Kosmosreisender",
 s_alb_pets:"Regenbogenpfoten",
-s_alb_sweets:"Konditorei"
+s_alb_sweets:"Konditorei",
+stkOver:"📒 Neuer Sticker! Schau in Sammlung → Album"
 };
 
 L.tr={
@@ -2549,7 +2553,8 @@ a11yBig:"Daha büyük yazı",
 a11yCb:"Renk körlüğüne uygun renkler",
 s_alb_cosmos:"Kozmik Gezgin",
 s_alb_pets:"Gökkuşağı Patiler",
-s_alb_sweets:"Pastane"
+s_alb_sweets:"Pastane",
+stkOver:"📒 Yeni çıkartma! Koleksiyon → Albüm'e bak"
 };
 
 L.id={
@@ -3137,7 +3142,8 @@ a11yBig:"Teks lebih besar",
 a11yCb:"Warna ramah buta warna",
 s_alb_cosmos:"Pengelana Kosmik",
 s_alb_pets:"Tapak Pelangi",
-s_alb_sweets:"Toko Kue"
+s_alb_sweets:"Toko Kue",
+stkOver:"📒 Stiker baru! Lihat di Koleksi → Album"
 };
 
 L.hi={
@@ -3725,7 +3731,8 @@ a11yBig:"बड़ा टेक्स्ट",
 a11yCb:"कलरब्लाइंड के लिए रंग",
 s_alb_cosmos:"अंतरिक्ष यात्री",
 s_alb_pets:"इंद्रधनुषी पंजे",
-s_alb_sweets:"मिठाई की दुकान"
+s_alb_sweets:"मिठाई की दुकान",
+stkOver:"📒 नया स्टिकर! कलेक्शन → एल्बम में देखें"
 };
 
 let LANG=S.settings.lang||((navigator.language||'pt').slice(0,2).replace('in','id'));if(!L[LANG])LANG='en';
@@ -4642,6 +4649,8 @@ const perfTol=()=>Math.max(6,speed*1.1)*(W/360)*(1.8-.8*ease())*(worldOf(score)=
 const SPEED0=4.2,SPEED_STEP=.06,SPEED_MAX=9,SPEED_MAX_SPACE=10;
 const WAVE_W=Math.PI*2/2400; // ondas gravitacionais: 1 ciclo a cada 2,4 s
 const waveAmp=wd=>Math.min(.45,.28+(wd-3)*.04);
+// rajada de vento (0 a .33): as linhas aparecem mais fortes quando a rajada é forte
+const windGust=()=>.33*(.5+.5*Math.sin(tNow*.0028));
 const hazard=()=>(worldOf(score)>=1||wkRuleOn('wind')||wkRuleOn('crazy'))&&!hazOff(); // cidade não tem perigo; nuvens, aurora e espaço têm (e o desafio da semana pode ligar desde o começo)
 const RANDOM_POWERS=['slow','magnet','wide','x2'];
 // bônus grátis: durante vento/velocidade/ondas o LENTO fica bem mais raro (10% em vez de 25%)
@@ -4724,7 +4733,7 @@ function drop(){
   const wd=worldOf(score);
   speed=Math.min(mode==='zen'?SPEED0*1.15:wd>=3?SPEED_MAX_SPACE:SPEED_MAX,SPEED0+(score+(wkRuleOn('fast')?25:0))*SPEED_STEP)*(.62+.38*ease())*(wd===1?.9:1)/*nas nuvens 10% mais devagar*/;
   if(score%25===0){const cg=20+Math.floor(score/25)*10;run.chest+=cg;run.chests++;let s=t('chest',cg);addFloat(W/2,yOf(m.i)-50,s,'#ffc23d',20);burst(W/2,yOf(m.i),0,40,'#ffc23d');sfx.fanfare();vib('chest');
-    if(mode!=='zen'&&Math.random()<.4){const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,t('stkGot',st.ic),'#4fe39a',18),450)}}
+    if(mode!=='zen'&&Math.random()<.4){const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,(st.dup?'+40 ':'')+t('stkGot',st.ic),'#4fe39a',22),300)}}
   if([25,50,100].includes(score)&&mode!=='daily')setTimeout(()=>{if(state==='play')tip('stab'+wd,t('tipStab'+Math.min(wd,3)),'bar')},2600);
   if(WORLDS.some(w=>w.at===score&&score>0)){setTimeout(()=>{banner(t('world',wd+1),t('w'+wd));sfx.whoosh()},250);toast(t('ev'+wd))}
   if(yOf(stack.length)<H*.42)camT+=BH;
@@ -4870,7 +4879,7 @@ function finish(){
   $('fScore').textContent=score;$('fBest').textContent=S.best;$('newRec').hidden=!isNew;
   const rows=[[t('e_blocks'),'+'+run.blocks],[t('e_perf'),'+'+run.perf]];if(run.chest)rows.push([t('e_chest'),'+'+run.chest]);rows.push([t('e_end'),'+'+endBonus]);
   if(run.stk&&run.stk.length)rows.push([t('e_stk'),run.stk.join(' ')]);
-  $('oAcc').innerHTML=zen?'':precisionHTML();const evo=skinUse(score);if(evo)setTimeout(()=>{toast(t('skinEvo',t('s_'+evo)));sfx.fanfare()},1800);
+  $('oAcc').innerHTML=zen?'':precisionHTML();if(run.stkNew)setTimeout(()=>toast(t('stkOver')),2400);const evo=skinUse(score);if(evo)setTimeout(()=>{toast(t('skinEvo',t('s_'+evo)));sfx.fanfare()},1800);
   $('earn').innerHTML=rows.map((r,k)=>`<div style="animation-delay:${k*70}ms">${r[0]} <b>${r[1]}</b></div>`).join('')+(isNew?`<div class="x2" style="animation-delay:${rows.length*70}ms">${t('e_rec')} <b>x2</b></div>`:'')+(run.gems?`<div>${t('e_gems')} <b><i class="gem"></i>+${run.gems}</b></div>`:'')+`<div class="tot" id="totRow" style="animation-delay:${(rows.length+1)*70}ms">${t('total')} <b><i class="coin"></i>${final}</b></div>`;
   $('oXpGain').textContent=`+${xp} XP`;$('oLvl').textContent=lvBefore;$('oBar').style.width='0%';setTimeout(()=>lvlUI('oLvl','oXp','oBar'),350);
   $('oUp').hidden=!ups.length;if(ups.length){const u=ups[ups.length-1];$('oUp').innerHTML=t('lvlUp',u.lvl,ups.reduce((a,r)=>a+r.coins,0))+(ups.some(r=>r.gems)?t('andGems'):'')+ups.filter(r=>r.skin).map(r=>'<br>'+t('newSkin',r.skin)).join('');setTimeout(()=>sfx.fanfare(),700)}
@@ -4951,7 +4960,7 @@ const previews=[];
 function renderShop(){
   const tabs=SEC_TABS[shopSec];if(!tabs.includes(tab))tab=tabs[0];
   $('shopTitle').textContent=t(shopSec==='coll'?'navColl':'navShop');$('shopCount').textContent=shopSec==='coll'?S.owned.length+'/'+SKINS.length:'';
-  $('shopTabs').innerHTML=tabs.map(k=>`<button role="tab" data-tab="${k}" aria-selected="${k===tab}">${t('tab_'+k)}</button>`).join('');
+  $('shopTabs').innerHTML=tabs.map(k=>`<button role="tab" data-tab="${k}" aria-selected="${k===tab}" class="${k==='album'&&albumNew()?'nd':''}">${t('tab_'+k)}</button>`).join('');
   $('shopTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderShop();$('shop').scrollTop=0});
   const g=$('grid');g.innerHTML='';g.classList.remove('list','album');previews.length=0;
   $('skCats').hidden=$('skHead').hidden=tab!=='skins';
@@ -5567,7 +5576,7 @@ function albumSeen(){if(S.albNew){S.albNew=false;save()}}
 // sorteia uma figurinha do álbum atual; devolve o que ganhou (pra mostrar na tela)
 function dropSticker(){const a=ALBUMS.find(x=>albHave(x)<x.items.length);if(!a){S.coins+=40;return {dup:true,ic:'🪙'}}
   const arr=S.alb[a.k]=S.alb[a.k]||new Array(a.items.length).fill(0);const miss=a.items.map((_,j)=>j).filter(j=>!arr[j]);const k=miss.length&&Math.random()<.6?miss[Math.random()*miss.length|0]:Math.random()*a.items.length|0;const ic=a.items[k];
-  if(arr[k]){S.coins+=40;return {dup:true,ic}}arr[k]=1;S.albNew=true;
+  if(arr[k]){S.coins+=40;return {dup:true,ic}}arr[k]=1;S.albNew=true;if(typeof run==='object'&&run)run.stkNew=1;
   let done=false;if(albHave(a)===a.items.length&&!S.owned.includes(a.skin)){S.owned.push(a.skin);done=a}save();return {ic,done}}
 function renderAlbum(g){g.classList.add('album');$('skCats').hidden=$('skHead').hidden=true;$('shopNote').textContent=t('albumNote');
   g.innerHTML=ALBUMS.map((a,ai)=>{const arr=S.alb[a.k]||[],h=albHave(a),full=h===a.items.length;const sk=skinOf(a.skin);
@@ -5640,7 +5649,7 @@ function bossStart(){const k=BOSS_TYPES[((score/50|0)-1)%BOSS_TYPES.length];run.
   setTimeout(()=>{banner(t('bossT'),t('boss_'+k));sfx.whoosh()},200);tip('boss',t('tipBoss'),'mid')}
 function bossStep(){const b=run.boss;if(!b)return;b.left--;if(b.left>0)return;run.boss=null;run.bossWins=(run.bossWins||0)+1;
   const cg=60+Math.floor(score/2);run.chest+=cg;run.chests++;const y=yOf(stack.length-1);addFloat(W/2,y-60,t('bossWin'),'#ffc23d',24);addFloat(W/2,y-30,'+'+cg,'#ffc23d',20);burst(W/2,y,0,50,'#ffc23d');sfx.fanfare();vib('bossWin');
-  const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,t('stkGot',st.ic),'#4fe39a',20),500)}
+  const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,(st.dup?'+40 ':'')+t('stkGot',st.ic),'#4fe39a',22),500)}
 // o que o chefão faz com o bloco que está andando
 function bossMove(m,dt){const b=run&&run.boss;if(!b||state!=='play')return 1;
   if(b.k==='fast')return 1.35;
@@ -5735,7 +5744,7 @@ let evtDrag=false;{let x0=0,dx=0,down=false;const el=$('evt');
 // ---- seletor de modo (setas) e lista de modos ----
 function modeUI(){const m=MODES.find(x=>x.k===S.selMode)||MODES[0];$('modeName').textContent=t('mode_'+m.k).toUpperCase();$('modeSub').textContent=modeSub(m);$('play').classList.toggle('lockd',!!modeLocked(m))}
 function pickMode(k){S.selMode=k;save();modeUI();$('modes').hidden=true}
-function stepMode(d){let i=MODES.findIndex(x=>x.k===S.selMode);i=(i+d+MODES.length)%MODES.length;S.selMode=MODES[i].k;save();modeUI();sfx.ui();const el=$('modeName');el.classList.remove('sw');void el.offsetWidth;el.classList.add('sw')}
+function stepMode(d){let i=MODES.findIndex(x=>x.k===S.selMode);i=(i+d+MODES.length)%MODES.length;S.selMode=MODES[i].k;save();modeUI();sfx.ui()}
 $('modePrev').onclick=()=>stepMode(-1);$('modeNext').onclick=()=>stepMode(1);
 $('modeBtn').onclick=()=>{renderModes();$('modes').hidden=false};
 $('modes').onclick=e=>{if(e.target.id==='modes')$('modes').hidden=true};
@@ -5779,7 +5788,7 @@ function frame(tt){
   frame.lt=tNow;
   if(state==='play'&&moving){
     let sp=speed*(P.slow>0?.55:1)*bossMove(moving,dt)*slowK();
-    if(P.calm<=0&&!hazOff()){/*vento das nuvens 40% mais fraco*/if(wd===1||wkRuleOn('wind'))sp*=1+.33*Math.sin(tNow*.0028);if(wd===2||wkRuleOn('crazy'))sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
+    if(P.calm<=0&&!hazOff()){/*vento das nuvens 40% mais fraco*/if(wd===1||wkRuleOn('wind'))sp*=1+windGust()*windDir*moving.dir;if(wd===2||wkRuleOn('crazy'))sp*=moving.v;if(wd>=3)sp*=1+waveAmp(wd)*Math.sin(tNow*WAVE_W)}
     moving.x+=moving.dir*sp*dt*scale;
     if(moving.x>W-moving.w*.2&&moving.dir>0){moving.dir=-1;moving.flipped=false;moving.fx=null}if(moving.x<-moving.w*.8&&moving.dir<0){moving.dir=1;moving.flipped=false;moving.fx=null}
   }
@@ -5804,7 +5813,7 @@ function frame(tt){
     specialDraw(moving,y);
     if(moving.pw){const pw=POWERS[moving.pw];const p=.5+.5*Math.sin(tNow*.01);ctx.save();ctx.strokeStyle=pw.col;ctx.globalAlpha=.6+.4*p;ctx.lineWidth=3;rr(ctx,moving.x-2,y-2,moving.w+4,BH+4,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=pw.col;const lb='★ '+t('p_'+moving.pw);for(let k=0;k<4;k++){const a=tNow*.004+k*Math.PI/2,sx=moving.x+moving.w/2+Math.cos(a)*(moving.w/2+8),sy=y+BH/2+Math.sin(a)*(BH/2+8),r=2.5+1.5*Math.sin(tNow*.01+k);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(sx,sy-r*2);ctx.lineTo(sx+r*.6,sy);ctx.lineTo(sx,sy+r*2);ctx.lineTo(sx-r*.6,sy);ctx.fill()}const L=pwLabel(lb,pw.col);ctx.drawImage(L.cv,moving.x+moving.w/2-L.w/2,y+7,L.w,L.h);ctx.restore()}
     if(wd>=3&&state==='play'&&P.calm<=0&&!hazOff())drawWaves(y,wd);
-    if((wd===1||wkRuleOn('wind'))&&state==='play'&&P.calm<=0&&!hazOff()){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.beginPath();for(let k=0;k<5;k++){const lx=((tNow*.4*windDir+k*137)%(W+120)+W+120)%(W+120)-60,ly=y-60+k*28;ctx.moveTo(lx,ly);ctx.lineTo(lx+40,ly)}ctx.stroke()}
+    if((wd===1||wkRuleOn('wind'))&&state==='play'&&P.calm<=0&&!hazOff()){ctx.strokeStyle=WA[Math.round(3+windGust()*30)];ctx.lineWidth=2;ctx.beginPath();for(let k=0;k<5;k++){const lx=((tNow*.4*windDir+k*137)%(W+120)+W+120)%(W+120)-60,ly=y-60+k*28;ctx.moveTo(lx,ly);ctx.lineTo(lx+40,ly)}ctx.stroke()}
   }
   // anéis do perfeito
   for(let k=rings.length-1;k>=0;k--){const r=rings[k],a=tNow-r.t0;if(a>450){rings.splice(k,1);continue}const e=a*.09;ctx.save();ctx.globalAlpha=1-a/450;ctx.strokeStyle='#fff';ctx.lineWidth=3*(1-a/450)+1;rr(ctx,r.x-e,yOf(r.i)-e*.6,r.w+e*2,BH+e*1.2,8);ctx.stroke();ctx.restore()}

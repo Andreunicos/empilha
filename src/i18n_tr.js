@@ -583,5 +583,6 @@ a11yBig:"Daha büyük yazı",
 a11yCb:"Renk körlüğüne uygun renkler",
 s_alb_cosmos:"Kozmik Gezgin",
 s_alb_pets:"Gökkuşağı Patiler",
-s_alb_sweets:"Pastane"
+s_alb_sweets:"Pastane",
+stkOver:"📒 Yeni çıkartma! Koleksiyon → Albüm'e bak"
 };

@@ -84,4 +84,5 @@ es:{navShop:'Tienda',navColl:'Colección',navSeason:'Temporada',navSocial:'Socia
  e_stk:'Cromos',skinEvo:'✨ ¡{0} evolucionó y ahora brilla!',shiny:'Brillante',shinyProg:'✨ {0}/{1} pisos',
  a11yT:'Accesibilidad',a11yRm:'Menos temblor y destellos',a11yBig:'Texto más grande',a11yCb:'Colores para daltonismo',
  s_alb_cosmos:'Viajero Cósmico',s_alb_pets:'Patitas Arcoíris',s_alb_sweets:'Pastelería'}};
+L3.pt.stkOver='📒 Figurinha nova! Veja em Coleção → Álbum';L3.en.stkOver='📒 New sticker! Check Collection → Album';L3.es.stkOver='📒 ¡Cromo nuevo! Míralo en Colección → Álbum';
 for(const k in L3)Object.assign(L[k],L3[k]);

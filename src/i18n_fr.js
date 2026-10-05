@@ -583,5 +583,6 @@ a11yBig:"Texte plus grand",
 a11yCb:"Couleurs adaptées daltoniens",
 s_alb_cosmos:"Voyageur cosmique",
 s_alb_pets:"Pattes arc-en-ciel",
-s_alb_sweets:"Pâtisserie"
+s_alb_sweets:"Pâtisserie",
+stkOver:"📒 Nouvel autocollant ! Va dans Collection → Album"
 };

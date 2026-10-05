@@ -6,7 +6,7 @@ function bossStart(){const k=BOSS_TYPES[((score/50|0)-1)%BOSS_TYPES.length];run.
   setTimeout(()=>{banner(t('bossT'),t('boss_'+k));sfx.whoosh()},200);tip('boss',t('tipBoss'),'mid')}
 function bossStep(){const b=run.boss;if(!b)return;b.left--;if(b.left>0)return;run.boss=null;run.bossWins=(run.bossWins||0)+1;
   const cg=60+Math.floor(score/2);run.chest+=cg;run.chests++;const y=yOf(stack.length-1);addFloat(W/2,y-60,t('bossWin'),'#ffc23d',24);addFloat(W/2,y-30,'+'+cg,'#ffc23d',20);burst(W/2,y,0,50,'#ffc23d');sfx.fanfare();vib('bossWin');
-  const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,t('stkGot',st.ic),'#4fe39a',20),500)}
+  const st=dropSticker();(run.stk=run.stk||[]).push(st.ic);setTimeout(()=>addFloat(W/2,yOf(stack.length-1)-80,(st.dup?'+40 ':'')+t('stkGot',st.ic),'#4fe39a',22),500)}
 // o que o chefão faz com o bloco que está andando
 function bossMove(m,dt){const b=run&&run.boss;if(!b||state!=='play')return 1;
   if(b.k==='fast')return 1.35;

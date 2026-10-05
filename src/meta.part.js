@@ -38,7 +38,7 @@ function albumSeen(){if(S.albNew){S.albNew=false;save()}}
 // sorteia uma figurinha do álbum atual; devolve o que ganhou (pra mostrar na tela)
 function dropSticker(){const a=ALBUMS.find(x=>albHave(x)<x.items.length);if(!a){S.coins+=40;return {dup:true,ic:'🪙'}}
   const arr=S.alb[a.k]=S.alb[a.k]||new Array(a.items.length).fill(0);const miss=a.items.map((_,j)=>j).filter(j=>!arr[j]);const k=miss.length&&Math.random()<.6?miss[Math.random()*miss.length|0]:Math.random()*a.items.length|0;const ic=a.items[k];
-  if(arr[k]){S.coins+=40;return {dup:true,ic}}arr[k]=1;S.albNew=true;
+  if(arr[k]){S.coins+=40;return {dup:true,ic}}arr[k]=1;S.albNew=true;if(typeof run==='object'&&run)run.stkNew=1;
   let done=false;if(albHave(a)===a.items.length&&!S.owned.includes(a.skin)){S.owned.push(a.skin);done=a}save();return {ic,done}}
 function renderAlbum(g){g.classList.add('album');$('skCats').hidden=$('skHead').hidden=true;$('shopNote').textContent=t('albumNote');
   g.innerHTML=ALBUMS.map((a,ai)=>{const arr=S.alb[a.k]||[],h=albHave(a),full=h===a.items.length;const sk=skinOf(a.skin);
