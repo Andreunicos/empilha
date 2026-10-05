@@ -5242,11 +5242,11 @@ async function submitSafe(on,board,v){try{await on.submit(board,v,S.lb.name,S.lb
 function syncScores(force){
   const on=OL();if(!on)return Promise.resolve(false);if(lbBusy)return lbBusy;force=force||S.lb.dirty;const nameAt=S.lb.name+'|'+S.lb.cc;
   lbBusy=(async()=>{let ok=true;
-    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);S.lb.all=await submitSafe(on,'all',v);save()}}catch(e){ok=false}
+    try{if(S.lb.rb>S.lb.all||(force&&S.lb.all>0)){const v=Math.max(S.lb.rb,S.lb.all);S.lb.all=await submitSafe(on,'all',v);save();rkCache={}}}catch(e){ok=false}
     try{const k=monthKey();if(S.lb.mk!==k){S.lb.mk=k;S.lb.ms=0}
-      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);S.lb.ms=await submitSafe(on,k,v);save()}}catch(e){ok=false}
+      if(S.lb.mb.k===k&&(S.lb.mb.s>S.lb.ms||(force&&S.lb.ms>0))){const v=Math.max(S.lb.mb.s,S.lb.ms);S.lb.ms=await submitSafe(on,k,v);save();rkCache={}}}catch(e){ok=false}
     // desafio diário que não chegou a ser enviado (sem internet, erro...)
-    try{if(typeof dayKey==='function'&&S.dly&&S.dly.k===dayKey()&&S.dly.best>S.dly.sent){await on.submit(dayKey(),S.dly.best,S.lb.name,S.lb.cc);S.dly.sent=S.dly.best;save()}}catch(e){}
+    try{if(typeof dayKey==='function'&&S.dly&&S.dly.k===dayKey()&&S.dly.best>S.dly.sent){await on.submit(dayKey(),S.dly.best,S.lb.name,S.lb.cc);S.dly.sent=S.dly.best;save();rkCache={}}}catch(e){}
     // só limpa o "precisa reenviar" se o nome/país não mudou no meio do envio
     if(ok&&force&&S.lb.dirty&&nameAt===S.lb.name+'|'+S.lb.cc){S.lb.dirty=false;save()}
     return ok})().finally(()=>{lbBusy=null});
@@ -5299,7 +5299,12 @@ function rowHTML(r,pos,me){return `<div class="rrow${me?' me':''}${pos<=3?' p'+p
 function dedupeRows(rows,uid){const old=S.lb.uids||[];const auto=n=>/^(Jogador|Player|Jugador)\d{4}$/.test(n||'');
   const key=r=>auto(r.n)?'#'+r.id:String(r.n||'').toLowerCase()+'|'+r.c;const mineR=rows.find(r=>r.id===uid);
   const myK=mineR?key(mineR):S.lb.pg?(S.lb.name.toLowerCase()+'|'+S.lb.cc):'#'+uid;const seen=new Set();
-  return rows.filter(r=>{if(r.id===uid)return true;if(old.includes(r.id))return false;const k=key(r);if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
+  // se a entrada do ID atual não veio na lista, a SUA melhor entrada (mesmo nome/país do Play Games, ou um ID seu antigo) aparece como sua
+  // (antes ela era escondida como "duplicada" e o jogador não se via no ranking)
+  let meDone=!!mineR;
+  return rows.filter(r=>{if(r.id===uid){r.me=true;return true}const k=key(r);const mineOld=old.includes(r.id)||(k===myK&&!auto(r.n));
+    if(mineOld){if(meDone)return false;meDone=true;r.me=true;seen.add(k);return true}
+    if(k===myK)return false;if(seen.has(k))return false;seen.add(k);return true})}
 async function loadRank(){
   const L=$('rkList'),mine=$('rkMine'),note=$('rkNote');mine.hidden=true;note.textContent='';
   const on=OL();
@@ -5312,10 +5317,10 @@ async function loadRank(){
     let rows=c&&Date.now()-c.t<60000?c.rows:null;
     if(!rows){rows=await on.top(board,50);rkCache[board]={t:Date.now(),rows}}
     if(rkTab!==tabAt||$('rank').hidden)return;
-    const uid=on.uid();const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
+    const uid=(on.whoami?await on.whoami():on.uid());const myS=board==='all'?S.lb.all:rkTab==='day'?(S.dly.k===board?S.dly.sent:0):(S.lb.mk===board?S.lb.ms:0);
     rows=dedupeRows(rows,uid);
-    L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,r.id===uid)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
-    const idx=rows.findIndex(r=>r.id===uid);
+    L.innerHTML=rows.length?rows.map((r,k)=>rowHTML(r,k+1,!!r.me)).join(''):`<div class="rempty">${t(board==='all'?'rkNoScore':'rkEmpty')}</div>`;
+    const idx=rows.findIndex(r=>r.me);
     if(idx<0){
       if(myS>0){const pos=await on.rank(board,myS);if(rkTab!==tabAt)return;mine.innerHTML=rowHTML({n:S.lb.name,c:S.lb.cc,s:myS},pos,true);mine.hidden=false}
       else{mine.innerHTML=`<div class="rempty sm">${t('rkNoScore')}</div>`;mine.hidden=false}
@@ -5353,7 +5358,7 @@ $('pfSave').onclick=()=>{const changed=pfCC!==S.lb.cc;S.lb.cc=pfCC;S.lb.edited=t
 async function onlineBoot(){const on=OL();if(!on)return;
   try{const st=await on.serverNow();if(st){srvSkew=Date.now()-st;if(!$('mis').hidden)renderMis()}}catch(e){}
   // celular novo / reinstalado: o login anônimo muda, então reenvia os recordes na conta nova
-  const uid=on.uid();if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.uids=(S.lb.uids||[]).concat(S.lb.uid).slice(-10);S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
+  const uid=(on.whoami?await on.whoami().catch(()=>null):on.uid());if(uid&&S.lb.uid!==uid){if(S.lb.uid){S.lb.uids=(S.lb.uids||[]).concat(S.lb.uid).slice(-10);S.lb.all=0;S.lb.ms=0}S.lb.uid=uid;save()}
   await syncScores();
   // se a sua entrada foi apagada do ranking (ex.: limpeza), manda de novo o seu recorde
   try{if(S.lb.all>0&&!(await on.mine('all'))){S.lb.all=0;save()}

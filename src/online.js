@@ -49,6 +49,8 @@ const rowOf = (d) => ({ id: d.id, n: d.get('n'), c: d.get('c'), s: d.get('s') })
 window.Online = {
   configured,
   uid: () => (user ? user.uid : null),
+  // espera o login terminar (sem isso, logo ao abrir o ID podia vir vazio e o jogo não se reconhecia no ranking)
+  async whoami() { const u = await ensureUser(); return u.uid; },
   // grava o recorde do jogador num placar ('all' ou 'm_AAAA_MM')
   async submit(board, s, n, c) {
     const u = await ensureUser();
