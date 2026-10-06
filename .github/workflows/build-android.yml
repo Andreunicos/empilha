@@ -29,7 +29,7 @@ jobs:
 
       - name: Configurar anúncio premiado
         run: |
-          echo "window.EMPILHA_CONFIG = { version: \"1.2.${{ github.run_number }}\", rewardedId: \"${{ vars.ADMOB_REWARDED_ID || 'ca-app-pub-4670538085926791/6171940457' }}\" };" > www/config.js
+          echo "window.EMPILHA_CONFIG = { version: \"1.2.${{ github.run_number }}\", rewardedId: \"ca-app-pub-4670538085926791/8757180119\" };" > www/config.js
           cat www/config.js
 
       - name: Preparar projeto Android
@@ -48,7 +48,7 @@ jobs:
         working-directory: android
         env:
           VERSION_CODE: ${{ github.run_number }}
-          ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}
+          ADMOB_APP_ID: "ca-app-pub-4670538085926791~1641107420"
           KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -67,7 +67,7 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk out/bigstack-$V.apk
           cp out/bigstack-$V.apk out/bigstack.apk
           cp out/bigstack-$V.aab out/bigstack.aab
-          AD="${{ vars.ADMOB_APP_ID || 'ca-app-pub-4670538085926791~2800591524' }}"
+          AD="ca-app-pub-4670538085926791~1641107420"
           if [ -z "$AD" ]; then MODE="anúncios de TESTE"; else MODE="anúncios reais"; fi
           gh release create "v$V" out/* --title "Big Stack $V" --notes "Versão $V ($MODE).
           - bigstack-$V.aab: envie para o Google Play Console
