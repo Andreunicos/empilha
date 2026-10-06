@@ -5637,8 +5637,12 @@ function renderAlbum(g){g.classList.add('album');$('skCats').hidden=$('skHead').
 
 /* ---- LOJA DO DIA: 3 skins de moedas com desconto (troca todo dia) + pacote de poderes ---- */
 // (sorteio pelo dia de hoje no relógio do servidor: troca à meia-noite UTC mesmo com o jogo fechado; antes a conta estourava e saía sempre igual)
-function shopDay(){const dk=dayKey();const r=mulberry(seedOf('shop_'+dk));
-  const all=SKINS.filter(s=>s.cur==='coin'&&s.price>0&&!s.season),mine=all.filter(s=>!S.owned.includes(s.id));const pool=mine.length>=3?mine:all;const out=[];while(out.length<3&&pool.length){out.push(pool.splice(r()*pool.length|0,1)[0])}
+// as 3 skins sorteadas ficam guardadas até o dia virar: comprar uma NÃO troca a oferta (ela fica como "Adquirido")
+function shopDay(){const dk=dayKey();let out=null;
+  if(S.shopD&&S.shopD.k===dk){out=S.shopD.ids.map(id=>SKINS.find(s=>s.id===id)).filter(Boolean);if(out.length<3)out=null}
+  if(!out){const r=mulberry(seedOf('shop_'+dk));
+    const all=SKINS.filter(s=>s.cur==='coin'&&s.price>0&&!s.season),mine=all.filter(s=>!S.owned.includes(s.id));const pool=mine.length>=3?mine:all;out=[];while(out.length<3&&pool.length){out.push(pool.splice(r()*pool.length|0,1)[0])}
+    S.shopD={k:dk,ids:out.map(s=>s.id)};save()}
   return out.map((s,k)=>({s,off:k===0?.4:.2,price:Math.round(s.price*(k===0?.6:.8)/10)*10}))}
 const shopLeftH=()=>{const n=nowSrv(),next=(Math.floor(n/864e5)+1)*864e5;return Math.max(1,Math.ceil((next-n)/36e5))};
 const offersNew=()=>S.offSeen!==dayKey();
